@@ -82,7 +82,7 @@ async def fetch_matches(api: PinnacleAPI):
                     "league": league_name,
                     "start_time": event.get("starts"),
                 }
-    #print("[DEBUG] matches_data после обновления:", json.dumps(matches_data, indent=2, ensure_ascii=False))
+    print("[DEBUG] matches_data после обновления:", json.dumps(matches_data, indent=2, ensure_ascii=False))
 
 
 # Функция для обработки данных события
@@ -102,7 +102,10 @@ def process_match_data(event_data):
             start_time = None
 
         if start_time:
-            start_time = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
+            try:
+                start_time = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
+            except ValueError:
+                start_time = None
 
         outcomes = []
         for period in event_data.get("periods", []):
