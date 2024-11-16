@@ -82,7 +82,7 @@ async def fetch_matches(api: PinnacleAPI):
                     "league": league_name,
                     "start_time": event.get("starts"),
                 }
-    print("[DEBUG] matches_data после обновления:", json.dumps(matches_data, indent=2, ensure_ascii=False))
+    #print("[DEBUG] matches_data после обновления:", json.dumps(matches_data, indent=2, ensure_ascii=False))
 
 
 # Функция для обработки данных события
@@ -102,47 +102,55 @@ def process_match_data(event_data):
             start_time = None
 
         if start_time:
-            try:
-                start_time = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
-            except ValueError:
-                start_time = None
+            start_time = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
 
         outcomes = []
         for period in event_data.get("periods", []):
             if period.get("status") != 1:
                 continue
 
+            # Определяем период
+            period_name = "Матч"
+            if period.get("number") == 1:
+                period_name = "Первый тайм"
+            elif period.get("number") == 2:
+                period_name = "Второй тайм"
+
+            # Moneyline (победы)
             moneyline = period.get("moneyline", {})
             if moneyline:
-                outcomes.append({"market": "Победа", "team": "Home", "odds": moneyline.get("home")})
-                outcomes.append({"market": "Победа", "team": "Draw", "odds": moneyline.get("draw")})
-                outcomes.append({"market": "Победа", "team": "Away", "odds": moneyline.get("away")})
+                outcomes.append({"market": f"Победа ({period_name})", "team": "Home", "odds": moneyline.get("home")})
+                outcomes.append({"market": f"Победа ({period_name})", "team": "Draw", "odds": moneyline.get("draw")})
+                outcomes.append({"market": f"Победа ({period_name})", "team": "Away", "odds": moneyline.get("away")})
 
+            # Тоталы
             totals = period.get("totals", [])
             for total in totals:
                 outcomes.append({
-                    "market": "Общий тотал",
+                    "market": f"Общий тотал ({period_name})",
                     "line": total.get("points"),
                     "over_odds": total.get("over"),
                     "under_odds": total.get("under"),
                 })
 
+            # Гандикапы
             spreads = period.get("spreads", [])
             for spread in spreads:
                 outcomes.append({
-                    "market": "Гандикап",
+                    "market": f"Гандикап ({period_name})",
                     "line": spread.get("hdp"),
                     "home_odds": spread.get("home"),
                     "away_odds": spread.get("away"),
                 })
 
+            # Индивидуальные тоталы
             team_totals = period.get("teamTotal", {})
             for team, total in team_totals.items():
                 if not total:
                     continue
                 team_name = "Home" if team == "home" else "Away"
                 outcomes.append({
-                    "market": "Индивидуальный тотал",
+                    "market": f"Индивидуальный тотал ({period_name})",
                     "team": team_name,
                     "line": total.get("points"),
                     "over_odds": total.get("over"),
@@ -158,7 +166,7 @@ def process_match_data(event_data):
             "away_team": away_team,
             "outcomes": outcomes,
         }
-        print("[DEBUG] Обработанные данные события:", json.dumps(processed_event, indent=2, ensure_ascii=False))
+        #print("[DEBUG] Обработанные данные события:", json.dumps(processed_event, indent=2, ensure_ascii=False))
         return processed_event
     except Exception as e:
         print(f"[ERROR] Ошибка в process_match_data: {e}")
