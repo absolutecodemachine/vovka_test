@@ -15,18 +15,16 @@
         const ws = new WebSocket("ws://localhost:7300/output");
 
         ws.onmessage = function(event) {
-            const data = event.data.trim();
+            console.log("Получено сообщение от сервера:", event.data); // Логируем исходное сообщение
+
             const matchesDiv = document.getElementById("matches");
 
-            // Определяем источник по содержанию сообщения
-            if (data.startsWith("Sansabet:")) {
-                addSection(matchesDiv, "СансаБет", data.replace("Sansabet:", "").trim());
-            } else if (data.startsWith("Pinnacle:")) {
-                addSection(matchesDiv, "Пиннакл", data.replace("Pinnacle:", "").trim());
-            } else {
-                addSection(matchesDiv, "Неизвестный источник", data);
-            }
+            // Просто добавляем строку в интерфейс
+            const matchElement = document.createElement("p");
+            matchElement.innerText = event.data; // Пишем строку напрямую
+            matchesDiv.appendChild(matchElement);
         };
+
 
         function addSection(container, title, match) {
             // Проверяем, есть ли уже заголовок

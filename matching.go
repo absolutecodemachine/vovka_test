@@ -16,7 +16,6 @@ type MatchData struct {
     Source    string `json:"Source"`
     MatchId   string `json:"MatchId"`
     MatchName string `json:"MatchName"`
-    Pid       int64  `json:"Pid"` // Новое поле
 }
 
 type MatchPair struct {
@@ -147,7 +146,7 @@ func findPairs(matches1, matches2 []MatchData) []MatchPair {
             log.Printf("[Matching] Результат сравнения: '%s' ↔ '%s', Score: %d", match1.MatchName, match2.MatchName, score)
 
             // Если схожесть больше 65
-            if score >= 65 {
+            if score >= 15 {
                 pairKey := match1.MatchId + "_" + match2.MatchId
                 log.Printf("[Matching] Генерация ключа пары: %s", pairKey)
 

@@ -234,7 +234,7 @@ func ParseOneGame(nGameKey int64, nGame OneGame) {
     nOneGame.LeagueName = mapHInterface["LigaNaziv"].(string)
     nOneGame.Slid = InterfaceToInt64(mapHInterface["SLID"])
     nOneGame.MatchName = mapHInterface["ParNaziv"].(string)
-    nOneGame.MatchId = "0"
+    nOneGame.MatchId = strconv.FormatInt(nOneGame.Pid, 10)
     nOneGame.LeagueId = "0"
 
     ListGamesMux.Lock()
@@ -546,10 +546,15 @@ func ParseEvents() {
 
         ListGamesMux.Lock()
         if _, ok := ListGames[nPid]; !ok {
-            // Добавляем все футбольные матчи
-            ListGames[nPid] = OneGame{Pid: nPid, Slid: 0}
+            // Добавляем все футбольные матчи с указанием MatchId = Pid
+            ListGames[nPid] = OneGame{
+                Pid:     nPid,
+                Slid:    0,
+                MatchId: strconv.FormatInt(nPid, 10), // Присваиваем MatchId равным Pid
+            }
         }
         ListGamesMux.Unlock()
+
     }
     DebugLog(fmt.Sprintf("Получение данных о всех матчах закончено. Новый ключ полуения: %d Сейчас в обработке: %d", SlidAll, len(ListGames)))
 }
