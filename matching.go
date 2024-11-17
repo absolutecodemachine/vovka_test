@@ -3,10 +3,12 @@ package main
 import (
     "encoding/json"
     "log"
+    "strings"
     "sync"
     "time"
 
     "github.com/gorilla/websocket"
+    "github.com/texttheater/golang-levenshtein/levenshtein"
 )
 
 // Тип данных, ожидаемых от парсеров
@@ -35,8 +37,8 @@ var analyzerMutex = sync.Mutex{}
 func startMatching() {
     log.Println("[Matching] Мэтчинг запущен")
     go connectToAnalyzer()
-    go connectParser("ws://localhost:7100", "Sansabet", &matchesFromParser1)
-    go connectParser("ws://localhost:7200", "Pinnacle", &matchesFromParser2)
+    go connectParser("ws://localhost:7100", "Pinnacle", &matchesFromParser2)
+    go connectParser("ws://localhost:7200", "Sansabet", &matchesFromParser1)
     go processMatches()
 }
 
@@ -85,6 +87,11 @@ func connectParser(url, source string, matchList *[]MatchData) {
                 continue
             }
 
+            if source == "Pinnacle" && strings.Contains(strings.ToLower(game.MatchName), "(corners)") {
+                log.Printf("[Matching] Пропуск матча с '(corners)': %s", game.MatchName)
+                continue
+            }
+
             log.Printf("[Matching] Получен матч от %s: %s", source, game.MatchName)
 
             // Добавляем матч в список с указанием источника
@@ -98,42 +105,74 @@ func connectParser(url, source string, matchList *[]MatchData) {
     }
 }
 
+// Функция расчёта процента схожести
+func similarity(str1, str2 string) float64 {
+    distance := levenshtein.DistanceForStrings([]rune(str1), []rune(str2), levenshtein.DefaultOptions)
+    maxLen := float64(len(str1))
+    if len(str2) > len(str1) {
+        maxLen = float64(len(str2))
+    }
+    return (1 - float64(distance)/maxLen) * 100
+}
+
 // Обработка и отправка матчей в анализатор
 func processMatches() {
     for {
-        time.Sleep(1 * time.Second) // Пауза для упорядоченной отправки данных
+        time.Sleep(1 * time.Second) // Пауза для упорядоченной обработки
 
-        // Сначала отправляем матчи от первого парсера
         matchesMutex.Lock()
-        if len(matchesFromParser1) > 0 {
-            for _, match := range matchesFromParser1 {
-                forwardToAnalyzer(match.Source, match.MatchName)
-            }
-            matchesFromParser1 = nil // Очищаем список после отправки
-        }
-        matchesMutex.Unlock()
+        if len(matchesFromParser1) > 0 && len(matchesFromParser2) > 0 {
+            // Ищем пары
+            pairs := findPairs(matchesFromParser1, matchesFromParser2)
 
-        // Затем отправляем матчи от второго парсера
-        matchesMutex.Lock()
-        if len(matchesFromParser2) > 0 {
-            for _, match := range matchesFromParser2 {
-                forwardToAnalyzer(match.Source, match.MatchName)
+            // Логируем и отправляем пары
+            for _, pair := range pairs {
+                forwardToAnalyzer(pair.MatchName)
             }
-            matchesFromParser2 = nil // Очищаем список после отправки
         }
         matchesMutex.Unlock()
     }
 }
 
+// Поиск пар через Левенштейна
+func findPairs(matches1, matches2 []MatchData) []MatchData {
+    var pairs []MatchData
+    uniquePairs := make(map[string]bool) // Для хранения уникальных пар
+
+    for _, match1 := range matches1 {
+        for _, match2 := range matches2 {
+            // Проверяем, что матчи из разных источников
+            if match1.Source == match2.Source {
+                continue
+            }
+
+            // Рассчитываем схожесть по Левенштейну
+            similarityScore := similarity(match1.MatchName, match2.MatchName)
+            if similarityScore >= 65 {
+                pairKey := match1.MatchName + " ↔ " + match2.MatchName
+                if !uniquePairs[pairKey] {
+                    uniquePairs[pairKey] = true
+                    log.Printf("[Matching] Найдена пара: %s (Схожесть: %.2f%%)", pairKey, similarityScore)
+
+                    // Добавляем пару в список для анализа
+                    pairs = append(pairs, MatchData{
+                        MatchName: pairKey,
+                    })
+                }
+            }
+        }
+    }
+    return pairs
+}
+
 // Пересылка данных в анализатор
-func forwardToAnalyzer(source, matchName string) {
+func forwardToAnalyzer(matchName string) {
     analyzerMutex.Lock()
     defer analyzerMutex.Unlock()
 
     if analyzerConnection != nil {
-        message := source + ": " + matchName
-        log.Printf("[Matching] Отправка в анализатор: %s", message)
-        if err := analyzerConnection.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
+        log.Printf("[Matching] Отправка в анализатор: %s", matchName)
+        if err := analyzerConnection.WriteMessage(websocket.TextMessage, []byte(matchName)); err != nil {
             log.Printf("[Matching] Ошибка отправки данных в анализатор: %v", err)
             analyzerConnection = nil
         }
