@@ -5,18 +5,44 @@
     <title>Результаты Анализатора</title>
 </head>
 <body>
-    <h1>Полученные данные</h1>
-    <div id="output"></div>
+    <h1>Матчи</h1>
+
+    <div id="matches">
+        <!-- Здесь будут отображаться матчи -->
+    </div>
 
     <script>
         const ws = new WebSocket("ws://localhost:7300/output");
 
         ws.onmessage = function(event) {
-            const outputDiv = document.getElementById("output");
-            const message = document.createElement("p");
-            message.innerText = event.data; // Выводим каждое сообщение как текст
-            outputDiv.appendChild(message);
+            const data = event.data.trim();
+            const matchesDiv = document.getElementById("matches");
+
+            // Определяем источник по содержанию сообщения
+            if (data.startsWith("Sansabet:")) {
+                addSection(matchesDiv, "СансаБет", data.replace("Sansabet:", "").trim());
+            } else if (data.startsWith("Pinnacle:")) {
+                addSection(matchesDiv, "Пиннакл", data.replace("Pinnacle:", "").trim());
+            } else {
+                addSection(matchesDiv, "Неизвестный источник", data);
+            }
         };
+
+        function addSection(container, title, match) {
+            // Проверяем, есть ли уже заголовок
+            let section = document.querySelector(`h2[data-source="${title}"]`);
+            if (!section) {
+                const header = document.createElement("h2");
+                header.setAttribute("data-source", title);
+                header.innerText = title;
+                container.appendChild(header);
+            }
+
+            // Добавляем матч
+            const matchElement = document.createElement("p");
+            matchElement.innerText = match;
+            container.appendChild(matchElement);
+        }
 
         ws.onopen = function() {
             console.log("Подключено к серверу.");
