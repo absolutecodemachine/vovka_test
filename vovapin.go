@@ -1,509 +1,537 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"strings"
-	"sync"
-	"time"
+    "encoding/json"
+    "fmt"
+    "io/ioutil"
+    "log"
+    "net/http"
+    "net/url"
+    "sync"
+    "time"
+
+    "github.com/gorilla/websocket"
 )
 
-// Configuration constants
+// Константы конфигурации
 const (
-	PINNACLE_API_URL  = "https://api.pinnacle.com/"
-	PINNACLE_USERNAME = "AG1677099"
-	PINNACLE_PASSWORD = "5421123A"
-	SPORT_ID          = 29
-	LIVE_MODE         = 1
-	ODDS_FORMAT       = "Decimal"
-	REQUEST_TIMEOUT   = 5 * time.Second
-	PROXY             = "http://AllivanService:PinnacleProxy@154.7.188.227:5242"
+    PINNACLE_API_URL  = "https://api.pinnacle.com/"
+    PINNACLE_USERNAME = "AG1677099"  // Замените на ваш логин Pinnacle
+    PINNACLE_PASSWORD = "5421123A"   // Замените на ваш пароль Pinnacle
+    SPORT_ID          = 29
+    LIVE_MODE         = 1
+    ODDS_FORMAT       = "Decimal"
+    REQUEST_TIMEOUT   = 5 * time.Second
+    PROXY             = "http://AllivanService:PinnacleProxy@154.7.188.227:5242" // Замените на ваш прокси, если используете
 )
 
-// Global data storage for matches
+// Глобальное хранилище данных матчей
 var (
-	matchesData      = make(map[int]MatchData)
-	matchesDataMutex sync.RWMutex
+    matchesData      = make(map[int64]MatchData)
+    matchesDataMutex sync.RWMutex
 )
 
-// MatchData stores match information
+// Структуры данных
+type OneGame struct {
+    Name             string                 `json:"Name"`
+    Pid              int64                  `json:"Pid"`
+    Slid             int64                  `json:"Slid"`
+    LeagueName       string                 `json:"LeagueName"`
+    MatchName        string                 `json:"MatchName"`
+    MatchId          string                 `json:"MatchId"`
+    LeagueId         string                 `json:"LeagueId"`
+    Win1x2           Win1x2Struct           `json:"Win1x2"`
+    Totals           map[string]WinLessMore `json:"Totals"`
+    Handicap         map[string]WinHandicap `json:"Handicap"`
+    FirstTeamTotals  map[string]WinLessMore `json:"FirstTeamTotals"`
+    SecondTeamTotals map[string]WinLessMore `json:"SecondTeamTotals"`
+}
+
+type WinLessMore struct {
+    WinMore float64 `json:"WinMore"`
+    WinLess float64 `json:"WinLess"`
+}
+
+type WinHandicap struct {
+    Win1O    float64 `json:"Win1O"`
+    WinNoneO float64 `json:"WinNoneO"`
+    Win2O    float64 `json:"Win2O"`
+    Win1     float64 `json:"Win1"`
+    WinNone  float64 `json:"WinNone"`
+    Win2     float64 `json:"Win2"`
+}
+
+type Win1x2Struct struct {
+    Win1    float64 `json:"Win1"`
+    WinNone float64 `json:"WinNone"`
+    Win2    float64 `json:"Win2"`
+}
+
 type MatchData struct {
-	Home      string
-	Away      string
-	League    string
-	StartTime string
+    Home      string
+    Away      string
+    League    string
+    StartTime string
 }
 
-// PinnacleAPI for API interaction
+// PinnacleAPI для взаимодействия с API
 type PinnacleAPI struct {
-	Username string
-	Password string
-	Client   *http.Client
+    Username string
+    Password string
+    Client   *http.Client
 }
 
-// NewPinnacleAPI initializes a new PinnacleAPI instance
+// Функция для создания нового экземпляра PinnacleAPI
 func NewPinnacleAPI(username, password, proxy string) *PinnacleAPI {
-	transport := &http.Transport{}
+    transport := &http.Transport{}
 
-	if proxy != "" {
-		proxyURL, err := url.Parse(proxy)
-		if err != nil {
-			fmt.Printf("[ERROR] Invalid proxy URL: %v\n", err)
-		} else {
-			transport.Proxy = http.ProxyURL(proxyURL)
-		}
-	}
+    if proxy != "" {
+        proxyURL, err := url.Parse(proxy)
+        if err != nil {
+            fmt.Printf("[ERROR] Invalid proxy URL: %v\n", err)
+        } else {
+            transport.Proxy = http.ProxyURL(proxyURL)
+        }
+    }
 
-	client := &http.Client{
-		Transport: transport,
-		Timeout:   REQUEST_TIMEOUT,
-	}
+    client := &http.Client{
+        Transport: transport,
+        Timeout:   REQUEST_TIMEOUT,
+    }
 
-	return &PinnacleAPI{
-		Username: username,
-		Password: password,
-		Client:   client,
-	}
+    return &PinnacleAPI{
+        Username: username,
+        Password: password,
+        Client:   client,
+    }
 }
 
-// buildURL constructs the API endpoint URL with parameters
+// Функция для построения URL с параметрами
 func (api *PinnacleAPI) buildURL(endpoint string, params map[string]string) string {
-	u, err := url.Parse(PINNACLE_API_URL + endpoint)
-	if err != nil {
-		fmt.Printf("[ERROR] Error parsing URL: %v\n", err)
-		return ""
-	}
+    u, err := url.Parse(PINNACLE_API_URL + endpoint)
+    if err != nil {
+        fmt.Printf("[ERROR] Error parsing URL: %v\n", err)
+        return ""
+    }
 
-	query := u.Query()
-	for k, v := range params {
-		if v != "" {
-			query.Set(k, v)
-		}
-	}
-	u.RawQuery = query.Encode()
-	return u.String()
+    query := u.Query()
+    for k, v := range params {
+        if v != "" {
+            query.Set(k, v)
+        }
+    }
+    u.RawQuery = query.Encode()
+    return u.String()
 }
 
-// query makes an HTTP GET request to the specified URL
+// Функция для выполнения GET-запроса к API
 func (api *PinnacleAPI) query(urlStr string) (map[string]interface{}, error) {
-	req, err := http.NewRequest("GET", urlStr, nil)
-	if err != nil {
-		return nil, err
-	}
+    req, err := http.NewRequest("GET", urlStr, nil)
+    if err != nil {
+        return nil, err
+    }
 
-	req.SetBasicAuth(api.Username, api.Password)
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Content-Type", "application/json")
+    req.SetBasicAuth(api.Username, api.Password)
+    req.Header.Set("Accept", "application/json")
+    req.Header.Set("Content-Type", "application/json")
 
-	resp, err := api.Client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
+    resp, err := api.Client.Do(req)
+    if err != nil {
+        return nil, err
+    }
+    defer resp.Body.Close()
 
-	fmt.Printf("[LOG] Request to URL: %s\n", urlStr)
-	fmt.Printf("[LOG] Response status: %d\n", resp.StatusCode)
+    fmt.Printf("[LOG] Request to URL: %s\n", urlStr)
+    fmt.Printf("[LOG] Response status: %d\n", resp.StatusCode)
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
+    body, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        return nil, err
+    }
 
-	var result map[string]interface{}
-	if err := json.Unmarshal(body, &result); err != nil {
-		return nil, err
-	}
+    var result map[string]interface{}
+    if err := json.Unmarshal(body, &result); err != nil {
+        return nil, err
+    }
 
-	return result, nil
+    return result, nil
 }
 
-// fetchMatches updates the global matchesData with live match information
+// Функция для обновления глобального хранилища данных матчей
 func fetchMatches(api *PinnacleAPI) error {
-	params := map[string]string{
-		"sportId": fmt.Sprintf("%d", SPORT_ID),
-		"isLive":  fmt.Sprintf("%d", LIVE_MODE),
-	}
+    params := map[string]string{
+        "sportId": fmt.Sprintf("%d", SPORT_ID),
+        "isLive":  fmt.Sprintf("%d", LIVE_MODE),
+    }
 
-	urlStr := api.buildURL("v1/fixtures", params)
-	data, err := api.query(urlStr)
-	if err != nil {
-		fmt.Printf("[ERROR] Error fetching matches: %v\n", err)
-		return err
-	}
+    urlStr := api.buildURL("v1/fixtures", params)
+    data, err := api.query(urlStr)
+    if err != nil {
+        fmt.Printf("[ERROR] Error fetching matches: %v\n", err)
+        return err
+    }
 
-	leagues, ok := data["league"].([]interface{})
-	if !ok {
-		fmt.Println("[ERROR] Failed to load match data.")
-		return fmt.Errorf("missing 'league' key in response")
-	}
+    leagues, ok := data["league"].([]interface{})
+    if !ok {
+        fmt.Println("[ERROR] Failed to load match data.")
+        return fmt.Errorf("missing 'league' key in response")
+    }
 
-	matchesDataMutex.Lock()
-	defer matchesDataMutex.Unlock()
-	matchesData = make(map[int]MatchData)
+    matchesDataMutex.Lock()
+    defer matchesDataMutex.Unlock()
+    matchesData = make(map[int64]MatchData)
 
-	for _, leagueInterface := range leagues {
-		leagueMap, ok := leagueInterface.(map[string]interface{})
-		if !ok {
-			continue
-		}
-		leagueName, _ := leagueMap["name"].(string)
-		if leagueName == "" {
-			leagueName = "Неизвестная лига"
-		}
+    for _, leagueInterface := range leagues {
+        leagueMap, ok := leagueInterface.(map[string]interface{})
+        if !ok {
+            continue
+        }
+        leagueName, _ := leagueMap["name"].(string)
+        if leagueName == "" {
+            leagueName = "Неизвестная лига"
+        }
 
-		events, ok := leagueMap["events"].([]interface{})
-		if !ok {
-			continue
-		}
+        events, ok := leagueMap["events"].([]interface{})
+        if !ok {
+            continue
+        }
 
-		for _, eventInterface := range events {
-			eventMap, ok := eventInterface.(map[string]interface{})
-			if !ok {
-				continue
-			}
+        for _, eventInterface := range events {
+            eventMap, ok := eventInterface.(map[string]interface{})
+            if !ok {
+                continue
+            }
 
-			liveStatus, _ := eventMap["liveStatus"].(float64)
-			if int(liveStatus) == 1 {
-				eventIDFloat, _ := eventMap["id"].(float64)
-				eventID := int(eventIDFloat)
-				homeTeam, _ := eventMap["home"].(string)
-				if homeTeam == "" {
-					homeTeam = "Неизвестная команда"
-				}
-				awayTeam, _ := eventMap["away"].(string)
-				if awayTeam == "" {
-					awayTeam = "Неизвестная команда"
-				}
-				startTime, _ := eventMap["starts"].(string)
+            liveStatus, _ := eventMap["liveStatus"].(float64)
+            if int(liveStatus) == 1 {
+                eventIDFloat, _ := eventMap["id"].(float64)
+                eventID := int64(eventIDFloat)
+                homeTeam, _ := eventMap["home"].(string)
+                if homeTeam == "" {
+                    homeTeam = "Неизвестная команда"
+                }
+                awayTeam, _ := eventMap["away"].(string)
+                if awayTeam == "" {
+                    awayTeam = "Неизвестная команда"
+                }
 
-				matchesData[eventID] = MatchData{
-					Home:      homeTeam,
-					Away:      awayTeam,
-					League:    leagueName,
-					StartTime: startTime,
-				}
-			}
-		}
-	}
+                matchesData[eventID] = MatchData{
+                    Home:      homeTeam,
+                    Away:      awayTeam,
+                    League:    leagueName,
+                    StartTime: "", // Если не используете startTime, оставьте пустым
+                }
+            }
+        }
+    }
 
-	return nil
+    return nil
 }
 
-// Outcome represents a betting outcome
-type Outcome interface {
-	String() string
+// Функция для обработки данных события и формирования структуры OneGame
+func processMatchData(eventData map[string]interface{}) (*OneGame, error) {
+    defer func() {
+        if r := recover(); r != nil {
+            fmt.Printf("[ERROR] Panic in processMatchData: %v\n", r)
+            fmt.Printf("Event data: %v\n", eventData)
+        }
+    }()
+
+    eventIDFloat, ok := eventData["id"].(float64)
+    if !ok {
+        return nil, fmt.Errorf("event ID not found")
+    }
+    eventID := int64(eventIDFloat)
+
+    matchesDataMutex.RLock()
+    matchData, exists := matchesData[eventID]
+    matchesDataMutex.RUnlock()
+
+    var homeTeam, awayTeam, leagueName string
+
+    if exists {
+        homeTeam = matchData.Home
+        awayTeam = matchData.Away
+        leagueName = matchData.League
+    } else {
+        fmt.Printf("[WARNING] Event %d not found in matchesData.\n", eventID)
+        homeTeam = "Неизвестная команда"
+        awayTeam = "Неизвестная команда"
+        leagueName = "Неизвестная лига"
+    }
+
+    nOneGame := OneGame{
+        Name:       fmt.Sprintf("%s vs %s", homeTeam, awayTeam),
+        Pid:        eventID,
+        Slid:       0, // Pinnacle не предоставляет SLID
+        LeagueName: leagueName,
+        MatchName:  fmt.Sprintf("%s vs %s", homeTeam, awayTeam),
+        MatchId:    fmt.Sprintf("%d", eventID),
+        LeagueId:   "0", // Если есть идентификатор лиги, используйте его
+    }
+
+    Win1x2 := Win1x2Struct{}
+    Totals := make(map[string]WinLessMore)
+    Handicap := make(map[string]WinHandicap)
+    FirstTeamTotals := make(map[string]WinLessMore)
+    SecondTeamTotals := make(map[string]WinLessMore)
+
+    periods, _ := eventData["periods"].([]interface{})
+    for _, periodInterface := range periods {
+        periodMap, ok := periodInterface.(map[string]interface{})
+        if !ok {
+            continue
+        }
+
+        statusFloat, _ := periodMap["status"].(float64)
+        if int(statusFloat) != 1 {
+            continue
+        }
+
+        // Moneyline (Win1x2)
+        if moneyline, ok := periodMap["moneyline"].(map[string]interface{}); ok {
+            if odds, exists := moneyline["home"]; exists {
+                homeOdds, _ := odds.(float64)
+                Win1x2.Win1 = homeOdds
+            }
+            if odds, exists := moneyline["draw"]; exists {
+                drawOdds, _ := odds.(float64)
+                Win1x2.WinNone = drawOdds
+            }
+            if odds, exists := moneyline["away"]; exists {
+                awayOdds, _ := odds.(float64)
+                Win1x2.Win2 = awayOdds
+            }
+        }
+
+        // Totals
+        if totals, ok := periodMap["totals"].([]interface{}); ok {
+            for _, totalInterface := range totals {
+                totalMap, ok := totalInterface.(map[string]interface{})
+                if !ok {
+                    continue
+                }
+
+                points, _ := totalMap["points"].(float64)
+                overOdds, _ := totalMap["over"].(float64)
+                underOdds, _ := totalMap["under"].(float64)
+                detailBet := fmt.Sprintf("%.2f", points)
+                Totals[detailBet] = WinLessMore{
+                    WinMore: overOdds,
+                    WinLess: underOdds,
+                }
+            }
+        }
+
+        // Spreads (Handicap)
+        if spreads, ok := periodMap["spreads"].([]interface{}); ok {
+            for _, spreadInterface := range spreads {
+                spreadMap, ok := spreadInterface.(map[string]interface{})
+                if !ok {
+                    continue
+                }
+
+                hdp, _ := spreadMap["hdp"].(float64)
+                homeOdds, _ := spreadMap["home"].(float64)
+                awayOdds, _ := spreadMap["away"].(float64)
+                detailBet := fmt.Sprintf("%.2f", hdp)
+
+                Handicap[detailBet] = WinHandicap{
+                    Win1:    homeOdds,
+                    Win2:    awayOdds,
+                    Win1O:   0, // Pinnacle не предоставляет отдельные значения для Win1O и Win1
+                    Win2O:   0,
+                    WinNone: 0,
+                }
+            }
+        }
+
+        // Team Totals
+        if teamTotal, ok := periodMap["teamTotal"].(map[string]interface{}); ok {
+            for teamKey, totalInterface := range teamTotal {
+                totalMap, ok := totalInterface.(map[string]interface{})
+                if !ok {
+                    continue
+                }
+
+                points, _ := totalMap["points"].(float64)
+                overOdds, _ := totalMap["over"].(float64)
+                underOdds, _ := totalMap["under"].(float64)
+                detailBet := fmt.Sprintf("%.2f", points)
+
+                if teamKey == "home" {
+                    FirstTeamTotals[detailBet] = WinLessMore{
+                        WinMore: overOdds,
+                        WinLess: underOdds,
+                    }
+                } else if teamKey == "away" {
+                    SecondTeamTotals[detailBet] = WinLessMore{
+                        WinMore: overOdds,
+                        WinLess: underOdds,
+                    }
+                }
+            }
+        }
+    }
+
+    // Присваиваем собранные данные
+    nOneGame.Win1x2 = Win1x2
+    nOneGame.Totals = Totals
+    nOneGame.Handicap = Handicap
+    nOneGame.FirstTeamTotals = FirstTeamTotals
+    nOneGame.SecondTeamTotals = SecondTeamTotals
+
+    return &nOneGame, nil
 }
 
-// MoneylineOutcome represents a moneyline outcome
-type MoneylineOutcome struct {
-	Market string
-	Team   string
-	Odds   float64
+// Функция для получения текущих коэффициентов и отправки данных через WebSocket
+func getLiveOdds(api *PinnacleAPI, serverInstance *Server) error {
+    params := map[string]string{
+        "sportId":    fmt.Sprintf("%d", SPORT_ID),
+        "isLive":     fmt.Sprintf("%d", LIVE_MODE),
+        "oddsFormat": ODDS_FORMAT,
+    }
+
+    urlStr := api.buildURL("v1/odds", params)
+    data, err := api.query(urlStr)
+    if err != nil {
+        fmt.Printf("[ERROR] API response is empty or contains an error: %v\n", err)
+        return err
+    }
+
+    fmt.Println("[LOG] API response successfully received.")
+
+    leagues, ok := data["leagues"].([]interface{})
+    if !ok {
+        fmt.Println("[ERROR] Key 'leagues' is missing in response.")
+        fmt.Printf("Response: %v\n", data)
+        return fmt.Errorf("missing 'leagues' key in response")
+    }
+
+    for _, leagueInterface := range leagues {
+        leagueMap, ok := leagueInterface.(map[string]interface{})
+        if !ok {
+            continue
+        }
+
+        events, ok := leagueMap["events"].([]interface{})
+        if !ok {
+            fmt.Printf("[WARNING] В лиге отсутствуют события.\n")
+            continue
+        }
+
+        for _, eventInterface := range events {
+            eventMap, ok := eventInterface.(map[string]interface{})
+            if !ok {
+                continue
+            }
+
+            nOneGame, err := processMatchData(eventMap)
+            if err != nil {
+                fmt.Printf("[WARNING] Не удалось обработать событие: %v\n", err)
+                continue
+            }
+
+            // Преобразуем nOneGame в JSON
+            jsonResult, err := json.MarshalIndent(nOneGame, "", "    ")
+            if err != nil {
+                fmt.Printf("[ERROR] Не удалось преобразовать данные в JSON: %v\n", err)
+                continue
+            }
+
+            // Отправляем данные через WebSocket
+            serverInstance.WriteMessage(jsonResult)
+
+            // Выводим данные в консоль
+            fmt.Println(string(jsonResult))
+        }
+    }
+
+    return nil
 }
 
-func (o MoneylineOutcome) String() string {
-	return fmt.Sprintf("%s - %s: %.2f", o.Market, o.Team, o.Odds)
+// Реализация WebSocket-сервера
+var upgrader = websocket.Upgrader{
+    CheckOrigin: func(r *http.Request) bool {
+        return true // Разрешаем все запросы
+    },
 }
 
-// TotalOutcome represents a total points outcome
-type TotalOutcome struct {
-	Market    string
-	Line      float64
-	OverOdds  float64
-	UnderOdds float64
+type Server struct {
+    clients       map[*websocket.Conn]bool
+    handleMessage func(message []byte)
 }
 
-func (o TotalOutcome) String() string {
-	return fmt.Sprintf("%s - Over %.2f: %.2f, Under %.2f: %.2f", o.Market, o.Line, o.OverOdds, o.Line, o.UnderOdds)
+var serverInstance *Server
+
+// Функция для инициализации сервера
+func StartServer(handleMessage func(message []byte)) *Server {
+    server := &Server{
+        clients:       make(map[*websocket.Conn]bool),
+        handleMessage: handleMessage,
+    }
+
+    http.HandleFunc("/", server.echo)
+    go http.ListenAndServe(":7100", nil) // Запускаем сервер в горутине
+
+    return server
 }
 
-// SpreadOutcome represents a spread outcome
-type SpreadOutcome struct {
-	Market    string
-	Line      float64
-	HomeOdds  float64
-	AwayOdds  float64
+// Обработка соединения WebSocket
+func (server *Server) echo(w http.ResponseWriter, r *http.Request) {
+    connection, err := upgrader.Upgrade(w, r, nil)
+    if err != nil {
+        log.Println("Ошибка обновления соединения:", err)
+        return
+    }
+    defer connection.Close()
+
+    server.clients[connection] = true
+    defer delete(server.clients, connection)
+
+    for {
+        mt, message, err := connection.ReadMessage()
+
+        if err != nil || mt == websocket.CloseMessage {
+            break
+        }
+
+        go server.handleMessage(message)
+    }
 }
 
-func (o SpreadOutcome) String() string {
-	return fmt.Sprintf("%s - Home %.2f: %.2f, Away %.2f: %.2f", o.Market, o.Line, o.HomeOdds, -o.Line, o.AwayOdds)
+// Функция для отправки сообщений всем подключенным клиентам
+func (server *Server) WriteMessage(message []byte) {
+    for conn := range server.clients {
+        err := conn.WriteMessage(websocket.TextMessage, message)
+        if err != nil {
+            log.Printf("Ошибка отправки сообщения: %v", err)
+            conn.Close()
+            delete(server.clients, conn)
+        }
+    }
 }
 
-// TeamTotalOutcome represents a team total outcome
-type TeamTotalOutcome struct {
-	Market    string
-	Team      string
-	Line      float64
-	OverOdds  float64
-	UnderOdds float64
+// Хандлер сообщений (можно настроить под ваши нужды)
+func messageHandler(message []byte) {
+    fmt.Println(string(message))
 }
 
-func (o TeamTotalOutcome) String() string {
-	return fmt.Sprintf("%s (%s) - Over %.2f: %.2f, Under %.2f: %.2f", o.Market, o.Team, o.Line, o.OverOdds, o.Line, o.UnderOdds)
-}
-
-// ProcessedEvent stores processed event data
-type ProcessedEvent struct {
-	EventID    int
-	MatchName  string
-	LeagueName string
-	StartTime  string
-	HomeTeam   string
-	AwayTeam   string
-	Outcomes   []Outcome
-}
-
-// processMatchData processes event data and extracts outcomes
-func processMatchData(eventData map[string]interface{}) (*ProcessedEvent, error) {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Printf("[ERROR] Panic in processMatchData: %v\n", r)
-			fmt.Printf("Event data: %v\n", eventData)
-		}
-	}()
-
-	eventIDFloat, ok := eventData["id"].(float64)
-	if !ok {
-		return nil, fmt.Errorf("event ID not found")
-	}
-	eventID := int(eventIDFloat)
-
-	matchesDataMutex.RLock()
-	matchData, exists := matchesData[eventID]
-	matchesDataMutex.RUnlock()
-
-	var homeTeam, awayTeam, leagueName, startTime string
-
-	if exists {
-		homeTeam = matchData.Home
-		awayTeam = matchData.Away
-		leagueName = matchData.League
-		startTime = matchData.StartTime
-	} else {
-		fmt.Printf("[WARNING] Event %d not found in matchesData.\n", eventID)
-		homeTeam = "Неизвестная команда"
-		awayTeam = "Неизвестная команда"
-		leagueName = "Неизвестная лига"
-		startTime = ""
-	}
-
-	outcomes := []Outcome{}
-
-	periods, _ := eventData["periods"].([]interface{})
-	for _, periodInterface := range periods {
-		periodMap, ok := periodInterface.(map[string]interface{})
-		if !ok {
-			continue
-		}
-
-		statusFloat, _ := periodMap["status"].(float64)
-		if int(statusFloat) != 1 {
-			continue
-		}
-
-		periodNumberFloat, _ := periodMap["number"].(float64)
-		periodNumber := int(periodNumberFloat)
-
-		periodName := "Матч"
-		if periodNumber == 1 {
-			periodName = "Первый тайм"
-		} else if periodNumber == 2 {
-			periodName = "Второй тайм"
-		}
-
-		// Moneyline
-		if moneyline, ok := periodMap["moneyline"].(map[string]interface{}); ok {
-			if odds, exists := moneyline["home"]; exists {
-				homeOdds, _ := odds.(float64)
-				outcomes = append(outcomes, MoneylineOutcome{
-					Market: fmt.Sprintf("Победа (%s)", periodName),
-					Team:   "Home",
-					Odds:   homeOdds,
-				})
-			}
-			if odds, exists := moneyline["draw"]; exists {
-				drawOdds, _ := odds.(float64)
-				outcomes = append(outcomes, MoneylineOutcome{
-					Market: fmt.Sprintf("Победа (%s)", periodName),
-					Team:   "Draw",
-					Odds:   drawOdds,
-				})
-			}
-			if odds, exists := moneyline["away"]; exists {
-				awayOdds, _ := odds.(float64)
-				outcomes = append(outcomes, MoneylineOutcome{
-					Market: fmt.Sprintf("Победа (%s)", periodName),
-					Team:   "Away",
-					Odds:   awayOdds,
-				})
-			}
-		}
-
-		// Totals
-		if totals, ok := periodMap["totals"].([]interface{}); ok {
-			for _, totalInterface := range totals {
-				totalMap, ok := totalInterface.(map[string]interface{})
-				if !ok {
-					continue
-				}
-
-				points, _ := totalMap["points"].(float64)
-				overOdds, _ := totalMap["over"].(float64)
-				underOdds, _ := totalMap["under"].(float64)
-
-				outcomes = append(outcomes, TotalOutcome{
-					Market:    fmt.Sprintf("Общий тотал (%s)", periodName),
-					Line:      points,
-					OverOdds:  overOdds,
-					UnderOdds: underOdds,
-				})
-			}
-		}
-
-		// Spreads
-		if spreads, ok := periodMap["spreads"].([]interface{}); ok {
-			for _, spreadInterface := range spreads {
-				spreadMap, ok := spreadInterface.(map[string]interface{})
-				if !ok {
-					continue
-				}
-
-				hdp, _ := spreadMap["hdp"].(float64)
-				homeOdds, _ := spreadMap["home"].(float64)
-				awayOdds, _ := spreadMap["away"].(float64)
-
-				outcomes = append(outcomes, SpreadOutcome{
-					Market:   fmt.Sprintf("Гандикап (%s)", periodName),
-					Line:     hdp,
-					HomeOdds: homeOdds,
-					AwayOdds: awayOdds,
-				})
-			}
-		}
-
-		// Team totals
-		if teamTotal, ok := periodMap["teamTotal"].(map[string]interface{}); ok {
-			for teamKey, totalInterface := range teamTotal {
-				totalMap, ok := totalInterface.(map[string]interface{})
-				if !ok {
-					continue
-				}
-
-				points, _ := totalMap["points"].(float64)
-				overOdds, _ := totalMap["over"].(float64)
-				underOdds, _ := totalMap["under"].(float64)
-
-				teamName := "Home"
-				if teamKey == "away" {
-					teamName = "Away"
-				}
-
-				outcomes = append(outcomes, TeamTotalOutcome{
-					Market:    fmt.Sprintf("Индивидуальный тотал (%s)", periodName),
-					Team:      teamName,
-					Line:      points,
-					OverOdds:  overOdds,
-					UnderOdds: underOdds,
-				})
-			}
-		}
-	}
-
-	processedEvent := &ProcessedEvent{
-		EventID:    eventID,
-		MatchName:  fmt.Sprintf("%s vs %s", homeTeam, awayTeam),
-		LeagueName: leagueName,
-		StartTime:  startTime,
-		HomeTeam:   homeTeam,
-		AwayTeam:   awayTeam,
-		Outcomes:   outcomes,
-	}
-
-	return processedEvent, nil
-}
-
-// getLiveOdds fetches live odds and processes each event
-func getLiveOdds(api *PinnacleAPI) error {
-	params := map[string]string{
-		"sportId":    fmt.Sprintf("%d", SPORT_ID),
-		"isLive":     fmt.Sprintf("%d", LIVE_MODE),
-		"oddsFormat": ODDS_FORMAT,
-	}
-
-	urlStr := api.buildURL("v1/odds", params)
-	data, err := api.query(urlStr)
-	if err != nil {
-		fmt.Printf("[ERROR] API response is empty or contains an error: %v\n", err)
-		return err
-	}
-
-	fmt.Println("[LOG] API response successfully received.")
-
-	leagues, ok := data["leagues"].([]interface{})
-	if !ok {
-		fmt.Println("[ERROR] Key 'leagues' is missing in response.")
-		fmt.Printf("Response: %v\n", data)
-		return fmt.Errorf("missing 'leagues' key in response")
-	}
-
-	for _, leagueInterface := range leagues {
-		leagueMap, ok := leagueInterface.(map[string]interface{})
-		if !ok {
-			continue
-		}
-
-		leagueName, _ := leagueMap["name"].(string)
-		if leagueName == "" {
-			leagueName = "Неизвестная лига"
-		}
-		fmt.Printf("Лига: %s\n", leagueName)
-
-		events, ok := leagueMap["events"].([]interface{})
-		if !ok {
-			fmt.Printf("[WARNING] В лиге '%s' отсутствуют события.\n", leagueName)
-			continue
-		}
-
-		for _, eventInterface := range events {
-			eventMap, ok := eventInterface.(map[string]interface{})
-			if !ok {
-				continue
-			}
-
-			processedEvent, err := processMatchData(eventMap)
-			if err != nil {
-				fmt.Printf("[WARNING] Не удалось обработать событие: %v\n", err)
-				continue
-			}
-
-			fmt.Printf("Матч: %s\n", processedEvent.MatchName)
-			fmt.Printf("Время начала: %s\n", processedEvent.StartTime)
-			for _, outcome := range processedEvent.Outcomes {
-				fmt.Println(outcome.String())
-			}
-			fmt.Println(strings.Repeat("-", 50))
-		}
-	}
-
-	return nil
-}
-
-// main function runs the program loop
+// Основная функция программы
 func main() {
-	api := NewPinnacleAPI(PINNACLE_USERNAME, PINNACLE_PASSWORD, PROXY)
+    api := NewPinnacleAPI(PINNACLE_USERNAME, PINNACLE_PASSWORD, PROXY)
 
-	for {
-		if err := fetchMatches(api); err != nil {
-			fmt.Printf("[ERROR] Error in main loop (fetchMatches): %v\n", err)
-		}
+    serverInstance = StartServer(messageHandler)
 
-		if err := getLiveOdds(api); err != nil {
-			fmt.Printf("[ERROR] Error in main loop (getLiveOdds): %v\n", err)
-		}
+    for {
+        if err := fetchMatches(api); err != nil {
+            fmt.Printf("[ERROR] Error in main loop (fetchMatches): %v\n", err)
+        }
 
-		time.Sleep(5 * time.Second)
-	}
+        if err := getLiveOdds(api, serverInstance); err != nil {
+            fmt.Printf("[ERROR] Error in main loop (getLiveOdds): %v\n", err)
+        }
+
+        time.Sleep(5 * time.Second)
+    }
 }
