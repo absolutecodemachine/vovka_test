@@ -207,6 +207,29 @@ func ParseOneGame(nGameKey int64, nGame OneGame) {
 
     mapCoreItemInterface := mapAllInterface[0].(map[string]interface{})
     mapHInterface := mapCoreItemInterface["H"].(map[string]interface{})
+    // Проверяем "LigaNaziv"
+    if ligaNaziv, ok := mapHInterface["LigaNaziv"].(string); ok {
+        nOneGame.LeagueName = ligaNaziv
+    } else {
+        DebugLog(fmt.Sprintf("Ошибка: LigaNaziv отсутствует или nil. Slid %d Pid %d", nGame.Slid, nGame.Pid))
+        return
+    }
+
+    // Проверяем "SLID"
+    if slid, ok := mapHInterface["SLID"]; ok {
+        nOneGame.Slid = InterfaceToInt64(slid)
+    } else {
+        DebugLog(fmt.Sprintf("Ошибка: SLID отсутствует или nil. Slid %d Pid %d", nGame.Slid, nGame.Pid))
+        return
+    }
+
+    // Проверяем "ParNaziv"
+    if parNaziv, ok := mapHInterface["ParNaziv"].(string); ok {
+        nOneGame.MatchName = parNaziv
+    } else {
+        DebugLog(fmt.Sprintf("Ошибка: ParNaziv отсутствует или nil. Slid %d Pid %d", nGame.Slid, nGame.Pid))
+        return
+    }
 
     nOneGame.LeagueName = mapHInterface["LigaNaziv"].(string)
     nOneGame.Slid = InterfaceToInt64(mapHInterface["SLID"])
