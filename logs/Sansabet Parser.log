@@ -1,0 +1,5668 @@
+Старт скрипта
+Закидываем в потоки парсеры конкретных матчей
+Начало получения данных о всех матчах
+Получение данных о всех матчах закончено. Новый ключ полуения: 106810 Сейчас в обработке: 62
+Закидываем в потоки парсеры конкретных матчей
+Начало анализа Slid: 0 Pid: 4359877
+Начало анализа Slid: 0 Pid: 4359865
+Начало анализа Slid: 0 Pid: 4359868
+Начало анализа Slid: 0 Pid: 4359815
+Начало анализа Slid: 0 Pid: 4359871
+Начало анализа Slid: 0 Pid: 4359812
+Начало анализа Slid: 0 Pid: 4359856
+Начало анализа Slid: 0 Pid: 4360721
+Начало анализа Slid: 0 Pid: 4354084
+Начало анализа Slid: 0 Pid: 4361230
+Начало анализа Slid: 0 Pid: 4361266
+Начало анализа Slid: 0 Pid: 4359554
+Начало анализа Slid: 0 Pid: 4361261
+Начало анализа Slid: 0 Pid: 4359876
+Начало анализа Slid: 0 Pid: 4357779
+Начало анализа Slid: 0 Pid: 4359863
+Начало анализа Slid: 0 Pid: 4353066
+Начало анализа Slid: 0 Pid: 4361283
+Начало анализа Slid: 0 Pid: 4359854
+Начало анализа Slid: 0 Pid: 4359928
+Начало анализа Slid: 0 Pid: 4359801
+Начало анализа Slid: 0 Pid: 4360367
+Начало анализа Slid: 0 Pid: 4361262
+Начало анализа Slid: 0 Pid: 4359867
+Начало анализа Slid: 0 Pid: 4359845
+Начало анализа Slid: 0 Pid: 4359858
+Начало анализа Slid: 0 Pid: 4359538
+Начало анализа Slid: 0 Pid: 4359853
+Начало анализа Slid: 0 Pid: 4359855
+Начало анализа Slid: 0 Pid: 4359557
+Начало анализа Slid: 0 Pid: 4359847
+Начало анализа Slid: 0 Pid: 4359539
+Начало анализа Slid: 0 Pid: 4359869
+Начало анализа Slid: 0 Pid: 4359811
+Начало анализа Slid: 0 Pid: 4359559
+Начало анализа Slid: 0 Pid: 4360712
+Начало анализа Slid: 0 Pid: 4360722
+Начало анализа Slid: 0 Pid: 4360713
+Начало анализа Slid: 0 Pid: 4359846
+Начало анализа Slid: 0 Pid: 4359844
+Начало анализа Slid: 0 Pid: 4359852
+Начало анализа Slid: 0 Pid: 4355567
+Начало анализа Slid: 0 Pid: 4359809
+Начало анализа Slid: 0 Pid: 4360711
+Начало анализа Slid: 0 Pid: 4359537
+Начало анализа Slid: 0 Pid: 4359927
+Начало анализа Slid: 0 Pid: 4359874
+Начало анализа Slid: 0 Pid: 4359864
+Начало анализа Slid: 0 Pid: 4359933
+Начало анализа Slid: 0 Pid: 4356946
+Начало анализа Slid: 0 Pid: 4359861
+Начало анализа Slid: 0 Pid: 4359848
+Начало анализа Slid: 0 Pid: 4360714
+Начало анализа Slid: 0 Pid: 4359818
+Начало анализа Slid: 0 Pid: 4361263
+Начало анализа Slid: 0 Pid: 4360996
+Начало анализа Slid: 0 Pid: 4359860
+Начало анализа Slid: 0 Pid: 4359870
+Начало анализа Slid: 0 Pid: 4360710
+Начало анализа Slid: 0 Pid: 4359849
+Начало анализа Slid: 0 Pid: 4359850
+Начало анализа Slid: 0 Pid: 4359810
+{
+    "Name": "",
+    "Pid": 4359865,
+    "Slid": 106795,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Forli : Sasso Marconi",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.68,
+        "WinNone": 3.15,
+        "Win2": 6.1
+    },
+    "Totals": {
+        "2.5": {
+            "WinMore": 1.09,
+            "WinLess": 5.6
+        },
+        "3.5": {
+            "WinMore": 1.65,
+            "WinLess": 2.1
+        },
+        "4.5": {
+            "WinMore": 3.1,
+            "WinLess": 1.33
+        },
+        "5.5": {
+            "WinMore": 6.9,
+            "WinLess": 1.05
+        }
+    },
+    "Handicap": {
+        "1-1": {
+            "Win1O": 1.68,
+            "WinNoneO": 3.15,
+            "Win2O": 6.1,
+            "Win1": 2.85,
+            "WinNone": 1.63,
+            "Win2": 7.9
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.28,
+            "WinLess": 3.45
+        },
+        "2.5": {
+            "WinMore": 2.35,
+            "WinLess": 1.53
+        },
+        "3.5": {
+            "WinMore": 5.3,
+            "WinLess": 1.09
+        }
+    },
+    "SecondTeamTotals": {
+        "1.5": {
+            "WinMore": 2.2,
+            "WinLess": 1.58
+        },
+        "2.5": {
+            "WinMore": 7.5,
+            "WinLess": 1.03
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359877,
+    "Slid": 106721,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Gavorrano : San Donato Tavarnelle",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.45,
+        "WinNone": 2.7,
+        "Win2": 3.35
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.15,
+            "WinLess": 4.65
+        },
+        "1.5": {
+            "WinMore": 1.85,
+            "WinLess": 1.85
+        },
+        "2.5": {
+            "WinMore": 3.75,
+            "WinLess": 1.23
+        },
+        "3.5": {
+            "WinMore": 8.85,
+            "WinLess": 1.02
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.45,
+            "WinNoneO": 2.7,
+            "Win2O": 3.35,
+            "Win1": 4.25,
+            "WinNone": 1.5,
+            "Win2": 5.4
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.53,
+            "WinLess": 2.35
+        },
+        "1.5": {
+            "WinMore": 3.65,
+            "WinLess": 1.23
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.78,
+            "WinLess": 1.95
+        },
+        "1.5": {
+            "WinMore": 4.75,
+            "WinLess": 1.14
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359815,
+    "Slid": 106819,
+    "LeagueName": "Friendly International",
+    "MatchName": "Thailand : Laos",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.02,
+        "WinNone": 13,
+        "Win2": 59
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.28,
+            "WinLess": 3.45
+        },
+        "2.5": {
+            "WinMore": 2.35,
+            "WinLess": 1.53
+        },
+        "3.5": {
+            "WinMore": 5.5,
+            "WinLess": 1.1
+        }
+    },
+    "Handicap": {
+        "1-0": {
+            "Win1O": 1.6,
+            "WinNoneO": 3,
+            "Win2O": 9.35,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.38,
+            "WinLess": 2.95
+        },
+        "2.5": {
+            "WinMore": 2.8,
+            "WinLess": 1.4
+        },
+        "3.5": {
+            "WinMore": 6.9,
+            "WinLess": 1.05
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 4.85,
+            "WinLess": 1.14
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359868,
+    "Slid": 106757,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "FBC Gravina : Francavilla",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.63,
+        "WinNone": 3.25,
+        "Win2": 5.9
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.05,
+            "WinLess": 6.3
+        },
+        "1.5": {
+            "WinMore": 1.53,
+            "WinLess": 2.3
+        },
+        "2.5": {
+            "WinMore": 2.7,
+            "WinLess": 1.38
+        },
+        "3.5": {
+            "WinMore": 5.5,
+            "WinLess": 1.07
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 1.63,
+            "WinNoneO": 3.25,
+            "Win2O": 5.9,
+            "Win1": 2.75,
+            "WinNone": 1.63,
+            "Win2": 7.5
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.2,
+            "WinLess": 3.8
+        },
+        "1.5": {
+            "WinMore": 2.1,
+            "WinLess": 1.6
+        },
+        "2.5": {
+            "WinMore": 4.55,
+            "WinLess": 1.13
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 2.05,
+            "WinLess": 1.65
+        },
+        "1.5": {
+            "WinMore": 6.6,
+            "WinLess": 1.03
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359554,
+    "Slid": 106794,
+    "LeagueName": "Spain Primera Division Women",
+    "MatchName": "Betis (W) : Levante (W)",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 5.3,
+        "WinNone": 2.05,
+        "Win2": 2.5
+    },
+    "Totals": {
+        "2.5": {
+            "WinMore": 1.53,
+            "WinLess": 2.3
+        },
+        "3.5": {
+            "WinMore": 3.7,
+            "WinLess": 1.23
+        }
+    },
+    "Handicap": {
+        "1-1": {
+            "Win1O": 5.3,
+            "WinNoneO": 2.05,
+            "Win2O": 2.5,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 3.25,
+            "WinLess": 1.28
+        }
+    },
+    "SecondTeamTotals": {
+        "1.5": {
+            "WinMore": 2,
+            "WinLess": 1.7
+        },
+        "2.5": {
+            "WinMore": 6.3,
+            "WinLess": 1.06
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359812,
+    "Slid": 106818,
+    "LeagueName": "Egypt 2",
+    "MatchName": "Proxy SC : El Seka El Hadid",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 4.25,
+        "WinNone": 1.8,
+        "Win2": 3.35
+    },
+    "Totals": {
+        "2.5": {
+            "WinMore": 1.7,
+            "WinLess": 1.98
+        },
+        "3.5": {
+            "WinMore": 4.65,
+            "WinLess": 1.14
+        }
+    },
+    "Handicap": {
+        "1-1": {
+            "Win1O": 4.25,
+            "WinNoneO": 1.8,
+            "Win2O": 3.35,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 3.05,
+            "WinLess": 1.3
+        }
+    },
+    "SecondTeamTotals": {
+        "1.5": {
+            "WinMore": 2.55,
+            "WinLess": 1.43
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4361266,
+    "Slid": 106397,
+    "LeagueName": "Czech 4. Ligy",
+    "MatchName": "FS Trebic : Spartak Velka Bites",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 0,
+        "WinNone": 0,
+        "Win2": 0
+    },
+    "Totals": {
+        "4.5": {
+            "WinMore": 1.06,
+            "WinLess": 6
+        },
+        "5.5": {
+            "WinMore": 1.58,
+            "WinLess": 2.2
+        },
+        "6.5": {
+            "WinMore": 2.8,
+            "WinLess": 1.35
+        },
+        "7.5": {
+            "WinMore": 5.9,
+            "WinLess": 1.06
+        }
+    },
+    "Handicap": {
+        "0-4": {
+            "Win1O": 7.6,
+            "WinNoneO": 3.5,
+            "Win2O": 1.53,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 2.45,
+            "WinLess": 1.45
+        }
+    },
+    "SecondTeamTotals": {
+        "4.5": {
+            "WinMore": 1.18,
+            "WinLess": 4.05
+        },
+        "5.5": {
+            "WinMore": 2,
+            "WinLess": 1.68
+        },
+        "6.5": {
+            "WinMore": 4.35,
+            "WinLess": 1.15
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359871,
+    "Slid": 106843,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Fiorenzuola : SCD Progresso",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.4,
+        "WinNone": 2.6,
+        "Win2": 3.6
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.18,
+            "WinLess": 4.25
+        },
+        "1.5": {
+            "WinMore": 1.95,
+            "WinLess": 1.75
+        },
+        "2.5": {
+            "WinMore": 4.15,
+            "WinLess": 1.2
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.4,
+            "WinNoneO": 2.6,
+            "Win2O": 3.6,
+            "Win1": 4.15,
+            "WinNone": 1.48,
+            "Win2": 5.9
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.55,
+            "WinLess": 2.3
+        },
+        "1.5": {
+            "WinMore": 3.75,
+            "WinLess": 1.23
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.9,
+            "WinLess": 1.8
+        },
+        "1.5": {
+            "WinMore": 5.6,
+            "WinLess": 1.08
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4361230,
+    "Slid": 106800,
+    "LeagueName": "Czech 4. Ligy",
+    "MatchName": "Tatran Všechovice : Skastice",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.18,
+        "WinNone": 5.6,
+        "Win2": 18
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.35,
+            "WinLess": 2.85
+        },
+        "2.5": {
+            "WinMore": 2.75,
+            "WinLess": 1.38
+        },
+        "3.5": {
+            "WinMore": 7.2,
+            "WinLess": 1.02
+        }
+    },
+    "Handicap": {
+        "1-0": {
+            "Win1O": 2.35,
+            "WinNoneO": 2.2,
+            "Win2O": 4.3,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.75,
+            "WinLess": 1.9
+        },
+        "2.5": {
+            "WinMore": 4.75,
+            "WinLess": 1.1
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 2.6,
+            "WinLess": 1.4
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4360721,
+    "Slid": 106208,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Corticella : Ravenna",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 7.4,
+        "WinNone": 3.2,
+        "Win2": 1.58
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.09,
+            "WinLess": 5.4
+        },
+        "1.5": {
+            "WinMore": 1.68,
+            "WinLess": 2.1
+        },
+        "2.5": {
+            "WinMore": 3.2,
+            "WinLess": 1.33
+        },
+        "3.5": {
+            "WinMore": 7.1,
+            "WinLess": 1.05
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 7.4,
+            "WinNoneO": 3.2,
+            "Win2O": 1.58,
+            "Win1": 9.75,
+            "WinNone": 1.58,
+            "Win2": 2.8
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 2.5,
+            "WinLess": 1.48
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.25,
+            "WinLess": 3.6
+        },
+        "1.5": {
+            "WinMore": 2.25,
+            "WinLess": 1.58
+        },
+        "2.5": {
+            "WinMore": 4.95,
+            "WinLess": 1.13
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359856,
+    "Slid": 106808,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "US Folgore Caratese : Pro Sesto",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.53,
+        "WinNone": 3.85,
+        "Win2": 6.4
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.1,
+            "WinLess": 5.2
+        },
+        "2.5": {
+            "WinMore": 1.73,
+            "WinLess": 2
+        },
+        "3.5": {
+            "WinMore": 3.35,
+            "WinLess": 1.28
+        },
+        "4.5": {
+            "WinMore": 7.6,
+            "WinLess": 1.04
+        }
+    },
+    "Handicap": {
+        "1-0": {
+            "Win1O": 3.05,
+            "WinNoneO": 2.9,
+            "Win2O": 2.4,
+            "Win1": 5.2,
+            "WinNone": 1.48,
+            "Win2": 5.1
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.63,
+            "WinLess": 2.15
+        },
+        "2.5": {
+            "WinMore": 4.15,
+            "WinLess": 1.2
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.53,
+            "WinLess": 2.35
+        },
+        "1.5": {
+            "WinMore": 3.65,
+            "WinLess": 1.23
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359801,
+    "Slid": 106756,
+    "LeagueName": "Belgium 1st Amateur Division",
+    "MatchName": "Union Rochefortoise : Charleroi II",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.55,
+        "WinNone": 3,
+        "Win2": 2.85
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.05,
+            "WinLess": 6.8
+        },
+        "1.5": {
+            "WinMore": 1.5,
+            "WinLess": 2.45
+        },
+        "2.5": {
+            "WinMore": 2.6,
+            "WinLess": 1.45
+        },
+        "3.5": {
+            "WinMore": 5.2,
+            "WinLess": 1.13
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.55,
+            "WinNoneO": 3,
+            "Win2O": 2.85,
+            "Win1": 4.1,
+            "WinNone": 1.6,
+            "Win2": 4.45
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.4,
+            "WinLess": 2.75
+        },
+        "1.5": {
+            "WinMore": 3,
+            "WinLess": 1.33
+        },
+        "2.5": {
+            "WinMore": 7.6,
+            "WinLess": 1.03
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.48,
+            "WinLess": 2.5
+        },
+        "1.5": {
+            "WinMore": 3.3,
+            "WinLess": 1.28
+        },
+        "2.5": {
+            "WinMore": 8.75,
+            "WinLess": 1.01
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4357779,
+    "Slid": 40154,
+    "LeagueName": "Algeria U21 League",
+    "MatchName": "US Souf U21 : AS Khroub U21",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 0,
+        "WinNone": 0,
+        "Win2": 0
+    },
+    "Totals": {},
+    "Handicap": {},
+    "FirstTeamTotals": {},
+    "SecondTeamTotals": {}
+}
+{
+    "Name": "",
+    "Pid": 4361262,
+    "Slid": 105511,
+    "LeagueName": "Croatia 3.HNL",
+    "MatchName": "Segesta : Jadran Luka Ploce",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.45,
+        "WinNone": 3.9,
+        "Win2": 7
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.14,
+            "WinLess": 4.55
+        },
+        "2.5": {
+            "WinMore": 1.85,
+            "WinLess": 1.83
+        },
+        "3.5": {
+            "WinMore": 3.75,
+            "WinLess": 1.2
+        }
+    },
+    "Handicap": {
+        "1-0": {
+            "Win1O": 3,
+            "WinNoneO": 2.75,
+            "Win2O": 2.5,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.65,
+            "WinLess": 2.05
+        },
+        "2.5": {
+            "WinMore": 4.45,
+            "WinLess": 1.15
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.6,
+            "WinLess": 2.15
+        },
+        "1.5": {
+            "WinMore": 4.05,
+            "WinLess": 1.18
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4361261,
+    "Slid": 106636,
+    "LeagueName": "Switzerland 4",
+    "MatchName": "Servette U21 : La Chaux-De-Fonds",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.1,
+        "WinNone": 7.1,
+        "Win2": 19
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.08,
+            "WinLess": 5.4
+        },
+        "2.5": {
+            "WinMore": 1.65,
+            "WinLess": 2.05
+        },
+        "3.5": {
+            "WinMore": 3.15,
+            "WinLess": 1.3
+        },
+        "4.5": {
+            "WinMore": 7,
+            "WinLess": 1.03
+        }
+    },
+    "Handicap": {
+        "1-0": {
+            "Win1O": 1.68,
+            "WinNoneO": 3.25,
+            "Win2O": 5.3,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.25,
+            "WinLess": 3.4
+        },
+        "2.5": {
+            "WinMore": 2.3,
+            "WinLess": 1.5
+        },
+        "3.5": {
+            "WinMore": 5.3,
+            "WinLess": 1.08
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 2.25,
+            "WinLess": 1.53
+        },
+        "1.5": {
+            "WinMore": 7.9,
+            "WinLess": 1.01
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4354084,
+    "Slid": 105806,
+    "LeagueName": "Norway 1 Division",
+    "MatchName": "Lyn : Kongsvinger",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.43,
+        "WinNone": 3.95,
+        "Win2": 8.55
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.25,
+            "WinLess": 3.7
+        },
+        "2.5": {
+            "WinMore": 2.2,
+            "WinLess": 1.63
+        },
+        "3.5": {
+            "WinMore": 4.85,
+            "WinLess": 1.14
+        }
+    },
+    "Handicap": {
+        "1-0": {
+            "Win1O": 3.15,
+            "WinNoneO": 2.55,
+            "Win2O": 2.7,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.85,
+            "WinLess": 1.88
+        },
+        "2.5": {
+            "WinMore": 5.3,
+            "WinLess": 1.1
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.78,
+            "WinLess": 1.93
+        },
+        "1.5": {
+            "WinMore": 4.85,
+            "WinLess": 1.14
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4353066,
+    "Slid": 106825,
+    "LeagueName": "Netherlands 2",
+    "MatchName": "Eindhoven : MVV",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.5,
+        "WinNone": 3.2,
+        "Win2": 2.8
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.02,
+            "WinLess": 8.85
+        },
+        "1.5": {
+            "WinMore": 1.35,
+            "WinLess": 3
+        },
+        "2.5": {
+            "WinMore": 2.15,
+            "WinLess": 1.68
+        },
+        "3.5": {
+            "WinMore": 3.95,
+            "WinLess": 1.23
+        },
+        "4.5": {
+            "WinMore": 8.2,
+            "WinLess": 1.03
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.5,
+            "WinNoneO": 3.2,
+            "Win2O": 2.8,
+            "Win1": 3.8,
+            "WinNone": 1.75,
+            "Win2": 4.1
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.33,
+            "WinLess": 3.15
+        },
+        "1.5": {
+            "WinMore": 2.55,
+            "WinLess": 1.48
+        },
+        "2.5": {
+            "WinMore": 5.9,
+            "WinLess": 1.08
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.38,
+            "WinLess": 2.85
+        },
+        "1.5": {
+            "WinMore": 2.8,
+            "WinLess": 1.38
+        },
+        "2.5": {
+            "WinMore": 7,
+            "WinLess": 1.05
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359538,
+    "Slid": 106749,
+    "LeagueName": "Czech Republic 3",
+    "MatchName": "Brozany : Benatky nad Jizerou",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 20,
+        "WinNone": 7.7,
+        "Win2": 1.08
+    },
+    "Totals": {
+        "2.5": {
+            "WinMore": 1.43,
+            "WinLess": 2.5
+        },
+        "3.5": {
+            "WinMore": 3.2,
+            "WinLess": 1.28
+        }
+    },
+    "Handicap": {
+        "0-2": {
+            "Win1O": 2.1,
+            "WinNoneO": 2.1,
+            "Win2O": 6.8,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.73,
+            "WinLess": 1.93
+        },
+        "1.5": {
+            "WinMore": 4.75,
+            "WinLess": 1.1
+        }
+    },
+    "SecondTeamTotals": {
+        "2.5": {
+            "WinMore": 3.55,
+            "WinLess": 1.23
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4361283,
+    "Slid": 106760,
+    "LeagueName": "Netherlands Derde Divisie (L4)",
+    "MatchName": "TEC : SV HBC Heemstede",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.68,
+        "WinNone": 3.65,
+        "Win2": 4.85
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.23,
+            "WinLess": 3.9
+        },
+        "2.5": {
+            "WinMore": 1.73,
+            "WinLess": 2
+        },
+        "3.5": {
+            "WinMore": 2.9,
+            "WinLess": 1.38
+        },
+        "4.5": {
+            "WinMore": 5.4,
+            "WinLess": 1.09
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 1.68,
+            "WinNoneO": 3.65,
+            "Win2O": 4.85,
+            "Win1": 2.55,
+            "WinNone": 1.93,
+            "Win2": 5.5
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.1,
+            "WinLess": 5.3
+        },
+        "1.5": {
+            "WinMore": 1.65,
+            "WinLess": 2.1
+        },
+        "2.5": {
+            "WinMore": 3.1,
+            "WinLess": 1.33
+        },
+        "3.5": {
+            "WinMore": 6.5,
+            "WinLess": 1.05
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.55,
+            "WinLess": 2.3
+        },
+        "1.5": {
+            "WinMore": 3.55,
+            "WinLess": 1.25
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359845,
+    "Slid": 106709,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Tau Calcio Altopascio : Prato",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.8,
+        "WinNone": 2.8,
+        "Win2": 2.7
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.09,
+            "WinLess": 5.4
+        },
+        "1.5": {
+            "WinMore": 1.68,
+            "WinLess": 2.1
+        },
+        "2.5": {
+            "WinMore": 3.2,
+            "WinLess": 1.33
+        },
+        "3.5": {
+            "WinMore": 7.1,
+            "WinLess": 1.05
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.8,
+            "WinNoneO": 2.8,
+            "Win2O": 2.7,
+            "Win1": 4.65,
+            "WinNone": 1.55,
+            "Win2": 4.4
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.55,
+            "WinLess": 2.3
+        },
+        "1.5": {
+            "WinMore": 3.85,
+            "WinLess": 1.23
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.53,
+            "WinLess": 2.35
+        },
+        "1.5": {
+            "WinMore": 3.65,
+            "WinLess": 1.25
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4360367,
+    "Slid": 106714,
+    "LeagueName": "Argentina Primera A Women",
+    "MatchName": "Belgrano (W) : Estudiantes Caseros (W)",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.02,
+        "WinNone": 12,
+        "Win2": 89
+    },
+    "Totals": {
+        "3.5": {
+            "WinMore": 3.95,
+            "WinLess": 1.2
+        }
+    },
+    "Handicap": {
+        "2-1": {
+            "Win1O": 7.3,
+            "WinNoneO": 1.2,
+            "Win2O": 9.25,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "2.5": {
+            "WinMore": 5.2,
+            "WinLess": 1.09
+        }
+    },
+    "SecondTeamTotals": {}
+}
+{
+    "Name": "",
+    "Pid": 4359539,
+    "Slid": 106280,
+    "LeagueName": "Czech Republic 3",
+    "MatchName": "Znojmo : Zbrojovka Brno II",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.05,
+        "WinNone": 2.75,
+        "Win2": 4.25
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.13,
+            "WinLess": 4.65
+        },
+        "1.5": {
+            "WinMore": 1.8,
+            "WinLess": 1.88
+        },
+        "2.5": {
+            "WinMore": 3.6,
+            "WinLess": 1.23
+        },
+        "3.5": {
+            "WinMore": 8.55,
+            "WinLess": 1.01
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.05,
+            "WinNoneO": 2.75,
+            "Win2O": 4.25,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.4,
+            "WinLess": 2.65
+        },
+        "1.5": {
+            "WinMore": 3,
+            "WinLess": 1.33
+        },
+        "2.5": {
+            "WinMore": 7.7,
+            "WinLess": 1.01
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.95,
+            "WinLess": 1.73
+        },
+        "1.5": {
+            "WinMore": 6,
+            "WinLess": 1.05
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359858,
+    "Slid": 106805,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Arconatese : Magenta",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.65,
+        "WinNone": 2.75,
+        "Win2": 2.95
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.13,
+            "WinLess": 4.95
+        },
+        "1.5": {
+            "WinMore": 1.78,
+            "WinLess": 1.93
+        },
+        "2.5": {
+            "WinMore": 3.45,
+            "WinLess": 1.28
+        },
+        "3.5": {
+            "WinMore": 8,
+            "WinLess": 1.03
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.65,
+            "WinNoneO": 2.75,
+            "Win2O": 2.95,
+            "Win1": 4.45,
+            "WinNone": 1.53,
+            "Win2": 4.85
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.55,
+            "WinLess": 2.3
+        },
+        "1.5": {
+            "WinMore": 3.75,
+            "WinLess": 1.23
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.63,
+            "WinLess": 2.15
+        },
+        "1.5": {
+            "WinMore": 4.25,
+            "WinLess": 1.18
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359847,
+    "Slid": 106662,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Cjarlins Muzane : Luparense",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.75,
+        "WinNone": 2.65,
+        "Win2": 2.9
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.14,
+            "WinLess": 4.55
+        },
+        "1.5": {
+            "WinMore": 1.83,
+            "WinLess": 1.83
+        },
+        "2.5": {
+            "WinMore": 3.7,
+            "WinLess": 1.23
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.75,
+            "WinNoneO": 2.65,
+            "Win2O": 2.9,
+            "Win1": 4.65,
+            "WinNone": 1.48,
+            "Win2": 4.75
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.58,
+            "WinLess": 2.15
+        },
+        "1.5": {
+            "WinMore": 4.05,
+            "WinLess": 1.18
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.63,
+            "WinLess": 2.05
+        },
+        "1.5": {
+            "WinMore": 4.35,
+            "WinLess": 1.15
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4360713,
+    "Slid": 106654,
+    "LeagueName": "Bosnia \u0026 Herz. 2 ",
+    "MatchName": "Radnički Lukavac : Tuzla City",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 4.1,
+        "WinNone": 2.15,
+        "Win2": 2.6
+    },
+    "Totals": {
+        "4.5": {
+            "WinMore": 1.38,
+            "WinLess": 2.65
+        },
+        "5.5": {
+            "WinMore": 3,
+            "WinLess": 1.33
+        },
+        "6.5": {
+            "WinMore": 8.2,
+            "WinLess": 1.01
+        }
+    },
+    "Handicap": {
+        "2-2": {
+            "Win1O": 4.1,
+            "WinNoneO": 2.15,
+            "Win2O": 2.6,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "2.5": {
+            "WinMore": 2.5,
+            "WinLess": 1.43
+        }
+    },
+    "SecondTeamTotals": {
+        "2.5": {
+            "WinMore": 1.9,
+            "WinLess": 1.75
+        },
+        "3.5": {
+            "WinMore": 5.8,
+            "WinLess": 1.06
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359809,
+    "Slid": 106723,
+    "LeagueName": "Egypt 2",
+    "MatchName": "Suez Montakhab : Al Mokawloon Al Arab",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 7.3,
+        "WinNone": 1.5,
+        "Win2": 3.65
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 2.3,
+            "WinLess": 1.53
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 7.3,
+            "WinNoneO": 1.5,
+            "Win2O": 3.65,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 5.2,
+            "WinLess": 1.08
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 3.15,
+            "WinLess": 1.3
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4355567,
+    "Slid": 106310,
+    "LeagueName": "Croatia 2",
+    "MatchName": "Croatia Zmijavci : Rudes",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 3.3,
+        "WinNone": 2.15,
+        "Win2": 3.3
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.4,
+            "WinLess": 2.6
+        },
+        "1.5": {
+            "WinMore": 3.05,
+            "WinLess": 1.3
+        },
+        "2.5": {
+            "WinMore": 8.55,
+            "WinLess": 1.01
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 3.3,
+            "WinNoneO": 2.15,
+            "Win2O": 3.3,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 2.2,
+            "WinLess": 1.58
+        },
+        "1.5": {
+            "WinMore": 7.4,
+            "WinLess": 1.02
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 2.2,
+            "WinLess": 1.58
+        },
+        "1.5": {
+            "WinMore": 7.4,
+            "WinLess": 1.02
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359844,
+    "Slid": 106667,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Brindisi : Matera",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 7.3,
+        "WinNone": 3.8,
+        "Win2": 1.45
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.18,
+            "WinLess": 3.95
+        },
+        "2.5": {
+            "WinMore": 2.05,
+            "WinLess": 1.68
+        },
+        "3.5": {
+            "WinMore": 4.45,
+            "WinLess": 1.14
+        }
+    },
+    "Handicap": {
+        "0-1": {
+            "Win1O": 2.5,
+            "WinNoneO": 2.6,
+            "Win2O": 3.15,
+            "Win1": 5.4,
+            "WinNone": 1.43,
+            "Win2": 5.2
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.68,
+            "WinLess": 2
+        },
+        "1.5": {
+            "WinMore": 4.45,
+            "WinLess": 1.14
+        }
+    },
+    "SecondTeamTotals": {
+        "1.5": {
+            "WinMore": 1.78,
+            "WinLess": 1.88
+        },
+        "2.5": {
+            "WinMore": 4.85,
+            "WinLess": 1.09
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359846,
+    "Slid": 106790,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Desenzano : Ospitaletto",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.15,
+        "WinNone": 2.85,
+        "Win2": 3.75
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.09,
+            "WinLess": 5.4
+        },
+        "1.5": {
+            "WinMore": 1.68,
+            "WinLess": 2.1
+        },
+        "2.5": {
+            "WinMore": 3.2,
+            "WinLess": 1.33
+        },
+        "3.5": {
+            "WinMore": 7.1,
+            "WinLess": 1.05
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.15,
+            "WinNoneO": 2.85,
+            "Win2O": 3.75,
+            "Win1": 3.65,
+            "WinNone": 1.58,
+            "Win2": 5.7
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.4,
+            "WinLess": 2.75
+        },
+        "1.5": {
+            "WinMore": 2.95,
+            "WinLess": 1.35
+        },
+        "2.5": {
+            "WinMore": 7.5,
+            "WinLess": 1.03
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.78,
+            "WinLess": 1.93
+        },
+        "1.5": {
+            "WinMore": 4.85,
+            "WinLess": 1.14
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359852,
+    "Slid": 106809,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Lavagnese : Citta di Varese",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.95,
+        "WinNone": 2.7,
+        "Win2": 2.7
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.15,
+            "WinLess": 4.65
+        },
+        "1.5": {
+            "WinMore": 1.85,
+            "WinLess": 1.85
+        },
+        "2.5": {
+            "WinMore": 3.75,
+            "WinLess": 1.23
+        },
+        "3.5": {
+            "WinMore": 8.85,
+            "WinLess": 1.02
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.95,
+            "WinNoneO": 2.7,
+            "Win2O": 2.7,
+            "Win1": 5.1,
+            "WinNone": 1.5,
+            "Win2": 4.55
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.68,
+            "WinLess": 2.1
+        },
+        "1.5": {
+            "WinMore": 4.45,
+            "WinLess": 1.18
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.6,
+            "WinLess": 2.2
+        },
+        "1.5": {
+            "WinMore": 4,
+            "WinLess": 1.2
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359537,
+    "Slid": 104719,
+    "LeagueName": "Czech Republic 3",
+    "MatchName": "Sokol Zapy : Liberec (B)",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 0,
+        "WinNone": 0,
+        "Win2": 0
+    },
+    "Totals": {},
+    "Handicap": {},
+    "FirstTeamTotals": {},
+    "SecondTeamTotals": {}
+}
+{
+    "Name": "",
+    "Pid": 4359927,
+    "Slid": 105835,
+    "LeagueName": "Scotland Premier Women",
+    "MatchName": "Spartans (W) : Montrose (W)",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.15,
+        "WinNone": 2.55,
+        "Win2": 4.15
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.2,
+            "WinLess": 3.95
+        },
+        "1.5": {
+            "WinMore": 2.05,
+            "WinLess": 1.68
+        },
+        "2.5": {
+            "WinMore": 4.45,
+            "WinLess": 1.14
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.15,
+            "WinNoneO": 2.55,
+            "Win2O": 4.15,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.5,
+            "WinLess": 2.35
+        },
+        "1.5": {
+            "WinMore": 3.6,
+            "WinLess": 1.23
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 2.1,
+            "WinLess": 1.63
+        },
+        "1.5": {
+            "WinMore": 6.8,
+            "WinLess": 1.03
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359928,
+    "Slid": 106239,
+    "LeagueName": "Scotland Premier Women",
+    "MatchName": "Partick Thistle (W) : Motherwell (W)",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 7.7,
+        "WinNone": 4,
+        "Win2": 1.4
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.18,
+            "WinLess": 4.25
+        },
+        "2.5": {
+            "WinMore": 1.9,
+            "WinLess": 1.75
+        },
+        "3.5": {
+            "WinMore": 4,
+            "WinLess": 1.2
+        }
+    },
+    "Handicap": {
+        "0-1": {
+            "Win1O": 2.8,
+            "WinNoneO": 2.65,
+            "Win2O": 2.75,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.68,
+            "WinLess": 2.05
+        },
+        "1.5": {
+            "WinMore": 4.45,
+            "WinLess": 1.14
+        }
+    },
+    "SecondTeamTotals": {
+        "1.5": {
+            "WinMore": 1.65,
+            "WinLess": 2.05
+        },
+        "2.5": {
+            "WinMore": 4.45,
+            "WinLess": 1.15
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359874,
+    "Slid": 106697,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Imolese : Sammaurese",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.43,
+        "WinNone": 3.55,
+        "Win2": 11
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.09,
+            "WinLess": 5.4
+        },
+        "1.5": {
+            "WinMore": 1.68,
+            "WinLess": 2.05
+        },
+        "2.5": {
+            "WinMore": 3.2,
+            "WinLess": 1.3
+        },
+        "3.5": {
+            "WinMore": 7.2,
+            "WinLess": 1.05
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 1.43,
+            "WinNoneO": 3.55,
+            "Win2O": 11,
+            "Win1": 2.7,
+            "WinNone": 1.55,
+            "Win2": 13
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.2,
+            "WinLess": 4.05
+        },
+        "1.5": {
+            "WinMore": 2.05,
+            "WinLess": 1.68
+        },
+        "2.5": {
+            "WinMore": 4.45,
+            "WinLess": 1.18
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 3.15,
+            "WinLess": 1.3
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359933,
+    "Slid": 105100,
+    "LeagueName": "Slovenia 2",
+    "MatchName": "Beltinci : Slovan Ljubljana",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.18,
+        "WinNone": 5.7,
+        "Win2": 15
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.14,
+            "WinLess": 4.55
+        },
+        "2.5": {
+            "WinMore": 1.85,
+            "WinLess": 1.83
+        },
+        "3.5": {
+            "WinMore": 3.75,
+            "WinLess": 1.2
+        }
+    },
+    "Handicap": {
+        "1-0": {
+            "Win1O": 1.98,
+            "WinNoneO": 2.85,
+            "Win2O": 4.1,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.38,
+            "WinLess": 2.7
+        },
+        "2.5": {
+            "WinMore": 2.95,
+            "WinLess": 1.33
+        },
+        "3.5": {
+            "WinMore": 7.6,
+            "WinLess": 1.02
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 2.1,
+            "WinLess": 1.63
+        },
+        "1.5": {
+            "WinMore": 6.8,
+            "WinLess": 1.03
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4356946,
+    "Slid": 106807,
+    "LeagueName": "Uruguay 1 ",
+    "MatchName": "Miramar : Liverpool Ur.",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 9.85,
+        "WinNone": 4.2,
+        "Win2": 1.38
+    },
+    "Totals": {
+        "3.5": {
+            "WinMore": 1.28,
+            "WinLess": 3.45
+        },
+        "4.5": {
+            "WinMore": 2.35,
+            "WinLess": 1.53
+        },
+        "5.5": {
+            "WinMore": 5.4,
+            "WinLess": 1.1
+        }
+    },
+    "Handicap": {
+        "1-2": {
+            "Win1O": 3.05,
+            "WinNoneO": 2.45,
+            "Win2O": 2.85,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.9,
+            "WinLess": 1.8
+        },
+        "2.5": {
+            "WinMore": 5.7,
+            "WinLess": 1.08
+        }
+    },
+    "SecondTeamTotals": {
+        "2.5": {
+            "WinMore": 1.83,
+            "WinLess": 1.85
+        },
+        "3.5": {
+            "WinMore": 5.3,
+            "WinLess": 1.1
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359864,
+    "Slid": 106785,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Livorno : Seravezza Pozzi",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.63,
+        "WinNone": 3.4,
+        "Win2": 5.9
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.04,
+            "WinLess": 7.4
+        },
+        "1.5": {
+            "WinMore": 1.45,
+            "WinLess": 2.6
+        },
+        "2.5": {
+            "WinMore": 2.4,
+            "WinLess": 1.5
+        },
+        "3.5": {
+            "WinMore": 4.65,
+            "WinLess": 1.15
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 1.63,
+            "WinNoneO": 3.4,
+            "Win2O": 5.9,
+            "Win1": 2.8,
+            "WinNone": 1.68,
+            "Win2": 7.4
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.18,
+            "WinLess": 4.25
+        },
+        "1.5": {
+            "WinMore": 1.98,
+            "WinLess": 1.73
+        },
+        "2.5": {
+            "WinMore": 4.2,
+            "WinLess": 1.18
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.93,
+            "WinLess": 1.78
+        },
+        "1.5": {
+            "WinMore": 5.8,
+            "WinLess": 1.07
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4360711,
+    "Slid": 106796,
+    "LeagueName": "Bosnia \u0026 Herz. 2 ",
+    "MatchName": "Gornji Rahic : HNK Tomislav",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.55,
+        "WinNone": 1.98,
+        "Win2": 5.3
+    },
+    "Totals": {
+        "4.5": {
+            "WinMore": 1.55,
+            "WinLess": 2.25
+        },
+        "5.5": {
+            "WinMore": 3.8,
+            "WinLess": 1.2
+        }
+    },
+    "Handicap": {
+        "2-2": {
+            "Win1O": 2.55,
+            "WinNoneO": 1.98,
+            "Win2O": 5.3,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "2.5": {
+            "WinMore": 2.05,
+            "WinLess": 1.65
+        },
+        "3.5": {
+            "WinMore": 6.5,
+            "WinLess": 1.04
+        }
+    },
+    "SecondTeamTotals": {
+        "2.5": {
+            "WinMore": 3.3,
+            "WinLess": 1.25
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359854,
+    "Slid": 106812,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Campodarsego : Brian Lignano",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.78,
+        "WinNone": 3,
+        "Win2": 5.3
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.08,
+            "WinLess": 5.4
+        },
+        "1.5": {
+            "WinMore": 1.68,
+            "WinLess": 2.05
+        },
+        "2.5": {
+            "WinMore": 3.15,
+            "WinLess": 1.3
+        },
+        "3.5": {
+            "WinMore": 7,
+            "WinLess": 1.03
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 1.78,
+            "WinNoneO": 3,
+            "Win2O": 5.3,
+            "Win1": 3.15,
+            "WinNone": 1.53,
+            "Win2": 7.5
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.28,
+            "WinLess": 3.2
+        },
+        "1.5": {
+            "WinMore": 2.45,
+            "WinLess": 1.45
+        },
+        "2.5": {
+            "WinMore": 5.8,
+            "WinLess": 1.06
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 2.05,
+            "WinLess": 1.63
+        },
+        "1.5": {
+            "WinMore": 6.7,
+            "WinLess": 1.03
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4360996,
+    "Slid": 106329,
+    "LeagueName": "Thailand Division 3",
+    "MatchName": "Pluak Daeng United : Chachoengsao",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.53,
+        "WinNone": 3.9,
+        "Win2": 5.8
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.03,
+            "WinLess": 6.8
+        },
+        "2.5": {
+            "WinMore": 1.48,
+            "WinLess": 2.4
+        },
+        "3.5": {
+            "WinMore": 2.5,
+            "WinLess": 1.43
+        },
+        "4.5": {
+            "WinMore": 5.1,
+            "WinLess": 1.1
+        }
+    },
+    "Handicap": {
+        "1-0": {
+            "Win1O": 2.8,
+            "WinNoneO": 3.2,
+            "Win2O": 2.35,
+            "Win1": 3.6,
+            "WinNone": 1.88,
+            "Win2": 3.75
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.43,
+            "WinLess": 2.6
+        },
+        "2.5": {
+            "WinMore": 3.1,
+            "WinLess": 1.3
+        },
+        "3.5": {
+            "WinMore": 8.1,
+            "WinLess": 1.01
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.4,
+            "WinLess": 2.65
+        },
+        "1.5": {
+            "WinMore": 3.05,
+            "WinLess": 1.3
+        },
+        "2.5": {
+            "WinMore": 7.9,
+            "WinLess": 1.01
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359863,
+    "Slid": 106764,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Zenith Prato : Tuttocuoio",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.63,
+        "WinNone": 3.65,
+        "Win2": 5.4
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.09,
+            "WinLess": 5.5
+        },
+        "2.5": {
+            "WinMore": 1.68,
+            "WinLess": 2.1
+        },
+        "3.5": {
+            "WinMore": 3.15,
+            "WinLess": 1.33
+        },
+        "4.5": {
+            "WinMore": 7,
+            "WinLess": 1.05
+        }
+    },
+    "Handicap": {
+        "1-0": {
+            "Win1O": 3.4,
+            "WinNoneO": 3,
+            "Win2O": 2.15,
+            "Win1": 4.75,
+            "WinNone": 1.58,
+            "Win2": 4.45
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.65,
+            "WinLess": 2.1
+        },
+        "2.5": {
+            "WinMore": 4.4,
+            "WinLess": 1.18
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.43,
+            "WinLess": 2.6
+        },
+        "1.5": {
+            "WinMore": 3.2,
+            "WinLess": 1.3
+        },
+        "2.5": {
+            "WinMore": 8.3,
+            "WinLess": 1.02
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359870,
+    "Slid": 106793,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Anzio Calcio : Latte Dolce",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.7,
+        "WinNone": 2.95,
+        "Win2": 2.7
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.06,
+            "WinLess": 6.5
+        },
+        "1.5": {
+            "WinMore": 1.53,
+            "WinLess": 2.35
+        },
+        "2.5": {
+            "WinMore": 2.65,
+            "WinLess": 1.43
+        },
+        "3.5": {
+            "WinMore": 5.4,
+            "WinLess": 1.09
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.7,
+            "WinNoneO": 2.95,
+            "Win2O": 2.7,
+            "Win1": 4,
+            "WinNone": 1.73,
+            "Win2": 3.9
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.45,
+            "WinLess": 2.55
+        },
+        "1.5": {
+            "WinMore": 3.25,
+            "WinLess": 1.28
+        },
+        "2.5": {
+            "WinMore": 8.65,
+            "WinLess": 1.01
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.43,
+            "WinLess": 2.6
+        },
+        "1.5": {
+            "WinMore": 3.2,
+            "WinLess": 1.3
+        },
+        "2.5": {
+            "WinMore": 8.3,
+            "WinLess": 1.02
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359848,
+    "Slid": 106762,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Breno : Vigasio",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.63,
+        "WinNone": 3.15,
+        "Win2": 7.1
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.1,
+            "WinLess": 5.3
+        },
+        "1.5": {
+            "WinMore": 1.73,
+            "WinLess": 2.05
+        },
+        "2.5": {
+            "WinMore": 3.3,
+            "WinLess": 1.3
+        },
+        "3.5": {
+            "WinMore": 7.4,
+            "WinLess": 1.04
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 1.63,
+            "WinNoneO": 3.15,
+            "Win2O": 7.1,
+            "Win1": 2.9,
+            "WinNone": 1.58,
+            "Win2": 9.25
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.28,
+            "WinLess": 3.5
+        },
+        "1.5": {
+            "WinMore": 2.3,
+            "WinLess": 1.53
+        },
+        "2.5": {
+            "WinMore": 5.2,
+            "WinLess": 1.1
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 2.5,
+            "WinLess": 1.48
+        },
+        "1.5": {
+            "WinMore": 9.15,
+            "WinLess": 1.01
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359876,
+    "Slid": 106806,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Portogruaro : Adriese",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 3.95,
+        "WinNone": 2.75,
+        "Win2": 2.1
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.1,
+            "WinLess": 4.85
+        },
+        "1.5": {
+            "WinMore": 1.75,
+            "WinLess": 1.9
+        },
+        "2.5": {
+            "WinMore": 3.45,
+            "WinLess": 1.25
+        },
+        "3.5": {
+            "WinMore": 8,
+            "WinLess": 1.02
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 3.95,
+            "WinNoneO": 2.75,
+            "Win2O": 2.1,
+            "Win1": 6.4,
+            "WinNone": 1.48,
+            "Win2": 3.75
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.85,
+            "WinLess": 1.8
+        },
+        "1.5": {
+            "WinMore": 5.5,
+            "WinLess": 1.07
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.4,
+            "WinLess": 2.65
+        },
+        "1.5": {
+            "WinMore": 3,
+            "WinLess": 1.3
+        },
+        "2.5": {
+            "WinMore": 7.8,
+            "WinLess": 1.01
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359860,
+    "Slid": 106730,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Cittadella Vis Modena : Lentigione",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 3.8,
+        "WinNone": 2.7,
+        "Win2": 2.25
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.18,
+            "WinLess": 4.45
+        },
+        "1.5": {
+            "WinMore": 1.88,
+            "WinLess": 1.83
+        },
+        "2.5": {
+            "WinMore": 3.85,
+            "WinLess": 1.23
+        },
+        "3.5": {
+            "WinMore": 9.25,
+            "WinLess": 1.01
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 3.8,
+            "WinNoneO": 2.7,
+            "Win2O": 2.25,
+            "Win1": 6.4,
+            "WinNone": 1.48,
+            "Win2": 4.05
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.88,
+            "WinLess": 1.83
+        },
+        "1.5": {
+            "WinMore": 5.5,
+            "WinLess": 1.08
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.48,
+            "WinLess": 2.45
+        },
+        "1.5": {
+            "WinMore": 3.45,
+            "WinLess": 1.28
+        },
+        "2.5": {
+            "WinMore": 9.15,
+            "WinLess": 1.01
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359818,
+    "Slid": 105703,
+    "LeagueName": "Germany Bundesliga Women",
+    "MatchName": "Bayern München (W) : CZ Jena (W)",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 0,
+        "WinNone": 0,
+        "Win2": 0
+    },
+    "Totals": {
+        "2.5": {
+            "WinMore": 1.04,
+            "WinLess": 6.5
+        },
+        "3.5": {
+            "WinMore": 1.5,
+            "WinLess": 2.35
+        },
+        "4.5": {
+            "WinMore": 2.65,
+            "WinLess": 1.4
+        },
+        "5.5": {
+            "WinMore": 5.4,
+            "WinLess": 1.08
+        }
+    },
+    "Handicap": {
+        "2-0": {
+            "Win1O": 1.18,
+            "WinNoneO": 5.5,
+            "Win2O": 28,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "2.5": {
+            "WinMore": 1.06,
+            "WinLess": 5.9
+        },
+        "3.5": {
+            "WinMore": 1.58,
+            "WinLess": 2.2
+        },
+        "4.5": {
+            "WinMore": 2.85,
+            "WinLess": 1.35
+        },
+        "5.5": {
+            "WinMore": 5.8,
+            "WinLess": 1.06
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 8,
+            "WinLess": 1.01
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359867,
+    "Slid": 106495,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Chieri 1955 : Vogherese",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 3.8,
+        "WinNone": 2.8,
+        "Win2": 2.2
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.13,
+            "WinLess": 4.95
+        },
+        "1.5": {
+            "WinMore": 1.78,
+            "WinLess": 1.95
+        },
+        "2.5": {
+            "WinMore": 3.45,
+            "WinLess": 1.25
+        },
+        "3.5": {
+            "WinMore": 8.1,
+            "WinLess": 1.03
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 3.8,
+            "WinNoneO": 2.8,
+            "Win2O": 2.2,
+            "Win1": 6.1,
+            "WinNone": 1.53,
+            "Win2": 3.75
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.83,
+            "WinLess": 1.88
+        },
+        "1.5": {
+            "WinMore": 5.2,
+            "WinLess": 1.1
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.43,
+            "WinLess": 2.6
+        },
+        "1.5": {
+            "WinMore": 3.15,
+            "WinLess": 1.3
+        },
+        "2.5": {
+            "WinMore": 8.2,
+            "WinLess": 1.02
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359557,
+    "Slid": 106584,
+    "LeagueName": "Switzerland 3",
+    "MatchName": "Cham : Luzern II",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.55,
+        "WinNone": 4,
+        "Win2": 5.1
+    },
+    "Totals": {
+        "2.5": {
+            "WinMore": 1.33,
+            "WinLess": 3
+        },
+        "3.5": {
+            "WinMore": 2.05,
+            "WinLess": 1.65
+        },
+        "4.5": {
+            "WinMore": 3.8,
+            "WinLess": 1.2
+        },
+        "5.5": {
+            "WinMore": 7.8,
+            "WinLess": 1.02
+        }
+    },
+    "Handicap": {
+        "1-0": {
+            "Win1O": 2.75,
+            "WinNoneO": 3.45,
+            "Win2O": 2.25,
+            "Win1": 3.8,
+            "WinNone": 1.73,
+            "Win2": 4.15
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.33,
+            "WinLess": 2.95
+        },
+        "2.5": {
+            "WinMore": 2.65,
+            "WinLess": 1.4
+        },
+        "3.5": {
+            "WinMore": 6.5,
+            "WinLess": 1.04
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.3,
+            "WinLess": 3.1
+        },
+        "1.5": {
+            "WinMore": 2.5,
+            "WinLess": 1.43
+        },
+        "2.5": {
+            "WinMore": 6,
+            "WinLess": 1.05
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359861,
+    "Slid": 106702,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Lavis : Real Calepina",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 4.45,
+        "WinNone": 3.15,
+        "Win2": 1.83
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.03,
+            "WinLess": 6.9
+        },
+        "1.5": {
+            "WinMore": 1.48,
+            "WinLess": 2.45
+        },
+        "2.5": {
+            "WinMore": 2.5,
+            "WinLess": 1.45
+        },
+        "3.5": {
+            "WinMore": 4.95,
+            "WinLess": 1.1
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 4.45,
+            "WinNoneO": 3.15,
+            "Win2O": 1.83,
+            "Win1": 6.3,
+            "WinNone": 1.63,
+            "Win2": 3.05
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.75,
+            "WinLess": 1.93
+        },
+        "1.5": {
+            "WinMore": 4.75,
+            "WinLess": 1.1
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.23,
+            "WinLess": 3.55
+        },
+        "1.5": {
+            "WinMore": 2.2,
+            "WinLess": 1.55
+        },
+        "2.5": {
+            "WinMore": 4.95,
+            "WinLess": 1.1
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4360714,
+    "Slid": 106844,
+    "LeagueName": "Bosnia \u0026 Herz. 2 ",
+    "MatchName": "Travnik : TOŠK Tešanj",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.05,
+        "WinNone": 2.05,
+        "Win2": 9.25
+    },
+    "Totals": {
+        "2.5": {
+            "WinMore": 1.55,
+            "WinLess": 2.2
+        },
+        "3.5": {
+            "WinMore": 3.85,
+            "WinLess": 1.2
+        }
+    },
+    "Handicap": {
+        "1-1": {
+            "Win1O": 2.05,
+            "WinNoneO": 2.05,
+            "Win2O": 9.25,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.78,
+            "WinLess": 1.88
+        },
+        "2.5": {
+            "WinMore": 5.1,
+            "WinLess": 1.09
+        }
+    },
+    "SecondTeamTotals": {
+        "1.5": {
+            "WinMore": 4.85,
+            "WinLess": 1.1
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4360710,
+    "Slid": 106433,
+    "LeagueName": "Bosnia \u0026 Herz. 2 ",
+    "MatchName": "Gorazde : Gradina Srebrenik",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2,
+        "WinNone": 1.98,
+        "Win2": 13
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.65,
+            "WinLess": 2.05
+        },
+        "1.5": {
+            "WinMore": 4.35,
+            "WinLess": 1.14
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2,
+            "WinNoneO": 1.98,
+            "Win2O": 13,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.83,
+            "WinLess": 1.83
+        },
+        "1.5": {
+            "WinMore": 5.3,
+            "WinLess": 1.08
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 6.8,
+            "WinLess": 1.03
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4361263,
+    "Slid": 106638,
+    "LeagueName": "Austria Landesliga",
+    "MatchName": "SV Spittal : Kottmannsdorf",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.13,
+        "WinNone": 6.7,
+        "Win2": 17
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.07,
+            "WinLess": 5.7
+        },
+        "2.5": {
+            "WinMore": 1.63,
+            "WinLess": 2.1
+        },
+        "3.5": {
+            "WinMore": 2.95,
+            "WinLess": 1.33
+        },
+        "4.5": {
+            "WinMore": 6.4,
+            "WinLess": 1.05
+        }
+    },
+    "Handicap": {
+        "1-0": {
+            "Win1O": 1.7,
+            "WinNoneO": 3.3,
+            "Win2O": 4.85,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.25,
+            "WinLess": 3.45
+        },
+        "2.5": {
+            "WinMore": 2.3,
+            "WinLess": 1.53
+        },
+        "3.5": {
+            "WinMore": 5.2,
+            "WinLess": 1.08
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 2.1,
+            "WinLess": 1.6
+        },
+        "1.5": {
+            "WinMore": 7,
+            "WinLess": 1.03
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359853,
+    "Slid": 106633,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "ASD Varesina : Crema",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 0,
+        "WinNone": 0,
+        "Win2": 0
+    },
+    "Totals": {
+        "3.5": {
+            "WinMore": 1.01,
+            "WinLess": 8.95
+        },
+        "4.5": {
+            "WinMore": 1.35,
+            "WinLess": 3
+        },
+        "5.5": {
+            "WinMore": 2.1,
+            "WinLess": 1.65
+        },
+        "6.5": {
+            "WinMore": 3.9,
+            "WinLess": 1.23
+        },
+        "7.5": {
+            "WinMore": 8.1,
+            "WinLess": 1.03
+        }
+    },
+    "Handicap": {
+        "3-0": {
+            "Win1O": 1.58,
+            "WinNoneO": 3.85,
+            "Win2O": 5.9,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "3.5": {
+            "WinMore": 1.14,
+            "WinLess": 4.85
+        },
+        "4.5": {
+            "WinMore": 1.78,
+            "WinLess": 1.93
+        },
+        "5.5": {
+            "WinMore": 3.5,
+            "WinLess": 1.25
+        },
+        "6.5": {
+            "WinMore": 7.6,
+            "WinLess": 1.03
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.85,
+            "WinLess": 1.85
+        },
+        "1.5": {
+            "WinMore": 5.3,
+            "WinLess": 1.09
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359855,
+    "Slid": 106698,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Mestre : Brusaporto",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.55,
+        "WinNone": 2.7,
+        "Win2": 3
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.1,
+            "WinLess": 4.85
+        },
+        "1.5": {
+            "WinMore": 1.75,
+            "WinLess": 1.93
+        },
+        "2.5": {
+            "WinMore": 3.45,
+            "WinLess": 1.25
+        },
+        "3.5": {
+            "WinMore": 7.9,
+            "WinLess": 1.02
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.55,
+            "WinNoneO": 2.7,
+            "Win2O": 3,
+            "Win1": 4.45,
+            "WinNone": 1.48,
+            "Win2": 5.1
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.53,
+            "WinLess": 2.3
+        },
+        "1.5": {
+            "WinMore": 3.65,
+            "WinLess": 1.23
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.63,
+            "WinLess": 2.05
+        },
+        "1.5": {
+            "WinMore": 4.35,
+            "WinLess": 1.15
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359869,
+    "Slid": 106842,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Civitanovese : Chieti",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.28,
+        "WinNone": 5.6,
+        "Win2": 9.25
+    },
+    "Totals": {
+        "2.5": {
+            "WinMore": 1.04,
+            "WinLess": 7
+        },
+        "3.5": {
+            "WinMore": 1.48,
+            "WinLess": 2.5
+        },
+        "4.5": {
+            "WinMore": 2.5,
+            "WinLess": 1.48
+        },
+        "5.5": {
+            "WinMore": 4.95,
+            "WinLess": 1.13
+        }
+    },
+    "Handicap": {
+        "2-0": {
+            "Win1O": 3.95,
+            "WinNoneO": 3.2,
+            "Win2O": 1.93,
+            "Win1": 5.5,
+            "WinNone": 1.68,
+            "Win2": 3.35
+        }
+    },
+    "FirstTeamTotals": {
+        "2.5": {
+            "WinMore": 1.68,
+            "WinLess": 2.1
+        },
+        "3.5": {
+            "WinMore": 4.4,
+            "WinLess": 1.18
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.28,
+            "WinLess": 3.4
+        },
+        "1.5": {
+            "WinMore": 2.35,
+            "WinLess": 1.53
+        },
+        "2.5": {
+            "WinMore": 5.4,
+            "WinLess": 1.09
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359849,
+    "Slid": 106750,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Fezzanese : Grosseto",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 3.2,
+        "WinNone": 2.8,
+        "Win2": 2.45
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.09,
+            "WinLess": 5.4
+        },
+        "1.5": {
+            "WinMore": 1.68,
+            "WinLess": 2.05
+        },
+        "2.5": {
+            "WinMore": 3.2,
+            "WinLess": 1.33
+        },
+        "3.5": {
+            "WinMore": 7.1,
+            "WinLess": 1.05
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 3.2,
+            "WinNoneO": 2.8,
+            "Win2O": 2.45,
+            "Win1": 5.2,
+            "WinNone": 1.53,
+            "Win2": 4.1
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.63,
+            "WinLess": 2.15
+        },
+        "1.5": {
+            "WinMore": 4.3,
+            "WinLess": 1.18
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.45,
+            "WinLess": 2.55
+        },
+        "1.5": {
+            "WinMore": 3.3,
+            "WinLess": 1.28
+        },
+        "2.5": {
+            "WinMore": 8.65,
+            "WinLess": 1.01
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359810,
+    "Slid": 106617,
+    "LeagueName": "Egypt 2",
+    "MatchName": "Tanta : Al Qanah",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 3.55,
+        "WinNone": 1.63,
+        "Win2": 5.3
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.98,
+            "WinLess": 1.7
+        },
+        "1.5": {
+            "WinMore": 6.4,
+            "WinLess": 1.05
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 3.55,
+            "WinNoneO": 1.63,
+            "Win2O": 5.3,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 2.85,
+            "WinLess": 1.33
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 3.95,
+            "WinLess": 1.18
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359811,
+    "Slid": 106846,
+    "LeagueName": "Egypt 2",
+    "MatchName": "El Mansoura : Al Masria Lell Etesalat",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 0,
+        "WinNone": 0,
+        "Win2": 0
+    },
+    "Totals": {
+        "3.5": {
+            "WinMore": 1.5,
+            "WinLess": 2.4
+        },
+        "4.5": {
+            "WinMore": 3.5,
+            "WinLess": 1.25
+        }
+    },
+    "Handicap": {
+        "0-3": {
+            "Win1O": 3.4,
+            "WinNoneO": 1.93,
+            "Win2O": 3.4,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 2.35,
+            "WinLess": 1.5
+        }
+    },
+    "SecondTeamTotals": {
+        "3.5": {
+            "WinMore": 2.35,
+            "WinLess": 1.5
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359559,
+    "Slid": 106291,
+    "LeagueName": "Tunisia Ligue 2",
+    "MatchName": "Hammam-Lif : Ariana",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.5,
+        "WinNone": 2.25,
+        "Win2": 4.25
+    },
+    "Totals": {
+        "2.5": {
+            "WinMore": 1.35,
+            "WinLess": 2.85
+        },
+        "3.5": {
+            "WinMore": 2.75,
+            "WinLess": 1.38
+        },
+        "4.5": {
+            "WinMore": 7.3,
+            "WinLess": 1.03
+        }
+    },
+    "Handicap": {
+        "1-1": {
+            "Win1O": 2.5,
+            "WinNoneO": 2.25,
+            "Win2O": 4.25,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.8,
+            "WinLess": 1.85
+        },
+        "2.5": {
+            "WinMore": 5.2,
+            "WinLess": 1.09
+        }
+    },
+    "SecondTeamTotals": {
+        "1.5": {
+            "WinMore": 2.5,
+            "WinLess": 1.45
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4360712,
+    "Slid": 106845,
+    "LeagueName": "Bosnia \u0026 Herz. 2 ",
+    "MatchName": "Zvijezda Gradačac : Stupcanica Olovo",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.3,
+        "WinNone": 4,
+        "Win2": 14
+    },
+    "Totals": {
+        "3.5": {
+            "WinMore": 1.83,
+            "WinLess": 1.83
+        },
+        "4.5": {
+            "WinMore": 5.4,
+            "WinLess": 1.08
+        }
+    },
+    "Handicap": {
+        "2-1": {
+            "Win1O": 5.3,
+            "WinNoneO": 1.68,
+            "Win2O": 3.15,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "2.5": {
+            "WinMore": 3.6,
+            "WinLess": 1.23
+        }
+    },
+    "SecondTeamTotals": {
+        "1.5": {
+            "WinMore": 2.6,
+            "WinLess": 1.4
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359850,
+    "Slid": 106835,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Virtus Flaminia : Poggibonsi",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 5.9,
+        "WinNone": 3.95,
+        "Win2": 1.53
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.06,
+            "WinLess": 6.4
+        },
+        "2.5": {
+            "WinMore": 1.53,
+            "WinLess": 2.3
+        },
+        "3.5": {
+            "WinMore": 2.75,
+            "WinLess": 1.4
+        },
+        "4.5": {
+            "WinMore": 5.6,
+            "WinLess": 1.09
+        }
+    },
+    "Handicap": {
+        "0-1": {
+            "Win1O": 2.4,
+            "WinNoneO": 3.15,
+            "Win2O": 2.9,
+            "Win1": 4.75,
+            "WinNone": 1.63,
+            "Win2": 4.25
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.43,
+            "WinLess": 2.6
+        },
+        "1.5": {
+            "WinMore": 3.2,
+            "WinLess": 1.3
+        },
+        "2.5": {
+            "WinMore": 8.3,
+            "WinLess": 1.02
+        }
+    },
+    "SecondTeamTotals": {
+        "1.5": {
+            "WinMore": 1.48,
+            "WinLess": 2.45
+        },
+        "2.5": {
+            "WinMore": 3.4,
+            "WinLess": 1.28
+        },
+        "3.5": {
+            "WinMore": 9.15,
+            "WinLess": 1.01
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4360722,
+    "Slid": 106820,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "San Nicolo Notaresco : Avezzano",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 3.65,
+        "WinNone": 3.35,
+        "Win2": 1.98
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.07,
+            "WinLess": 6.2
+        },
+        "2.5": {
+            "WinMore": 1.58,
+            "WinLess": 2.25
+        },
+        "3.5": {
+            "WinMore": 2.8,
+            "WinLess": 1.38
+        },
+        "4.5": {
+            "WinMore": 5.8,
+            "WinLess": 1.08
+        }
+    },
+    "Handicap": {
+        "0-1": {
+            "Win1O": 1.75,
+            "WinNoneO": 3.25,
+            "Win2O": 4.75,
+            "Win1": 4,
+            "WinNone": 1.58,
+            "Win2": 5.7
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.28,
+            "WinLess": 3.35
+        },
+        "1.5": {
+            "WinMore": 2.4,
+            "WinLess": 1.5
+        },
+        "2.5": {
+            "WinMore": 5.6,
+            "WinLess": 1.08
+        }
+    },
+    "SecondTeamTotals": {
+        "1.5": {
+            "WinMore": 1.85,
+            "WinLess": 1.85
+        },
+        "2.5": {
+            "WinMore": 5.3,
+            "WinLess": 1.09
+        }
+    }
+}
+Начало получения данных о всех матчах
+Получение данных о всех матчах закончено. Новый ключ полуения: 106862 Сейчас в обработке: 62
+Закидываем в потоки парсеры конкретных матчей
+Начало анализа Slid: 106842 Pid: 4359869
+Начало анализа Slid: 106845 Pid: 4360712
+Начало анализа Slid: 106800 Pid: 4361230
+Начало анализа Slid: 106636 Pid: 4361261
+Начало анализа Slid: 106329 Pid: 4360996
+Начало анализа Slid: 40154 Pid: 4357779
+Начало анализа Slid: 105511 Pid: 4361262
+Начало анализа Slid: 106809 Pid: 4359852
+Начало анализа Slid: 106806 Pid: 4359876
+Начало анализа Slid: 106790 Pid: 4359846
+Начало анализа Slid: 106760 Pid: 4361283
+Начало анализа Slid: 106794 Pid: 4359554
+Начало анализа Slid: 106654 Pid: 4360713
+Начало анализа Slid: 106709 Pid: 4359845
+Начало анализа Slid: 106697 Pid: 4359874
+Начало анализа Slid: 106638 Pid: 4361263
+Начало анализа Slid: 106756 Pid: 4359801
+Начало анализа Slid: 104719 Pid: 4359537
+Начало анализа Slid: 106844 Pid: 4360714
+Начало анализа Slid: 106397 Pid: 4361266
+Начало анализа Slid: 106785 Pid: 4359864
+Начало анализа Slid: 106310 Pid: 4355567
+Начало анализа Slid: 106584 Pid: 4359557
+Начало анализа Slid: 106764 Pid: 4359863
+Начало анализа Slid: 106796 Pid: 4360711
+Начало анализа Slid: 106291 Pid: 4359559
+Начало анализа Slid: 106730 Pid: 4359860
+Начало анализа Slid: 106698 Pid: 4359855
+Начало анализа Slid: 106702 Pid: 4359861
+Начало анализа Slid: 106805 Pid: 4359858
+Начало анализа Slid: 105100 Pid: 4359933
+Начало анализа Slid: 106662 Pid: 4359847
+Начало анализа Slid: 106433 Pid: 4360710
+Начало анализа Slid: 106280 Pid: 4359539
+Начало анализа Slid: 106793 Pid: 4359870
+Начало анализа Slid: 106749 Pid: 4359538
+Начало анализа Slid: 106825 Pid: 4353066
+Начало анализа Slid: 106208 Pid: 4360721
+Начало анализа Slid: 106808 Pid: 4359856
+Начало анализа Slid: 106818 Pid: 4359812
+Начало анализа Slid: 106633 Pid: 4359853
+Начало анализа Slid: 106820 Pid: 4360722
+Начало анализа Slid: 106757 Pid: 4359868
+Начало анализа Slid: 106843 Pid: 4359871
+Начало анализа Slid: 106750 Pid: 4359849
+Начало анализа Slid: 106819 Pid: 4359815
+Начало анализа Slid: 106812 Pid: 4359854
+Начало анализа Slid: 106239 Pid: 4359928
+Начало анализа Slid: 106762 Pid: 4359848
+Начало анализа Slid: 106495 Pid: 4359867
+Начало анализа Slid: 106795 Pid: 4359865
+Начало анализа Slid: 105703 Pid: 4359818
+Начало анализа Slid: 106723 Pid: 4359809
+Начало анализа Slid: 106714 Pid: 4360367
+Начало анализа Slid: 106807 Pid: 4356946
+Начало анализа Slid: 106721 Pid: 4359877
+Начало анализа Slid: 106667 Pid: 4359844
+Начало анализа Slid: 106846 Pid: 4359811
+Начало анализа Slid: 105806 Pid: 4354084
+Начало анализа Slid: 106617 Pid: 4359810
+Начало анализа Slid: 105835 Pid: 4359927
+Начало анализа Slid: 106835 Pid: 4359850
+Пустой ответ от сервера для матча. Slid 106329 Pid 4360996
+Пустой ответ от сервера для матча. Slid 105511 Pid 4361262
+Пустой ответ от сервера для матча. Slid 40154 Pid 4357779
+Пустой ответ от сервера для матча. Slid 106806 Pid 4359876
+Пустой ответ от сервера для матча. Slid 106809 Pid 4359852
+Пустой ответ от сервера для матча. Slid 106842 Pid 4359869
+Пустой ответ от сервера для матча. Slid 106800 Pid 4361230
+{
+    "Name": "",
+    "Pid": 4361261,
+    "Slid": 106878,
+    "LeagueName": "Switzerland 4",
+    "MatchName": "Servette U21 : La Chaux-De-Fonds",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.1,
+        "WinNone": 7.1,
+        "Win2": 19
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.08,
+            "WinLess": 5.4
+        },
+        "2.5": {
+            "WinMore": 1.65,
+            "WinLess": 2.05
+        },
+        "3.5": {
+            "WinMore": 3.15,
+            "WinLess": 1.3
+        },
+        "4.5": {
+            "WinMore": 7,
+            "WinLess": 1.03
+        }
+    },
+    "Handicap": {
+        "1-0": {
+            "Win1O": 1.68,
+            "WinNoneO": 3.25,
+            "Win2O": 5.3,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.25,
+            "WinLess": 3.4
+        },
+        "2.5": {
+            "WinMore": 2.3,
+            "WinLess": 1.5
+        },
+        "3.5": {
+            "WinMore": 5.3,
+            "WinLess": 1.08
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 2.25,
+            "WinLess": 1.53
+        },
+        "1.5": {
+            "WinMore": 7.9,
+            "WinLess": 1.01
+        }
+    }
+}
+Пустой ответ от сервера для матча. Slid 104719 Pid 4359537
+Пустой ответ от сервера для матча. Slid 106790 Pid 4359846
+{
+    "Name": "",
+    "Pid": 4359554,
+    "Slid": 106864,
+    "LeagueName": "Spain Primera Division Women",
+    "MatchName": "Betis (W) : Levante (W)",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 5.3,
+        "WinNone": 2.05,
+        "Win2": 2.5
+    },
+    "Totals": {
+        "2.5": {
+            "WinMore": 1.53,
+            "WinLess": 2.3
+        },
+        "3.5": {
+            "WinMore": 3.7,
+            "WinLess": 1.23
+        }
+    },
+    "Handicap": {
+        "1-1": {
+            "Win1O": 5.3,
+            "WinNoneO": 2.05,
+            "Win2O": 2.5,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 3.25,
+            "WinLess": 1.28
+        }
+    },
+    "SecondTeamTotals": {
+        "1.5": {
+            "WinMore": 2,
+            "WinLess": 1.7
+        },
+        "2.5": {
+            "WinMore": 6.2,
+            "WinLess": 1.06
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359557,
+    "Slid": 106885,
+    "LeagueName": "Switzerland 3",
+    "MatchName": "Cham : Luzern II",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.55,
+        "WinNone": 4,
+        "Win2": 5.1
+    },
+    "Totals": {
+        "2.5": {
+            "WinMore": 1.33,
+            "WinLess": 3
+        },
+        "3.5": {
+            "WinMore": 2.05,
+            "WinLess": 1.65
+        },
+        "4.5": {
+            "WinMore": 3.85,
+            "WinLess": 1.2
+        },
+        "5.5": {
+            "WinMore": 7.9,
+            "WinLess": 1.01
+        }
+    },
+    "Handicap": {
+        "1-0": {
+            "Win1O": 2.75,
+            "WinNoneO": 3.45,
+            "Win2O": 2.25,
+            "Win1": 3.85,
+            "WinNone": 1.7,
+            "Win2": 4.25
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.33,
+            "WinLess": 2.9
+        },
+        "2.5": {
+            "WinMore": 2.65,
+            "WinLess": 1.38
+        },
+        "3.5": {
+            "WinMore": 6.5,
+            "WinLess": 1.04
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.3,
+            "WinLess": 3.05
+        },
+        "1.5": {
+            "WinMore": 2.55,
+            "WinLess": 1.43
+        },
+        "2.5": {
+            "WinMore": 6,
+            "WinLess": 1.05
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359863,
+    "Slid": 106887,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Zenith Prato : Tuttocuoio",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.63,
+        "WinNone": 3.65,
+        "Win2": 5.4
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.09,
+            "WinLess": 5.5
+        },
+        "2.5": {
+            "WinMore": 1.68,
+            "WinLess": 2.1
+        },
+        "3.5": {
+            "WinMore": 3.15,
+            "WinLess": 1.33
+        },
+        "4.5": {
+            "WinMore": 7,
+            "WinLess": 1.05
+        }
+    },
+    "Handicap": {
+        "1-0": {
+            "Win1O": 3.4,
+            "WinNoneO": 3,
+            "Win2O": 2.15,
+            "Win1": 4.85,
+            "WinNone": 1.58,
+            "Win2": 4.45
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.65,
+            "WinLess": 2.1
+        },
+        "2.5": {
+            "WinMore": 4.4,
+            "WinLess": 1.18
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.43,
+            "WinLess": 2.6
+        },
+        "1.5": {
+            "WinMore": 3.2,
+            "WinLess": 1.3
+        },
+        "2.5": {
+            "WinMore": 8.3,
+            "WinLess": 1.02
+        }
+    }
+}
+Пустой ответ от сервера для матча. Slid 106291 Pid 4359559
+Пустой ответ от сервера для матча. Slid 106698 Pid 4359855
+Пустой ответ от сервера для матча. Slid 106730 Pid 4359860
+Пустой ответ от сервера для матча. Slid 106760 Pid 4361283
+Пустой ответ от сервера для матча. Slid 106796 Pid 4360711
+{
+    "Name": "",
+    "Pid": 4361263,
+    "Slid": 106883,
+    "LeagueName": "Austria Landesliga",
+    "MatchName": "SV Spittal : Kottmannsdorf",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.13,
+        "WinNone": 6.7,
+        "Win2": 17
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.07,
+            "WinLess": 5.7
+        },
+        "2.5": {
+            "WinMore": 1.63,
+            "WinLess": 2.1
+        },
+        "3.5": {
+            "WinMore": 2.95,
+            "WinLess": 1.33
+        },
+        "4.5": {
+            "WinMore": 6.4,
+            "WinLess": 1.05
+        }
+    },
+    "Handicap": {
+        "1-0": {
+            "Win1O": 1.7,
+            "WinNoneO": 3.3,
+            "Win2O": 4.85,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.25,
+            "WinLess": 3.45
+        },
+        "2.5": {
+            "WinMore": 2.3,
+            "WinLess": 1.53
+        },
+        "3.5": {
+            "WinMore": 5.2,
+            "WinLess": 1.08
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 2.1,
+            "WinLess": 1.6
+        },
+        "1.5": {
+            "WinMore": 7,
+            "WinLess": 1.03
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359864,
+    "Slid": 106879,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Livorno : Seravezza Pozzi",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.63,
+        "WinNone": 3.4,
+        "Win2": 5.9
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.03,
+            "WinLess": 7.6
+        },
+        "1.5": {
+            "WinMore": 1.43,
+            "WinLess": 2.65
+        },
+        "2.5": {
+            "WinMore": 2.35,
+            "WinLess": 1.53
+        },
+        "3.5": {
+            "WinMore": 4.55,
+            "WinLess": 1.18
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 1.63,
+            "WinNoneO": 3.4,
+            "Win2O": 5.9,
+            "Win1": 2.85,
+            "WinNone": 1.68,
+            "Win2": 7.3
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.18,
+            "WinLess": 4.3
+        },
+        "1.5": {
+            "WinMore": 1.95,
+            "WinLess": 1.75
+        },
+        "2.5": {
+            "WinMore": 4.15,
+            "WinLess": 1.2
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.9,
+            "WinLess": 1.8
+        },
+        "1.5": {
+            "WinMore": 5.7,
+            "WinLess": 1.08
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359845,
+    "Slid": 106874,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Tau Calcio Altopascio : Prato",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.8,
+        "WinNone": 2.8,
+        "Win2": 2.75
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.09,
+            "WinLess": 5.4
+        },
+        "1.5": {
+            "WinMore": 1.68,
+            "WinLess": 2.05
+        },
+        "2.5": {
+            "WinMore": 3.2,
+            "WinLess": 1.33
+        },
+        "3.5": {
+            "WinMore": 7.1,
+            "WinLess": 1.05
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.8,
+            "WinNoneO": 2.8,
+            "Win2O": 2.75,
+            "Win1": 4.65,
+            "WinNone": 1.53,
+            "Win2": 4.45
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.55,
+            "WinLess": 2.3
+        },
+        "1.5": {
+            "WinMore": 3.8,
+            "WinLess": 1.23
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.53,
+            "WinLess": 2.35
+        },
+        "1.5": {
+            "WinMore": 3.7,
+            "WinLess": 1.23
+        }
+    }
+}
+Пустой ответ от сервера для матча. Slid 106654 Pid 4360713
+Пустой ответ от сервера для матча. Slid 106208 Pid 4360721
+Пустой ответ от сервера для матча. Slid 106662 Pid 4359847
+Пустой ответ от сервера для матча. Slid 106397 Pid 4361266
+Пустой ответ от сервера для матча. Slid 106793 Pid 4359870
+Пустой ответ от сервера для матча. Slid 106749 Pid 4359538
+Пустой ответ от сервера для матча. Slid 105100 Pid 4359933
+Пустой ответ от сервера для матча. Slid 106756 Pid 4359801
+Пустой ответ от сервера для матча. Slid 106310 Pid 4355567
+Пустой ответ от сервера для матча. Slid 106819 Pid 4359815
+Пустой ответ от сервера для матча. Slid 106820 Pid 4360722
+Пустой ответ от сервера для матча. Slid 106818 Pid 4359812
+Пустой ответ от сервера для матча. Slid 106633 Pid 4359853
+Пустой ответ от сервера для матча. Slid 106757 Pid 4359868
+Пустой ответ от сервера для матча. Slid 106808 Pid 4359856
+Пустой ответ от сервера для матча. Slid 106714 Pid 4360367
+Пустой ответ от сервера для матча. Slid 106825 Pid 4353066
+Пустой ответ от сервера для матча. Slid 106812 Pid 4359854
+Пустой ответ от сервера для матча. Slid 106835 Pid 4359850
+Пустой ответ от сервера для матча. Slid 106750 Pid 4359849
+Пустой ответ от сервера для матча. Slid 105835 Pid 4359927
+Пустой ответ от сервера для матча. Slid 106239 Pid 4359928
+Пустой ответ от сервера для матча. Slid 106846 Pid 4359811
+Пустой ответ от сервера для матча. Slid 106667 Pid 4359844
+{
+    "Name": "",
+    "Pid": 4360710,
+    "Slid": 106868,
+    "LeagueName": "Bosnia \u0026 Herz. 2 ",
+    "MatchName": "Gorazde : Gradina Srebrenik",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.05,
+        "WinNone": 1.98,
+        "Win2": 11
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.65,
+            "WinLess": 2.05
+        },
+        "1.5": {
+            "WinMore": 4.35,
+            "WinLess": 1.14
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.05,
+            "WinNoneO": 1.98,
+            "Win2O": 11,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.85,
+            "WinLess": 1.8
+        },
+        "1.5": {
+            "WinMore": 5.4,
+            "WinLess": 1.07
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 6.2,
+            "WinLess": 1.05
+        }
+    }
+}
+Пустой ответ от сервера для матча. Slid 106844 Pid 4360714
+Пустой ответ от сервера для матча. Slid 105703 Pid 4359818
+{
+    "Name": "",
+    "Pid": 4359539,
+    "Slid": 106886,
+    "LeagueName": "Czech Republic 3",
+    "MatchName": "Znojmo : Zbrojovka Brno II",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.05,
+        "WinNone": 2.75,
+        "Win2": 4.25
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.13,
+            "WinLess": 4.65
+        },
+        "1.5": {
+            "WinMore": 1.8,
+            "WinLess": 1.88
+        },
+        "2.5": {
+            "WinMore": 3.6,
+            "WinLess": 1.23
+        },
+        "3.5": {
+            "WinMore": 8.55,
+            "WinLess": 1.01
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.05,
+            "WinNoneO": 2.75,
+            "Win2O": 4.25,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.4,
+            "WinLess": 2.65
+        },
+        "1.5": {
+            "WinMore": 3,
+            "WinLess": 1.33
+        },
+        "2.5": {
+            "WinMore": 7.7,
+            "WinLess": 1.01
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.95,
+            "WinLess": 1.73
+        },
+        "1.5": {
+            "WinMore": 6,
+            "WinLess": 1.05
+        }
+    }
+}
+Пустой ответ от сервера для матча. Slid 106495 Pid 4359867
+{
+    "Name": "",
+    "Pid": 4359865,
+    "Slid": 106870,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Forli : Sasso Marconi",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.73,
+        "WinNone": 3.1,
+        "Win2": 5.7
+    },
+    "Totals": {
+        "2.5": {
+            "WinMore": 1.09,
+            "WinLess": 5.6
+        },
+        "3.5": {
+            "WinMore": 1.65,
+            "WinLess": 2.1
+        },
+        "4.5": {
+            "WinMore": 3.1,
+            "WinLess": 1.33
+        },
+        "5.5": {
+            "WinMore": 6.9,
+            "WinLess": 1.05
+        }
+    },
+    "Handicap": {
+        "1-1": {
+            "Win1O": 1.73,
+            "WinNoneO": 3.1,
+            "Win2O": 5.7,
+            "Win1": 2.95,
+            "WinNone": 1.63,
+            "Win2": 7.4
+        }
+    },
+    "FirstTeamTotals": {
+        "1.5": {
+            "WinMore": 1.28,
+            "WinLess": 3.35
+        },
+        "2.5": {
+            "WinMore": 2.4,
+            "WinLess": 1.5
+        },
+        "3.5": {
+            "WinMore": 5.5,
+            "WinLess": 1.09
+        }
+    },
+    "SecondTeamTotals": {
+        "1.5": {
+            "WinMore": 2.15,
+            "WinLess": 1.63
+        },
+        "2.5": {
+            "WinMore": 7,
+            "WinLess": 1.04
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4360712,
+    "Slid": 106854,
+    "LeagueName": "Bosnia \u0026 Herz. 2 ",
+    "MatchName": "Zvijezda Gradačac : Stupcanica Olovo",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.3,
+        "WinNone": 4.05,
+        "Win2": 14
+    },
+    "Totals": {
+        "3.5": {
+            "WinMore": 1.83,
+            "WinLess": 1.83
+        },
+        "4.5": {
+            "WinMore": 5.4,
+            "WinLess": 1.08
+        }
+    },
+    "Handicap": {
+        "2-1": {
+            "Win1O": 5.1,
+            "WinNoneO": 1.68,
+            "Win2O": 3.2,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "2.5": {
+            "WinMore": 3.55,
+            "WinLess": 1.23
+        }
+    },
+    "SecondTeamTotals": {
+        "1.5": {
+            "WinMore": 2.65,
+            "WinLess": 1.4
+        }
+    }
+}
+Пустой ответ от сервера для матча. Slid 105806 Pid 4354084
+Пустой ответ от сервера для матча. Slid 106723 Pid 4359809
+Пустой ответ от сервера для матча. Slid 106617 Pid 4359810
+Пустой ответ от сервера для матча. Slid 106807 Pid 4356946
+Пустой ответ от сервера для матча. Slid 106805 Pid 4359858
+{
+    "Name": "",
+    "Pid": 4359877,
+    "Slid": 106888,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Gavorrano : San Donato Tavarnelle",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.4,
+        "WinNone": 2.7,
+        "Win2": 3.4
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.15,
+            "WinLess": 4.65
+        },
+        "1.5": {
+            "WinMore": 1.85,
+            "WinLess": 1.85
+        },
+        "2.5": {
+            "WinMore": 3.75,
+            "WinLess": 1.23
+        },
+        "3.5": {
+            "WinMore": 8.85,
+            "WinLess": 1.02
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.4,
+            "WinNoneO": 2.7,
+            "Win2O": 3.4,
+            "Win1": 4.2,
+            "WinNone": 1.5,
+            "Win2": 5.5
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.53,
+            "WinLess": 2.4
+        },
+        "1.5": {
+            "WinMore": 3.6,
+            "WinLess": 1.25
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.78,
+            "WinLess": 1.93
+        },
+        "1.5": {
+            "WinMore": 4.85,
+            "WinLess": 1.13
+        }
+    }
+}
+Пустой ответ от сервера для матча. Slid 106697 Pid 4359874
+{
+    "Name": "",
+    "Pid": 4359848,
+    "Slid": 106869,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Breno : Vigasio",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.58,
+        "WinNone": 3.2,
+        "Win2": 7.9
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.13,
+            "WinLess": 4.95
+        },
+        "1.5": {
+            "WinMore": 1.78,
+            "WinLess": 1.95
+        },
+        "2.5": {
+            "WinMore": 3.45,
+            "WinLess": 1.28
+        },
+        "3.5": {
+            "WinMore": 8,
+            "WinLess": 1.03
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 1.58,
+            "WinNoneO": 3.2,
+            "Win2O": 7.9,
+            "Win1": 2.9,
+            "WinNone": 1.55,
+            "Win2": 10
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.28,
+            "WinLess": 3.45
+        },
+        "1.5": {
+            "WinMore": 2.35,
+            "WinLess": 1.53
+        },
+        "2.5": {
+            "WinMore": 5.3,
+            "WinLess": 1.09
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 2.7,
+            "WinLess": 1.4
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359871,
+    "Slid": 106884,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Fiorenzuola : SCD Progresso",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.4,
+        "WinNone": 2.6,
+        "Win2": 3.6
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.18,
+            "WinLess": 4.25
+        },
+        "1.5": {
+            "WinMore": 1.95,
+            "WinLess": 1.75
+        },
+        "2.5": {
+            "WinMore": 4.15,
+            "WinLess": 1.2
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.4,
+            "WinNoneO": 2.6,
+            "Win2O": 3.6,
+            "Win1": 4.15,
+            "WinNone": 1.48,
+            "Win2": 5.9
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.55,
+            "WinLess": 2.3
+        },
+        "1.5": {
+            "WinMore": 3.75,
+            "WinLess": 1.23
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.9,
+            "WinLess": 1.8
+        },
+        "1.5": {
+            "WinMore": 5.6,
+            "WinLess": 1.08
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359861,
+    "Slid": 106857,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Lavis : Real Calepina",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 4.75,
+        "WinNone": 3.15,
+        "Win2": 1.78
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.04,
+            "WinLess": 6.6
+        },
+        "1.5": {
+            "WinMore": 1.5,
+            "WinLess": 2.35
+        },
+        "2.5": {
+            "WinMore": 2.6,
+            "WinLess": 1.4
+        },
+        "3.5": {
+            "WinMore": 5.3,
+            "WinLess": 1.09
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 4.75,
+            "WinNoneO": 3.15,
+            "Win2O": 1.78,
+            "Win1": 6.7,
+            "WinNone": 1.58,
+            "Win2": 3.05
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.83,
+            "WinLess": 1.83
+        },
+        "1.5": {
+            "WinMore": 5.3,
+            "WinLess": 1.08
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.23,
+            "WinLess": 3.55
+        },
+        "1.5": {
+            "WinMore": 2.25,
+            "WinLess": 1.55
+        },
+        "2.5": {
+            "WinMore": 4.95,
+            "WinLess": 1.09
+        }
+    }
+}
+Начало получения данных о всех матчах
+Получение данных о всех матчах закончено. Новый ключ полуения: 106888 Сейчас в обработке: 62
+Закидываем в потоки парсеры конкретных матчей
+Начало анализа Slid: 106495 Pid: 4359867
+Начало анализа Slid: 105703 Pid: 4359818
+Начало анализа Slid: 106723 Pid: 4359809
+Начало анализа Slid: 106870 Pid: 4359865
+Начало анализа Slid: 106667 Pid: 4359844
+Начало анализа Slid: 105835 Pid: 4359927
+Начало анализа Slid: 106662 Pid: 4359847
+Начало анализа Slid: 106749 Pid: 4359538
+Начало анализа Slid: 106842 Pid: 4359869
+Начало анализа Slid: 106868 Pid: 4360710
+Начало анализа Slid: 106291 Pid: 4359559
+Начало анализа Slid: 106857 Pid: 4359861
+Начало анализа Slid: 106864 Pid: 4359554
+Начало анализа Slid: 40154 Pid: 4357779
+Начало анализа Slid: 104719 Pid: 4359537
+Начало анализа Slid: 106756 Pid: 4359801
+Начало анализа Slid: 106812 Pid: 4359854
+Начало анализа Slid: 106760 Pid: 4361283
+Начало анализа Slid: 106888 Pid: 4359877
+Начало анализа Slid: 106846 Pid: 4359811
+Начало анализа Slid: 106757 Pid: 4359868
+Начало анализа Slid: 106730 Pid: 4359860
+Начало анализа Slid: 106820 Pid: 4360722
+Начало анализа Slid: 106818 Pid: 4359812
+Начало анализа Slid: 106714 Pid: 4360367
+Начало анализа Slid: 106800 Pid: 4361230
+Начало анализа Slid: 106750 Pid: 4359849
+Начало анализа Slid: 106819 Pid: 4359815
+Начало анализа Slid: 106886 Pid: 4359539
+Начало анализа Slid: 106239 Pid: 4359928
+Начало анализа Slid: 106883 Pid: 4361263
+Начало анализа Slid: 106808 Pid: 4359856
+Начало анализа Slid: 106879 Pid: 4359864
+Начало анализа Slid: 106844 Pid: 4360714
+Начало анализа Slid: 106885 Pid: 4359557
+Начало анализа Slid: 106854 Pid: 4360712
+Начало анализа Slid: 106697 Pid: 4359874
+Начало анализа Slid: 106310 Pid: 4355567
+Начало анализа Slid: 106633 Pid: 4359853
+Начало анализа Slid: 106397 Pid: 4361266
+Начало анализа Slid: 106887 Pid: 4359863
+Начало анализа Slid: 105100 Pid: 4359933
+Начало анализа Slid: 106796 Pid: 4360711
+Начало анализа Slid: 106208 Pid: 4360721
+Начало анализа Slid: 106835 Pid: 4359850
+Начало анализа Slid: 106654 Pid: 4360713
+Начало анализа Slid: 106793 Pid: 4359870
+Начало анализа Slid: 106617 Pid: 4359810
+Начало анализа Slid: 105806 Pid: 4354084
+Начало анализа Slid: 106329 Pid: 4360996
+Начало анализа Slid: 106878 Pid: 4361261
+Начало анализа Slid: 106809 Pid: 4359852
+Начало анализа Slid: 106806 Pid: 4359876
+Начало анализа Slid: 106805 Pid: 4359858
+Начало анализа Slid: 106807 Pid: 4356946
+Начало анализа Slid: 106869 Pid: 4359848
+Начало анализа Slid: 106874 Pid: 4359845
+Начало анализа Slid: 105511 Pid: 4361262
+Начало анализа Slid: 106790 Pid: 4359846
+Начало анализа Slid: 106825 Pid: 4353066
+Начало анализа Slid: 106698 Pid: 4359855
+Начало анализа Slid: 106884 Pid: 4359871
+Пустой ответ от сервера для матча. Slid 106870 Pid 4359865
+Пустой ответ от сервера для матча. Slid 106662 Pid 4359847
+Пустой ответ от сервера для матча. Slid 106667 Pid 4359844
+Пустой ответ от сервера для матча. Slid 105835 Pid 4359927
+{
+    "Name": "",
+    "Pid": 4359809,
+    "Slid": 106904,
+    "LeagueName": "Egypt 2",
+    "MatchName": "Suez Montakhab : Al Mokawloon Al Arab",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 8,
+        "WinNone": 1.53,
+        "Win2": 3.3
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 2.2,
+            "WinLess": 1.58
+        },
+        "1.5": {
+            "WinMore": 8,
+            "WinLess": 1.02
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 8,
+            "WinNoneO": 1.53,
+            "Win2O": 3.3,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 5.6,
+            "WinLess": 1.07
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 2.85,
+            "WinLess": 1.35
+        }
+    }
+}
+Пустой ответ от сервера для матча. Slid 106842 Pid 4359869
+Пустой ответ от сервера для матча. Slid 106857 Pid 4359861
+Пустой ответ от сервера для матча. Slid 106749 Pid 4359538
+Пустой ответ от сервера для матча. Slid 40154 Pid 4357779
+Пустой ответ от сервера для матча. Slid 106806 Pid 4359876
+Пустой ответ от сервера для матча. Slid 104719 Pid 4359537
+Пустой ответ от сервера для матча. Slid 106868 Pid 4360710
+Пустой ответ от сервера для матча. Slid 106291 Pid 4359559
+Пустой ответ от сервера для матча. Slid 106756 Pid 4359801
+Пустой ответ от сервера для матча. Slid 105100 Pid 4359933
+Пустой ответ от сервера для матча. Slid 106887 Pid 4359863
+Пустой ответ от сервера для матча. Slid 106846 Pid 4359811
+Пустой ответ от сервера для матча. Slid 106760 Pid 4361283
+Пустой ответ от сервера для матча. Slid 106835 Pid 4359850
+Пустой ответ от сервера для матча. Slid 106208 Pid 4360721
+Пустой ответ от сервера для матча. Slid 106329 Pid 4360996
+Пустой ответ от сервера для матча. Slid 106796 Pid 4360711
+Пустой ответ от сервера для матча. Slid 106812 Pid 4359854
+Пустой ответ от сервера для матча. Slid 106888 Pid 4359877
+Пустой ответ от сервера для матча. Slid 106820 Pid 4360722
+Пустой ответ от сервера для матча. Slid 106809 Pid 4359852
+Пустой ответ от сервера для матча. Slid 105806 Pid 4354084
+Пустой ответ от сервера для матча. Slid 106800 Pid 4361230
+Пустой ответ от сервера для матча. Slid 106730 Pid 4359860
+Пустой ответ от сервера для матча. Slid 106818 Pid 4359812
+Пустой ответ от сервера для матча. Slid 106819 Pid 4359815
+Пустой ответ от сервера для матча. Slid 106750 Pid 4359849
+{
+    "Name": "",
+    "Pid": 4360367,
+    "Slid": 106893,
+    "LeagueName": "Argentina Primera A Women",
+    "MatchName": "Belgrano (W) : Estudiantes Caseros (W)",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.02,
+        "WinNone": 13,
+        "Win2": 91
+    },
+    "Totals": {
+        "3.5": {
+            "WinMore": 4.45,
+            "WinLess": 1.15
+        }
+    },
+    "Handicap": {
+        "2-1": {
+            "Win1O": 8.95,
+            "WinNoneO": 1.15,
+            "Win2O": 10,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "2.5": {
+            "WinMore": 5.9,
+            "WinLess": 1.06
+        }
+    },
+    "SecondTeamTotals": {}
+}
+{
+    "Name": "",
+    "Pid": 4359868,
+    "Slid": 106895,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "FBC Gravina : Francavilla",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.63,
+        "WinNone": 3.2,
+        "Win2": 6
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.05,
+            "WinLess": 6.2
+        },
+        "1.5": {
+            "WinMore": 1.53,
+            "WinLess": 2.25
+        },
+        "2.5": {
+            "WinMore": 2.75,
+            "WinLess": 1.38
+        },
+        "3.5": {
+            "WinMore": 5.7,
+            "WinLess": 1.07
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 1.63,
+            "WinNoneO": 3.2,
+            "Win2O": 6,
+            "Win1": 2.75,
+            "WinNone": 1.63,
+            "Win2": 7.6
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.23,
+            "WinLess": 3.75
+        },
+        "1.5": {
+            "WinMore": 2.15,
+            "WinLess": 1.6
+        },
+        "2.5": {
+            "WinMore": 4.65,
+            "WinLess": 1.13
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 2.1,
+            "WinLess": 1.63
+        },
+        "1.5": {
+            "WinMore": 6.9,
+            "WinLess": 1.03
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4360713,
+    "Slid": 106908,
+    "LeagueName": "Bosnia \u0026 Herz. 2 ",
+    "MatchName": "Radnički Lukavac : Tuzla City",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 4.2,
+        "WinNone": 2.15,
+        "Win2": 2.55
+    },
+    "Totals": {
+        "4.5": {
+            "WinMore": 1.38,
+            "WinLess": 2.65
+        },
+        "5.5": {
+            "WinMore": 3,
+            "WinLess": 1.33
+        },
+        "6.5": {
+            "WinMore": 8.2,
+            "WinLess": 1.01
+        }
+    },
+    "Handicap": {
+        "2-2": {
+            "Win1O": 4.2,
+            "WinNoneO": 2.15,
+            "Win2O": 2.55,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "2.5": {
+            "WinMore": 2.55,
+            "WinLess": 1.43
+        }
+    },
+    "SecondTeamTotals": {
+        "2.5": {
+            "WinMore": 1.88,
+            "WinLess": 1.75
+        },
+        "3.5": {
+            "WinMore": 5.7,
+            "WinLess": 1.06
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359810,
+    "Slid": 106899,
+    "LeagueName": "Egypt 2",
+    "MatchName": "Tanta : Al Qanah",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 3.55,
+        "WinNone": 1.63,
+        "Win2": 5.3
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.98,
+            "WinLess": 1.7
+        },
+        "1.5": {
+            "WinMore": 6.4,
+            "WinLess": 1.05
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 3.55,
+            "WinNoneO": 1.63,
+            "Win2O": 5.3,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 2.85,
+            "WinLess": 1.33
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 3.95,
+            "WinLess": 1.18
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359870,
+    "Slid": 106906,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Anzio Calcio : Latte Dolce",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.7,
+        "WinNone": 2.95,
+        "Win2": 2.7
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.06,
+            "WinLess": 6.5
+        },
+        "1.5": {
+            "WinMore": 1.53,
+            "WinLess": 2.35
+        },
+        "2.5": {
+            "WinMore": 2.65,
+            "WinLess": 1.43
+        },
+        "3.5": {
+            "WinMore": 5.4,
+            "WinLess": 1.09
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.7,
+            "WinNoneO": 2.95,
+            "Win2O": 2.7,
+            "Win1": 4.05,
+            "WinNone": 1.7,
+            "Win2": 3.9
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.45,
+            "WinLess": 2.55
+        },
+        "1.5": {
+            "WinMore": 3.25,
+            "WinLess": 1.28
+        },
+        "2.5": {
+            "WinMore": 8.65,
+            "WinLess": 1.01
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.43,
+            "WinLess": 2.6
+        },
+        "1.5": {
+            "WinMore": 3.2,
+            "WinLess": 1.3
+        },
+        "2.5": {
+            "WinMore": 8.3,
+            "WinLess": 1.02
+        }
+    }
+}
+Пустой ответ от сервера для матча. Slid 106825 Pid 4353066
+Пустой ответ от сервера для матча. Slid 106886 Pid 4359539
+Пустой ответ от сервера для матча. Slid 106805 Pid 4359858
+Пустой ответ от сервера для матча. Slid 106883 Pid 4361263
+Пустой ответ от сервера для матча. Slid 105511 Pid 4361262
+Пустой ответ от сервера для матча. Slid 106239 Pid 4359928
+Пустой ответ от сервера для матча. Slid 106878 Pid 4361261
+Пустой ответ от сервера для матча. Slid 105703 Pid 4359818
+Пустой ответ от сервера для матча. Slid 106869 Pid 4359848
+Пустой ответ от сервера для матча. Slid 106807 Pid 4356946
+Пустой ответ от сервера для матча. Slid 106874 Pid 4359845
+Пустой ответ от сервера для матча. Slid 106808 Pid 4359856
+Пустой ответ от сервера для матча. Slid 106864 Pid 4359554
+Пустой ответ от сервера для матча. Slid 106790 Pid 4359846
+Пустой ответ от сервера для матча. Slid 106844 Pid 4360714
+Пустой ответ от сервера для матча. Slid 106879 Pid 4359864
+Пустой ответ от сервера для матча. Slid 106633 Pid 4359853
+Пустой ответ от сервера для матча. Slid 106885 Pid 4359557
+Пустой ответ от сервера для матча. Slid 106884 Pid 4359871
+Пустой ответ от сервера для матча. Slid 106397 Pid 4361266
+Пустой ответ от сервера для матча. Slid 106697 Pid 4359874
+Пустой ответ от сервера для матча. Slid 106698 Pid 4359855
+Пустой ответ от сервера для матча. Slid 106854 Pid 4360712
+Пустой ответ от сервера для матча. Slid 106310 Pid 4355567
+Пустой ответ от сервера для матча. Slid 106495 Pid 4359867
+Начало получения данных о всех матчах
+Получение данных о всех матчах закончено. Новый ключ полуения: 106908 Сейчас в обработке: 62
+Закидываем в потоки парсеры конкретных матчей
+Начало анализа Slid: 106884 Pid: 4359871
+Начало анализа Slid: 106806 Pid: 4359876
+Начало анализа Slid: 106864 Pid: 4359554
+Начало анализа Slid: 106790 Pid: 4359846
+Начало анализа Slid: 106808 Pid: 4359856
+Начало анализа Slid: 106667 Pid: 4359844
+Начало анализа Slid: 106208 Pid: 4360721
+Начало анализа Slid: 106329 Pid: 4360996
+Начало анализа Slid: 106662 Pid: 4359847
+Начало анализа Slid: 106846 Pid: 4359811
+Начало анализа Slid: 106886 Pid: 4359539
+Начало анализа Slid: 105100 Pid: 4359933
+Начало анализа Slid: 106895 Pid: 4359868
+Начало анализа Slid: 106796 Pid: 4360711
+Начало анализа Slid: 106883 Pid: 4361263
+Начало анализа Slid: 106805 Pid: 4359858
+Начало анализа Slid: 106885 Pid: 4359557
+Начало анализа Slid: 106698 Pid: 4359855
+Начало анализа Slid: 106874 Pid: 4359845
+Начало анализа Slid: 105806 Pid: 4354084
+Начало анализа Slid: 105703 Pid: 4359818
+Начало анализа Slid: 106842 Pid: 4359869
+Начало анализа Slid: 106819 Pid: 4359815
+Начало анализа Slid: 106870 Pid: 4359865
+Начало анализа Slid: 106239 Pid: 4359928
+Начало анализа Slid: 106812 Pid: 4359854
+Начало анализа Slid: 106888 Pid: 4359877
+Начало анализа Slid: 106800 Pid: 4361230
+Начало анализа Slid: 106878 Pid: 4361261
+Начало анализа Slid: 106633 Pid: 4359853
+Начало анализа Slid: 106749 Pid: 4359538
+Начало анализа Slid: 106904 Pid: 4359809
+Начало анализа Slid: 106868 Pid: 4360710
+Начало анализа Slid: 106854 Pid: 4360712
+Начало анализа Slid: 106310 Pid: 4355567
+Начало анализа Slid: 106818 Pid: 4359812
+Начало анализа Slid: 40154 Pid: 4357779
+Начало анализа Slid: 106291 Pid: 4359559
+Начало анализа Slid: 106857 Pid: 4359861
+Начало анализа Slid: 106887 Pid: 4359863
+Начало анализа Slid: 106820 Pid: 4360722
+Начало анализа Slid: 105511 Pid: 4361262
+Начало анализа Slid: 106397 Pid: 4361266
+Начало анализа Slid: 106893 Pid: 4360367
+Начало анализа Slid: 106697 Pid: 4359874
+Начало анализа Slid: 106756 Pid: 4359801
+Начало анализа Slid: 105835 Pid: 4359927
+Начало анализа Slid: 106807 Pid: 4356946
+Начало анализа Slid: 106879 Pid: 4359864
+Начало анализа Slid: 104719 Pid: 4359537
+Начало анализа Slid: 106844 Pid: 4360714
+Начало анализа Slid: 106869 Pid: 4359848
+Начало анализа Slid: 106825 Pid: 4353066
+Начало анализа Slid: 106809 Pid: 4359852
+Начало анализа Slid: 106495 Pid: 4359867
+Начало анализа Slid: 106835 Pid: 4359850
+Начало анализа Slid: 106899 Pid: 4359810
+Начало анализа Slid: 106730 Pid: 4359860
+Начало анализа Slid: 106750 Pid: 4359849
+Начало анализа Slid: 106906 Pid: 4359870
+Начало анализа Slid: 106908 Pid: 4360713
+Начало анализа Slid: 106760 Pid: 4361283
+Пустой ответ от сервера для матча. Slid 106806 Pid 4359876
+Пустой ответ от сервера для матча. Slid 106884 Pid 4359871
+Пустой ответ от сервера для матча. Slid 106864 Pid 4359554
+Пустой ответ от сервера для матча. Slid 106790 Pid 4359846
+Пустой ответ от сервера для матча. Slid 106208 Pid 4360721
+Пустой ответ от сервера для матча. Slid 106667 Pid 4359844
+Пустой ответ от сервера для матча. Slid 106808 Pid 4359856
+Пустой ответ от сервера для матча. Slid 106842 Pid 4359869
+Пустой ответ от сервера для матча. Slid 106886 Pid 4359539
+Пустой ответ от сервера для матча. Slid 106662 Pid 4359847
+Пустой ответ от сервера для матча. Slid 106846 Pid 4359811
+Пустой ответ от сервера для матча. Slid 106698 Pid 4359855
+Пустой ответ от сервера для матча. Slid 106796 Pid 4360711
+Пустой ответ от сервера для матча. Slid 106883 Pid 4361263
+Пустой ответ от сервера для матча. Slid 106870 Pid 4359865
+Пустой ответ от сервера для матча. Slid 106329 Pid 4360996
+Пустой ответ от сервера для матча. Slid 105100 Pid 4359933
+Пустой ответ от сервера для матча. Slid 106239 Pid 4359928
+Пустой ответ от сервера для матча. Slid 106812 Pid 4359854
+Пустой ответ от сервера для матча. Slid 105806 Pid 4354084
+Пустой ответ от сервера для матча. Slid 106895 Pid 4359868
+Пустой ответ от сервера для матча. Slid 106874 Pid 4359845
+Пустой ответ от сервера для матча. Slid 106819 Pid 4359815
+Пустой ответ от сервера для матча. Slid 105703 Pid 4359818
+Пустой ответ от сервера для матча. Slid 106885 Pid 4359557
+Пустой ответ от сервера для матча. Slid 106805 Pid 4359858
+{
+    "Name": "",
+    "Pid": 4359877,
+    "Slid": 106931,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Gavorrano : San Donato Tavarnelle",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 2.4,
+        "WinNone": 2.7,
+        "Win2": 3.5
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.15,
+            "WinLess": 4.65
+        },
+        "1.5": {
+            "WinMore": 1.85,
+            "WinLess": 1.85
+        },
+        "2.5": {
+            "WinMore": 3.75,
+            "WinLess": 1.23
+        },
+        "3.5": {
+            "WinMore": 8.85,
+            "WinLess": 1.02
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 2.4,
+            "WinNoneO": 2.7,
+            "Win2O": 3.5,
+            "Win1": 4.15,
+            "WinNone": 1.5,
+            "Win2": 5.6
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.5,
+            "WinLess": 2.4
+        },
+        "1.5": {
+            "WinMore": 3.55,
+            "WinLess": 1.25
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.8,
+            "WinLess": 1.9
+        },
+        "1.5": {
+            "WinMore": 4.95,
+            "WinLess": 1.13
+        }
+    }
+}
+Пустой ответ от сервера для матча. Slid 105511 Pid 4361262
+Пустой ответ от сервера для матча. Slid 106887 Pid 4359863
+Пустой ответ от сервера для матча. Slid 106800 Pid 4361230
+Пустой ответ от сервера для матча. Slid 106878 Pid 4361261
+Пустой ответ от сервера для матча. Slid 106760 Pid 4361283
+Пустой ответ от сервера для матча. Slid 106818 Pid 4359812
+Пустой ответ от сервера для матча. Slid 106807 Pid 4356946
+Пустой ответ от сервера для матча. Slid 106697 Pid 4359874
+Пустой ответ от сервера для матча. Slid 106750 Pid 4359849
+Пустой ответ от сервера для матча. Slid 106397 Pid 4361266
+Пустой ответ от сервера для матча. Slid 106291 Pid 4359559
+Пустой ответ от сервера для матча. Slid 106869 Pid 4359848
+Пустой ответ от сервера для матча. Slid 106844 Pid 4360714
+Пустой ответ от сервера для матча. Slid 106756 Pid 4359801
+Пустой ответ от сервера для матча. Slid 106633 Pid 4359853
+{
+    "Name": "",
+    "Pid": 4360722,
+    "Slid": 106938,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "San Nicolo Notaresco : Avezzano",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 3.7,
+        "WinNone": 3.3,
+        "Win2": 1.98
+    },
+    "Totals": {
+        "1.5": {
+            "WinMore": 1.08,
+            "WinLess": 5.8
+        },
+        "2.5": {
+            "WinMore": 1.63,
+            "WinLess": 2.15
+        },
+        "3.5": {
+            "WinMore": 3,
+            "WinLess": 1.35
+        },
+        "4.5": {
+            "WinMore": 6.4,
+            "WinLess": 1.06
+        }
+    },
+    "Handicap": {
+        "0-1": {
+            "Win1O": 1.75,
+            "WinNoneO": 3.2,
+            "Win2O": 4.95,
+            "Win1": 4.1,
+            "WinNone": 1.53,
+            "Win2": 5.9
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.3,
+            "WinLess": 3.2
+        },
+        "1.5": {
+            "WinMore": 2.5,
+            "WinLess": 1.48
+        },
+        "2.5": {
+            "WinMore": 5.9,
+            "WinLess": 1.07
+        }
+    },
+    "SecondTeamTotals": {
+        "1.5": {
+            "WinMore": 1.93,
+            "WinLess": 1.78
+        },
+        "2.5": {
+            "WinMore": 5.8,
+            "WinLess": 1.07
+        }
+    }
+}
+Пустой ответ от сервера для матча. Slid 105835 Pid 4359927
+Пустой ответ от сервера для матча. Slid 106495 Pid 4359867
+Пустой ответ от сервера для матча. Slid 106809 Pid 4359852
+Пустой ответ от сервера для матча. Slid 106835 Pid 4359850
+Пустой ответ от сервера для матча. Slid 106825 Pid 4353066
+Пустой ответ от сервера для матча. Slid 106749 Pid 4359538
+Пустой ответ от сервера для матча. Slid 106893 Pid 4360367
+Пустой ответ от сервера для матча. Slid 106899 Pid 4359810
+Пустой ответ от сервера для матча. Slid 106868 Pid 4360710
+Пустой ответ от сервера для матча. Slid 106857 Pid 4359861
+Пустой ответ от сервера для матча. Slid 106310 Pid 4355567
+Пустой ответ от сервера для матча. Slid 106730 Pid 4359860
+Пустой ответ от сервера для матча. Slid 106906 Pid 4359870
+Пустой ответ от сервера для матча. Slid 40154 Pid 4357779
+Пустой ответ от сервера для матча. Slid 106854 Pid 4360712
+{
+    "Name": "",
+    "Pid": 4359809,
+    "Slid": 106932,
+    "LeagueName": "Egypt 2",
+    "MatchName": "Suez Montakhab : Al Mokawloon Al Arab",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 8.1,
+        "WinNone": 1.5,
+        "Win2": 3.45
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 2.3,
+            "WinLess": 1.53
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 8.1,
+            "WinNoneO": 1.5,
+            "Win2O": 3.45,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 5.7,
+            "WinLess": 1.06
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 3,
+            "WinLess": 1.33
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359537,
+    "Slid": 106927,
+    "LeagueName": "Czech Republic 3",
+    "MatchName": "Sokol Zapy : Liberec (B)",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 0,
+        "WinNone": 0,
+        "Win2": 0
+    },
+    "Totals": {
+        "4.5": {
+            "WinMore": 1.55,
+            "WinLess": 2.2
+        },
+        "5.5": {
+            "WinMore": 3.85,
+            "WinLess": 1.2
+        }
+    },
+    "Handicap": {
+        "4-0": {
+            "Win1O": 4.35,
+            "WinNoneO": 1.85,
+            "Win2O": 3.25,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "4.5": {
+            "WinMore": 2.6,
+            "WinLess": 1.4
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 2.35,
+            "WinLess": 1.48
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4360713,
+    "Slid": 106933,
+    "LeagueName": "Bosnia \u0026 Herz. 2 ",
+    "MatchName": "Radnički Lukavac : Tuzla City",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 4.1,
+        "WinNone": 2.15,
+        "Win2": 2.6
+    },
+    "Totals": {
+        "4.5": {
+            "WinMore": 1.38,
+            "WinLess": 2.65
+        },
+        "5.5": {
+            "WinMore": 3,
+            "WinLess": 1.33
+        },
+        "6.5": {
+            "WinMore": 8.2,
+            "WinLess": 1.01
+        }
+    },
+    "Handicap": {
+        "2-2": {
+            "Win1O": 4.1,
+            "WinNoneO": 2.15,
+            "Win2O": 2.6,
+            "Win1": 0,
+            "WinNone": 0,
+            "Win2": 0
+        }
+    },
+    "FirstTeamTotals": {
+        "2.5": {
+            "WinMore": 2.5,
+            "WinLess": 1.43
+        }
+    },
+    "SecondTeamTotals": {
+        "2.5": {
+            "WinMore": 1.9,
+            "WinLess": 1.75
+        },
+        "3.5": {
+            "WinMore": 5.8,
+            "WinLess": 1.06
+        }
+    }
+}
+{
+    "Name": "",
+    "Pid": 4359864,
+    "Slid": 106926,
+    "LeagueName": "Italy Serie D",
+    "MatchName": "Livorno : Seravezza Pozzi",
+    "MatchId": "0",
+    "LeagueId": "0",
+    "Win1x2": {
+        "Win1": 1.6,
+        "WinNone": 3.45,
+        "Win2": 6.1
+    },
+    "Totals": {
+        "0.5": {
+            "WinMore": 1.04,
+            "WinLess": 7.4
+        },
+        "1.5": {
+            "WinMore": 1.45,
+            "WinLess": 2.6
+        },
+        "2.5": {
+            "WinMore": 2.4,
+            "WinLess": 1.5
+        },
+        "3.5": {
+            "WinMore": 4.65,
+            "WinLess": 1.15
+        }
+    },
+    "Handicap": {
+        "0-0": {
+            "Win1O": 1.6,
+            "WinNoneO": 3.45,
+            "Win2O": 6.1,
+            "Win1": 2.85,
+            "WinNone": 1.68,
+            "Win2": 7.5
+        }
+    },
+    "FirstTeamTotals": {
+        "0.5": {
+            "WinMore": 1.18,
+            "WinLess": 4.3
+        },
+        "1.5": {
+            "WinMore": 1.98,
+            "WinLess": 1.75
+        },
+        "2.5": {
+            "WinMore": 4.15,
+            "WinLess": 1.2
+        }
+    },
+    "SecondTeamTotals": {
+        "0.5": {
+            "WinMore": 1.95,
+            "WinLess": 1.75
+        },
+        "1.5": {
+            "WinMore": 5.9,
+            "WinLess": 1.07
+        }
+    }
+}
+Начало получения данных о всех матчах
+Получение данных о всех матчах закончено. Новый ключ полуения: 106942 Сейчас в обработке: 62
+signal: interrupt

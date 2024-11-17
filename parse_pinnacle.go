@@ -512,7 +512,7 @@ func (server *Server) WriteMessage(message []byte) {
     }
 }
 
-// Хандлер сообщений (можно настроить под ваши нужды)
+// Хандлер сообщений (можно настроить)
 func messageHandler(message []byte) {
     fmt.Println(string(message))
 }

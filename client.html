@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Результаты Анализатора</title>
+</head>
+<body>
+    <h1>Полученные данные</h1>
+    <div id="output"></div>
+
+    <script>
+        const ws = new WebSocket("ws://localhost:7300/output");
+
+        ws.onmessage = function(event) {
+            const outputDiv = document.getElementById("output");
+            const message = document.createElement("p");
+            message.innerText = event.data; // Выводим каждое сообщение как текст
+            outputDiv.appendChild(message);
+        };
+
+        ws.onopen = function() {
+            console.log("Подключено к серверу.");
+        };
+
+        ws.onclose = function() {
+            console.log("Отключено от сервера.");
+        };
+
+        ws.onerror = function(event) {
+            console.error("Ошибка веб-сокета:", event);
+        };
+    </script>
+</body>
+</html>

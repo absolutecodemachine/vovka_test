@@ -5,6 +5,7 @@ import (
     "compress/gzip"
     "encoding/json"
     "fmt"
+    "io"
     "io/ioutil"
     "log"
     "net/http"
@@ -75,9 +76,41 @@ var upgrader = websocket.Upgrader{
 type Server struct {
     clients       map[*websocket.Conn]bool // Простая карта для хранения подключенных клиентов.
     handleMessage func(message []byte)     // Хандлер новых сообщений
+    mutex         sync.Mutex               // Добавлено
 }
 
 var serverInstance *Server
+
+func handleMessage(msg []byte) {
+    // Игнорируем сообщения с тестовой строкой "Bla-Bla"
+    if string(msg) == "Bla-Bla" {
+        log.Println("Пропуск тестового сообщения: Bla-Bla")
+        return
+    }
+
+    // Остальной код обработки...
+    reader, err := gzip.NewReader(bytes.NewReader(msg))
+    if err != nil {
+        log.Printf("Ошибка распаковки gzip: %v", err)
+        return
+    }
+    defer reader.Close()
+
+    data, err := io.ReadAll(reader)
+    if err != nil {
+        log.Printf("Ошибка чтения данных: %v", err)
+        return
+    }
+
+    var game OneGame
+    if err := json.Unmarshal(data, &game); err != nil {
+        log.Printf("Ошибка разбора JSON: %v. Данные: %s", err, string(data))
+        return
+    }
+
+    log.Printf("Получен матч: %s vs %s", game.LeagueName, game.MatchName)
+}
+
 
 // Вспомогательные функции
 func InterfaceToInt64(inVal interface{}) int64 {
@@ -514,24 +547,6 @@ func ParseGamesStart() {
     }
 }
 
-// Основная функция
-func main() {
-    DebugLog("Старт скрипта")
-    ListGames = make(map[int64]OneGame)
-
-    serverInstance = StartServer(messageHandler)
-
-    // Запускаем парсинг в горутинах
-    go ParseEventsStart()
-    go ParseGamesStart()
-
-    // Основной цикл
-    for {
-        serverInstance.WriteMessage([]byte("Bla-Bla"))
-        time.Sleep(2 * time.Second)
-    }
-}
-
 // Хандлер сообщений
 func messageHandler(message []byte) {
     fmt.Println(string(message))
@@ -545,7 +560,7 @@ func StartServer(handleMessage func(message []byte)) *Server {
     }
 
     http.HandleFunc("/", server.echo)
-    go http.ListenAndServe(":7100", nil) // Уводим HTTP сервер в горутину
+    go http.ListenAndServe(":7200", nil) // Убедись, что порт 7200 свободен
 
     return server
 }
@@ -575,6 +590,9 @@ func (server *Server) echo(w http.ResponseWriter, r *http.Request) {
 
 // Отправка сообщений всем подключенным клиентам
 func (server *Server) WriteMessage(message []byte) {
+    server.mutex.Lock()         // Добавлено
+    defer server.mutex.Unlock() // Добавлено
+
     for conn := range server.clients {
         err := conn.WriteMessage(websocket.TextMessage, message)
         if err != nil {
@@ -582,5 +600,23 @@ func (server *Server) WriteMessage(message []byte) {
             conn.Close()
             delete(server.clients, conn)
         }
+    }
+}
+
+// Основная функция
+func main() {
+    DebugLog("Старт скрипта")
+    ListGames = make(map[int64]OneGame)
+
+    serverInstance = StartServer(messageHandler)
+
+    // Запускаем парсинг в горутинах
+    go ParseEventsStart()
+    go ParseGamesStart()
+
+    // Основной цикл
+    for {
+        //serverInstance.WriteMessage([]byte("Bla-Bla"))
+        time.Sleep(2 * time.Second)
     }
 }
