@@ -3,35 +3,34 @@ package main
 import (
     "encoding/json"
     "log"
-    "strings"
+    //"strings"
+    //"fmt"
     "sync"
     "time"
-
     "github.com/gorilla/websocket"
     "github.com/texttheater/golang-levenshtein/levenshtein"
 )
 
-// Тип данных, ожидаемых от парсеров
-type OneGame struct {
-    MatchName string `json:"MatchName"`
-}
-
-// Структура для хранения матча с указанием источника
+// Типы данных
 type MatchData struct {
-    Source    string // Источник данных
-    MatchName string // Название матча
+    Source    string `json:"Source"`
+    MatchId   string `json:"MatchId"`
+    MatchName string `json:"MatchName"`
+    Pid       int64  `json:"Pid"` // Новое поле
 }
 
-// Глобальные списки для хранения матчей
+type MatchPair struct {
+    SansabetId string `json:"SansabetId"`
+    PinnacleId string `json:"PinnacleId"`
+    MatchName  string `json:"MatchName"`
+}
+
+// Глобальные переменные
 var matchesFromParser1 []MatchData
 var matchesFromParser2 []MatchData
-
-// Мьютекс для защиты списков
 var matchesMutex sync.Mutex
 
-// Соединение с анализатором
 var analyzerConnection *websocket.Conn
-var analyzerMutex = sync.Mutex{}
 
 // Запуск мэтчинга
 func startMatching() {
@@ -52,9 +51,7 @@ func connectToAnalyzer() {
             time.Sleep(5 * time.Second)
             continue
         }
-        analyzerMutex.Lock()
         analyzerConnection = conn
-        analyzerMutex.Unlock()
         log.Println("[Matching] Успешное подключение к анализатору")
         break
     }
@@ -80,32 +77,103 @@ func connectParser(url, source string, matchList *[]MatchData) {
                 break
             }
 
-            // Распарсить сообщение и извлечь название матча
-            var game OneGame
-            if err := json.Unmarshal(msg, &game); err != nil {
-                log.Printf("[Matching] Некорректное сообщение от %s: %s. Ошибка: %v", source, string(msg), err)
+            // Распарсить сообщение и извлечь данные
+            var match MatchData
+            if err := json.Unmarshal(msg, &match); err != nil {
+                log.Printf("[Matching] Ошибка парсинга сообщения от %s: %v", source, err)
                 continue
             }
 
-            if source == "Pinnacle" && strings.Contains(strings.ToLower(game.MatchName), "(corners)") {
-                log.Printf("[Matching] Пропуск матча с '(corners)': %s", game.MatchName)
-                continue
-            }
+            // Явно присваиваем Source
+            match.Source = source
+            log.Printf("[Matching] Получен матч: %+v", match)
 
-            log.Printf("[Matching] Получен матч от %s: %s", source, game.MatchName)
-
-            // Добавляем матч в список с указанием источника
             matchesMutex.Lock()
-            *matchList = append(*matchList, MatchData{
-                Source:    source,
-                MatchName: game.MatchName,
-            })
+            *matchList = append(*matchList, match)
             matchesMutex.Unlock()
         }
     }
 }
 
-// Функция расчёта процента схожести
+
+
+// Обработка матчей и отправка пар
+func processMatches() {
+    for {
+        time.Sleep(1 * time.Second)
+
+        matchesMutex.Lock()
+        if len(matchesFromParser1) > 0 && len(matchesFromParser2) > 0 {
+            log.Printf("[Matching] Матчи из Sansabet: %+v", matchesFromParser1)
+            log.Printf("[Matching] Матчи из Pinnacle: %+v", matchesFromParser2)
+
+            pairs := findPairs(matchesFromParser1, matchesFromParser2)
+            log.Printf("[Matching] Найденные пары: %+v", pairs)
+
+            sendPairsToAnalyzer(pairs)
+        } else {
+            log.Println("[Matching] Недостаточно данных для формирования пар.")
+        }
+        matchesMutex.Unlock()
+    }
+}
+
+
+
+
+// Поиск пар через Левенштейна
+func findPairs(matches1, matches2 []MatchData) []MatchPair {
+    var pairs []MatchPair
+    uniquePairs := make(map[string]bool)
+
+    log.Printf("[Matching] Начало создания пар. Количество матчей из Sansabet: %d, из Pinnacle: %d", len(matches1), len(matches2))
+
+    for i, match1 := range matches1 {
+        log.Printf("[Matching] Обработка матча из Sansabet #%d: %+v", i, match1)
+        for j, match2 := range matches2 {
+            log.Printf("[Matching] Сравнение с матчем из Pinnacle #%d: %+v", j, match2)
+
+            // Логируем значения Source для проверки
+            log.Printf("[Matching] Source match1: '%s', Source match2: '%s'", match1.Source, match2.Source)
+
+            // Проверим, что матчи из разных источников
+            if match1.Source == match2.Source {
+                log.Printf("[Matching] Пропуск пары: одинаковый источник %s", match1.Source)
+                continue
+            }
+
+            // Рассчитываем схожесть по Левенштейну
+            score := levenshtein.DistanceForStrings([]rune(match1.MatchName), []rune(match2.MatchName), levenshtein.DefaultOptions)
+            log.Printf("[Matching] Результат сравнения: '%s' ↔ '%s', Score: %d", match1.MatchName, match2.MatchName, score)
+
+            // Если схожесть больше 65
+            if score >= 65 {
+                pairKey := match1.MatchId + "_" + match2.MatchId
+                log.Printf("[Matching] Генерация ключа пары: %s", pairKey)
+
+                if !uniquePairs[pairKey] {
+                    log.Printf("[Matching] Добавляем пару: %s ↔ %s", match1.MatchName, match2.MatchName)
+                    uniquePairs[pairKey] = true
+                    pairs = append(pairs, MatchPair{
+                        SansabetId: match1.MatchId,
+                        PinnacleId: match2.MatchId,
+                        MatchName:  match1.MatchName + " ↔ " + match2.MatchName,
+                    })
+                } else {
+                    log.Printf("[Matching] Пара уже существует: %s ↔ %s", match1.MatchName, match2.MatchName)
+                }
+            } else {
+                log.Printf("[Matching] Пара отклонена (Score < 65): %s ↔ %s", match1.MatchName, match2.MatchName)
+            }
+        }
+    }
+
+    log.Printf("[Matching] Найдено пар: %d", len(pairs))
+    return pairs
+}
+
+
+// Расчёт процента схожести
 func similarity(str1, str2 string) float64 {
     distance := levenshtein.DistanceForStrings([]rune(str1), []rune(str2), levenshtein.DefaultOptions)
     maxLen := float64(len(str1))
@@ -115,74 +183,27 @@ func similarity(str1, str2 string) float64 {
     return (1 - float64(distance)/maxLen) * 100
 }
 
-// Обработка и отправка матчей в анализатор
-func processMatches() {
-    for {
-        time.Sleep(1 * time.Second) // Пауза для упорядоченной обработки
-
-        matchesMutex.Lock()
-        if len(matchesFromParser1) > 0 && len(matchesFromParser2) > 0 {
-            // Ищем пары
-            pairs := findPairs(matchesFromParser1, matchesFromParser2)
-
-            // Логируем и отправляем пары
-            for _, pair := range pairs {
-                forwardToAnalyzer(pair.MatchName)
-            }
-        }
-        matchesMutex.Unlock()
+// Отправка пар в анализатор
+func sendPairsToAnalyzer(pairs []MatchPair) {
+    log.Printf("[Matching] Отправляем пары в анализатор: %v", pairs)
+    if analyzerConnection == nil {
+        log.Println("[Matching] Нет соединения с анализатором")
+        return
     }
-}
 
-// Поиск пар через Левенштейна
-func findPairs(matches1, matches2 []MatchData) []MatchData {
-    var pairs []MatchData
-    uniquePairs := make(map[string]bool) // Для хранения уникальных пар
-
-    for _, match1 := range matches1 {
-        for _, match2 := range matches2 {
-            // Проверяем, что матчи из разных источников
-            if match1.Source == match2.Source {
-                continue
-            }
-
-            // Рассчитываем схожесть по Левенштейну
-            similarityScore := similarity(match1.MatchName, match2.MatchName)
-            if similarityScore >= 65 {
-                pairKey := match1.MatchName + " ↔ " + match2.MatchName
-                if !uniquePairs[pairKey] {
-                    uniquePairs[pairKey] = true
-                    log.Printf("[Matching] Найдена пара: %s (Схожесть: %.2f%%)", pairKey, similarityScore)
-
-                    // Добавляем пару в список для анализа
-                    pairs = append(pairs, MatchData{
-                        MatchName: pairKey,
-                    })
-                }
-            }
-        }
+    data, err := json.Marshal(pairs)
+    if err != nil {
+        log.Printf("[Matching] Ошибка сериализации пар: %v", err)
+        return
     }
-    return pairs
-}
 
-// Пересылка данных в анализатор
-func forwardToAnalyzer(matchName string) {
-    analyzerMutex.Lock()
-    defer analyzerMutex.Unlock()
-
-    if analyzerConnection != nil {
-        log.Printf("[Matching] Отправка в анализатор: %s", matchName)
-        if err := analyzerConnection.WriteMessage(websocket.TextMessage, []byte(matchName)); err != nil {
-            log.Printf("[Matching] Ошибка отправки данных в анализатор: %v", err)
-            analyzerConnection = nil
-        }
-    } else {
-        log.Printf("[Matching] Пропуск отправки в анализатор: нет соединения")
+    if err := analyzerConnection.WriteMessage(websocket.TextMessage, data); err != nil {
+        log.Printf("[Matching] Ошибка отправки пар в анализатор: %v", err)
     }
 }
 
 // Главная функция
 func main() {
     startMatching()
-    select {} // Бесконечный цикл, чтобы процесс продолжал работать
+    select {}
 }
