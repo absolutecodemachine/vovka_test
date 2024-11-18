@@ -110,6 +110,7 @@ func processMatches() {
             log.Printf("[Matching] Найденные пары: %+v", pairs)
 
             sendPairsToAnalyzer(pairs)
+            log.Printf("I send! ", pairs)
         } else {
             log.Println("[Matching] Недостаточно данных для формирования пар.")
         }

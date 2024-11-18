@@ -2,23 +2,24 @@ package main
 
 import (
     "encoding/json"
+    "fmt"
     "log"
     "net/http"
-    "sync"
     "sort"
+    "sync"
     "time"
-    "fmt"
     "github.com/gorilla/websocket"
 )
+
+var matchData = map[string]map[string]string{
+    "Sansabet": make(map[string]string),
+    "Pinnacle": make(map[string]string),
+}
 
 type MatchPair struct {
     SansabetId string `json:"SansabetId"`
     PinnacleId string `json:"PinnacleId"`
     MatchName  string `json:"MatchName"`
-}
-
-type OddsData struct {
-    Outcomes map[string]float64 `json:"outcomes"` // Пример: {"TotalOver2.5": 1.9, "TotalUnder2.5": 1.8}
 }
 
 const MARGIN = 1.08
@@ -31,199 +32,95 @@ var extraPercents = []struct {
     {3.2, 3.7, 1.05},
 }
 
-// Функция для нахождения extra_percent
+// Вспомогательная функция для расчёта extra_percent
 func getExtraPercent(pinnacleOdd float64) float64 {
     for _, ep := range extraPercents {
         if pinnacleOdd >= ep.Min && pinnacleOdd < ep.Max {
             return ep.ExtraPercent
         }
     }
-    return 1.0 // По умолчанию без extra_percent
+    return 1.0
 }
 
 // Функция для расчёта ROI
 func calculateROI(sansaOdd, pinnacleOdd float64) float64 {
     extraPercent := getExtraPercent(pinnacleOdd)
-    roi := (sansaOdd / (pinnacleOdd * MARGIN * extraPercent) - 1 - 0.03) * 100 * 0.67
+    roi := (sansaOdd/(pinnacleOdd*MARGIN*extraPercent) - 1 - 0.03) * 100 * 0.67
     return roi
 }
 
-// Функция для нахождения пересечений
+// Полный анализ исходов
 func findCommonOutcomes(sansabetData, pinnacleData string) map[string][2]float64 {
-    log.Printf("[Analyzer] Входные данные Sansabet: %s", sansabetData)
-    log.Printf("[Analyzer] Входные данные Pinnacle: %s", pinnacleData)
+    log.Printf("[DEBUG] Входные данные для анализа: Sansabet=%s, Pinnacle=%s", sansabetData, pinnacleData)
 
     var sansabetOdds, pinnacleOdds struct {
-        Win1x2           map[string]float64 `json:"Win1x2"`
-        Totals           map[string]struct {
+        Win1x2 map[string]float64 `json:"Win1x2"`
+        Totals map[string]struct {
             WinMore float64 `json:"WinMore"`
             WinLess float64 `json:"WinLess"`
         } `json:"Totals"`
-        Handicap         map[string]struct {
-            Win1 float64 `json:"Win1"`
-            Win2 float64 `json:"Win2"`
-        } `json:"Handicap"`
-        FirstTeamTotals  map[string]struct {
-            WinMore float64 `json:"WinMore"`
-            WinLess float64 `json:"WinLess"`
-        } `json:"FirstTeamTotals"`
-        SecondTeamTotals map[string]struct {
-            WinMore float64 `json:"WinMore"`
-            WinLess float64 `json:"WinLess"`
-        } `json:"SecondTeamTotals"`
     }
-
-
     common := make(map[string][2]float64)
 
-    // Парсим данные
     if err := json.Unmarshal([]byte(sansabetData), &sansabetOdds); err != nil {
-        log.Printf("[Analyzer] Ошибка парсинга данных Sansabet: %v", err)
+        log.Printf("[ERROR] Ошибка парсинга данных Sansabet: %v", err)
         return common
     }
-    log.Printf("[Analyzer] Распарсенные данные Sansabet: %+v", sansabetOdds)
-
     if err := json.Unmarshal([]byte(pinnacleData), &pinnacleOdds); err != nil {
-        log.Printf("[Analyzer] Ошибка парсинга данных Pinnacle: %v", err)
+        log.Printf("[ERROR] Ошибка парсинга данных Pinnacle: %v", err)
         return common
     }
-    log.Printf("[Analyzer] Распарсенные данные Pinnacle: %+v", pinnacleOdds)
 
-    // Сравниваем Win1x2
     for key, sansabetValue := range sansabetOdds.Win1x2 {
-        if pinnacleValue, exists := pinnacleOdds.Win1x2[key]; exists {
-            if !isPinnacleOddInRange(pinnacleValue) {
-                log.Printf("[Analyzer] Пропуск исхода (Win1x2): %s, Pinnacle=%f (вне диапазона)", key, pinnacleValue)
-                continue
-            }
+        if pinnacleValue, exists := pinnacleOdds.Win1x2[key]; exists && pinnacleValue >= 1.2 && pinnacleValue <= 3.5 {
             common[key] = [2]float64{sansabetValue, pinnacleValue}
-            log.Printf("[Analyzer] Общий исход (Win1x2): %s, Sansabet=%f, Pinnacle=%f", key, sansabetValue, pinnacleValue)
+            log.Printf("[DEBUG] Найден общий исход Win1x2: %s", key)
         }
     }
 
-    // Сравниваем Totals
     for key, sansabetTotal := range sansabetOdds.Totals {
-        if pinnacleTotal, exists := pinnacleOdds.Totals[key]; exists {
-            if !isPinnacleOddInRange(pinnacleTotal.WinMore) {
-                log.Printf("[Analyzer] Пропуск исхода (Totals): %s, Pinnacle=%f (вне диапазона)", key, pinnacleTotal.WinMore)
-                continue
-            }
+        if pinnacleTotal, exists := pinnacleOdds.Totals[key]; exists && pinnacleTotal.WinMore >= 1.2 && pinnacleTotal.WinMore <= 3.5 {
             common["Total "+key] = [2]float64{sansabetTotal.WinMore, pinnacleTotal.WinMore}
-            log.Printf("[Analyzer] Общий исход (Totals): %s, Sansabet=%f, Pinnacle=%f", key, sansabetTotal.WinMore, pinnacleTotal.WinMore)
+            log.Printf("[DEBUG] Найден общий исход Totals: %s", key)
         }
     }
 
-    // Сравниваем Handicap
-    //log.Println("[Analyzer] Начинаем обработку Handicap")
-    //log.Printf("[Analyzer] Данные Handicap Sansabet: %+v", sansabetOdds.Handicap)
-    //log.Printf("[Analyzer] Данные Handicap Pinnacle: %+v", pinnacleOdds.Handicap)
-    for key, sansabetHandicap := range sansabetOdds.Handicap {
-        if pinnacleHandicap, exists := pinnacleOdds.Handicap[key]; exists {
-            if !isPinnacleOddInRange(pinnacleHandicap.Win1) {
-                log.Printf("[Analyzer] Пропуск исхода (Handicap): %s, Pinnacle=%f (вне диапазона)", key, pinnacleHandicap.Win1)
-                continue
-            }
-            common["Handicap "+key] = [2]float64{sansabetHandicap.Win1, pinnacleHandicap.Win1}
-            log.Printf("[Analyzer] Общий исход (Handicap): %s, Sansabet=%f, Pinnacle=%f", key, sansabetHandicap.Win1, pinnacleHandicap.Win1)
-        }
-    }
-
-    // Сравниваем FirstTeamTotals
-    if sansabetOdds.FirstTeamTotals != nil && pinnacleOdds.FirstTeamTotals != nil {
-        log.Println("[Analyzer] Начинаем обработку FirstTeamTotals")
-        log.Printf("[Analyzer] Данные FirstTeamTotals Sansabet: %+v", sansabetOdds.FirstTeamTotals)
-        log.Printf("[Analyzer] Данные FirstTeamTotals Pinnacle: %+v", pinnacleOdds.FirstTeamTotals)
-
-        for key, sansabetTotal := range sansabetOdds.FirstTeamTotals {
-            if pinnacleTotal, exists := pinnacleOdds.FirstTeamTotals[key]; exists {
-                if !isPinnacleOddInRange(pinnacleTotal.WinMore) {
-                    log.Printf("[Analyzer] Пропуск исхода (FirstTeamTotals): %s, Pinnacle=%f (вне диапазона)", key, pinnacleTotal.WinMore)
-                    continue
-                }
-                common["FirstTeamTotal "+key] = [2]float64{sansabetTotal.WinMore, pinnacleTotal.WinMore}
-                log.Printf("[Analyzer] Общий исход (FirstTeamTotals): %s, Sansabet=%f, Pinnacle=%f", key, sansabetTotal.WinMore, pinnacleTotal.WinMore)
-            }
-        }
-    } else {
-        log.Println("[Analyzer] FirstTeamTotals отсутствуют в данных")
-    }
-
-    // Сравниваем SecondTeamTotals
-    if sansabetOdds.SecondTeamTotals != nil && pinnacleOdds.SecondTeamTotals != nil {
-        log.Println("[Analyzer] Начинаем обработку SecondTeamTotals")
-        log.Printf("[Analyzer] Данные SecondTeamTotals Sansabet: %+v", sansabetOdds.SecondTeamTotals)
-        log.Printf("[Analyzer] Данные SecondTeamTotals Pinnacle: %+v", pinnacleOdds.SecondTeamTotals)
-
-        for key, sansabetTotal := range sansabetOdds.SecondTeamTotals {
-            if pinnacleTotal, exists := pinnacleOdds.SecondTeamTotals[key]; exists {
-                if !isPinnacleOddInRange(pinnacleTotal.WinMore) {
-                    log.Printf("[Analyzer] Пропуск исхода (SecondTeamTotals): %s, Pinnacle=%f (вне диапазона)", key, pinnacleTotal.WinMore)
-                    continue
-                }
-                common["SecondTeamTotal "+key] = [2]float64{sansabetTotal.WinMore, pinnacleTotal.WinMore}
-                log.Printf("[Analyzer] Общий исход (SecondTeamTotals): %s, Sansabet=%f, Pinnacle=%f", key, sansabetTotal.WinMore, pinnacleTotal.WinMore)
-            }
-        }
-    } else {
-        log.Println("[Analyzer] SecondTeamTotals отсутствуют в данных")
-    }
-
-
-    log.Printf("[Analyzer] Общие исходы: %+v", common)
+    log.Printf("[DEBUG] Общие исходы: %+v", common)
     return common
 }
 
+// Полный расчет ROI
 func calculateAndFilterCommonOutcomes(matchName string, commonOutcomes map[string][2]float64) []string {
     filtered := []struct {
-        Outcome string
-        ROI     float64
-        Sansa   float64
+        Outcome  string
+        ROI      float64
+        Sansa    float64
         Pinnacle float64
     }{}
 
     for outcome, values := range commonOutcomes {
-        sansabetOdd := values[0]
-        pinnacleOdd := values[1]
-        roi := calculateROI(sansabetOdd, pinnacleOdd)
-
-        if roi > -30 { // Фильтруем только положительный ROI
+        roi := calculateROI(values[0], values[1])
+        if roi > -30 {
             filtered = append(filtered, struct {
                 Outcome  string
                 ROI      float64
                 Sansa    float64
                 Pinnacle float64
-            }{
-                Outcome:  outcome,
-                ROI:      roi,
-                Sansa:    sansabetOdd,
-                Pinnacle: pinnacleOdd,
-            })
-            log.Printf("[Analyzer] ROI для исхода %s: %.2f (Sansabet: %.2f, Pinnacle: %.2f)", outcome, roi, sansabetOdd, pinnacleOdd)
-        } else {
-            log.Printf("[Analyzer] ROI слишком низкий для исхода %s: %.2f", outcome, roi)
+            }{outcome, roi, values[0], values[1]})
         }
     }
 
-    // Сортируем по ROI в порядке убывания
     sort.Slice(filtered, func(i, j int) bool {
         return filtered[i].ROI > filtered[j].ROI
     })
 
-    // Формируем данные для отправки
     results := []string{}
     for _, item := range filtered {
-        results = append(results, fmt.Sprintf(
-            "%s | Исход: %s | ROI: %.2f%% | Sansabet: %.2f | Pinnacle: %.2f",
-            matchName, item.Outcome, item.ROI, item.Sansa, item.Pinnacle,
-        ))
+        results = append(results, fmt.Sprintf("%s | Исход: %s | ROI: %.2f%% | Sansabet: %.2f | Pinnacle: %.2f",
+            matchName, item.Outcome, item.ROI, item.Sansa, item.Pinnacle))
     }
 
     return results
-}
-
-
-func isPinnacleOddInRange(odd float64) bool {
-    return odd >= 1.2 && odd <= 3.5
 }
 
 var matchPairs []MatchPair
@@ -240,7 +137,7 @@ var upgrader = websocket.Upgrader{
 
 // Запуск анализатора
 func startAnalyzer() {
-    log.Println("[Analyzer] Анализатор запущен")
+    log.Println("[DEBUG] Анализатор запущен")
     go connectParsers()
     go processPairs()
     go startFrontendServer()
@@ -248,36 +145,38 @@ func startAnalyzer() {
     http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
         conn, err := upgrader.Upgrade(w, r, nil)
         if err != nil {
-            log.Printf("[Analyzer] Ошибка подключения: %v", err)
+            log.Printf("[ERROR] Ошибка подключения мэтчинга: %v", err)
             return
         }
+        log.Printf("[DEBUG] Новое подключение к мэтчингу")
         defer conn.Close()
 
         for {
             _, msg, err := conn.ReadMessage()
-            //log.Printf("[Analyzer] Полученные данные от мэтчинга: %s", string(msg))
+            log.Printf("[DEBUG] Сообщение от мэтчинга: %s", string(msg))
             if err != nil {
-                log.Printf("[Analyzer] Ошибка чтения данных: %v", err)
+                log.Printf("[ERROR] Ошибка чтения от мэтчинга: %v", err)
                 break
             }
+            log.Printf("[DEBUG] Полученные данные от мэтчинга: %s", string(msg))
 
             var pairs []MatchPair
             if err := json.Unmarshal(msg, &pairs); err != nil {
-                log.Printf("[Analyzer] Ошибка парсинга данных: %v", err)
+                log.Printf("[ERROR] Ошибка парсинга данных мэтчинга: %v", err)
                 continue
             }
 
             pairsMutex.Lock()
             matchPairs = pairs
+            log.Printf("[DEBUG] matchPairs обновлён от мэтчинга: %+v", matchPairs)
+            log.Printf("[DEBUG] Обновлённые matchPairs: %+v", matchPairs)
             pairsMutex.Unlock()
-            //log.Printf("[Analyzer] Обновлён список пар: %v", pairs)
         }
     })
 
     log.Fatal(http.ListenAndServe(":7400", nil))
 }
 
-// Подключение к парсерам
 func connectParsers() {
     go connectToParser("ws://localhost:7100", &sansabetConnection, "Sansabet")
     go connectToParser("ws://localhost:7200", &pinnacleConnection, "Pinnacle")
@@ -287,26 +186,92 @@ func connectToParser(url string, connection **websocket.Conn, name string) {
     for {
         conn, _, err := websocket.DefaultDialer.Dial(url, nil)
         if err != nil {
-            log.Printf("[Analyzer] Ошибка подключения к %s: %v", name, err)
+            log.Printf("[ERROR] Ошибка подключения к %s: %v", name, err)
             time.Sleep(5 * time.Second)
             continue
         }
         *connection = conn
-        log.Printf("[Analyzer] Подключение к %s установлено", name)
+        log.Printf("[DEBUG] Подключение к %s установлено", name)
+        go processIncomingMessages(conn, name)
         break
     }
 }
 
-// Обработка пар
+func processIncomingMessages(conn *websocket.Conn, name string) {
+    log.Printf("[DEBUG] Текущее состояние matchPairs при получении данных: %+v", matchPairs)
+    for {
+        _, msg, err := conn.ReadMessage()
+        log.Printf("[DEBUG] Получены данные из потока %s: %s", name, string(msg))
+        if err != nil {
+            log.Printf("[ERROR] Ошибка чтения из потока %s: %v", name, err)
+            break
+        }
+        log.Printf("[DEBUG] Потоковые данные от %s: %s", name, string(msg))
+        saveMatchData(name, msg)
+    }
+}
+
+func saveMatchData(name string, msg []byte) {
+    log.Printf("[DEBUG] Текущее состояние matchPairs: %+v", matchPairs)
+
+    var parsedMsg struct {
+        MatchId string `json:"MatchId"`
+    }
+    if err := json.Unmarshal(msg, &parsedMsg); err != nil {
+        log.Printf("[ERROR] Ошибка парсинга сообщения из %s: %v | Сообщение: %s", name, err, string(msg))
+        return
+    }
+
+    log.Printf("[DEBUG] Извлечён MatchId из сообщения: %s (длина: %d)", parsedMsg.MatchId, len(parsedMsg.MatchId))
+
+    pairsMutex.Lock()
+    defer pairsMutex.Unlock()
+
+    matchFound := false
+    for _, pair := range matchPairs {
+        log.Printf("[DEBUG] Сравнение с парой: SansabetId=%s, PinnacleId=%s", pair.SansabetId, pair.PinnacleId)
+
+        if len(parsedMsg.MatchId) == 7 { // ID длиной 7 сравнивается с SansabetId
+            // я понимаю насколько это костыльно, но я заколебался править это нормально, не выходило
+            log.Printf("[DEBUG] Сравнение MatchId=%s с SansabetId=%s", parsedMsg.MatchId, pair.SansabetId)
+            if pair.SansabetId == parsedMsg.MatchId {
+                matchData["Sansabet"][pair.SansabetId] = string(msg)
+                log.Printf("[DEBUG] Совпадение найдено для Sansabet: MatchId=%s", parsedMsg.MatchId)
+                matchFound = true
+                break
+            } else {
+                log.Printf("[DEBUG] Не совпало: MatchId=%s != SansabetId=%s", parsedMsg.MatchId, pair.SansabetId)
+            }
+        } else if len(parsedMsg.MatchId) == 10 { // ID длиной 10 сравнивается с PinnacleId
+            log.Printf("[DEBUG] Сравнение MatchId=%s с PinnacleId=%s", parsedMsg.MatchId, pair.PinnacleId)
+            if pair.PinnacleId == parsedMsg.MatchId {
+                matchData["Pinnacle"][pair.PinnacleId] = string(msg)
+                log.Printf("[DEBUG] Совпадение найдено для Pinnacle: MatchId=%s", parsedMsg.MatchId)
+                matchFound = true
+                break
+            } else {
+                log.Printf("[DEBUG] Не совпало: MatchId=%s != PinnacleId=%s", parsedMsg.MatchId, pair.PinnacleId)
+            }
+        } else {
+            log.Printf("[DEBUG] Длина MatchId=%d не соответствует известным источникам", len(parsedMsg.MatchId))
+        }
+    }
+
+    if !matchFound {
+        log.Printf("[DEBUG] Нет совпадений для MatchId=%s (длина: %d) в %s | Сообщение: %s", parsedMsg.MatchId, len(parsedMsg.MatchId), name, string(msg))
+    }
+}
+
+
+
 func processPairs() {
     for {
-        time.Sleep(1 * time.Second)
+        time.Sleep(1 * time.Second) // Интервал между циклами обработки
 
         pairsMutex.Lock()
         currentPairs := make([]MatchPair, len(matchPairs))
         copy(currentPairs, matchPairs)
         pairsMutex.Unlock()
-        //log.Printf("[Analyzer] Проверка текущих пар: %v", currentPairs)
 
         for _, pair := range currentPairs {
             processPair(pair)
@@ -314,93 +279,72 @@ func processPairs() {
     }
 }
 
-// Обработка одной пары
+
 func processPair(pair MatchPair) {
-    sansabetData := fetchOdds(sansabetConnection, pair.SansabetId)
-    pinnacleData := fetchOdds(pinnacleConnection, pair.PinnacleId)
-    //log.Printf("[Analyzer] Данные для анализа: Sansabet=%s, Pinnacle=%s", sansabetData, pinnacleData)
-    if sansabetData != "" && pinnacleData != "" {
+    pairsMutex.Lock()
+    defer pairsMutex.Unlock()
+
+    sansabetData, sansabetExists := matchData["Sansabet"][pair.SansabetId]
+    pinnacleData, pinnacleExists := matchData["Pinnacle"][pair.PinnacleId]
+
+    log.Printf("[DEBUG] Проверяем пару: %s | SansabetId=%s | PinnacleId=%s", pair.MatchName, pair.SansabetId, pair.PinnacleId)
+    log.Printf("[DEBUG] Данные в matchData для Sansabet: %v", matchData["Sansabet"])
+    log.Printf("[DEBUG] Данные в matchData для Pinnacle: %v", matchData["Pinnacle"])
+
+    if !sansabetExists {
+        log.Printf("[DEBUG] Нет данных для SansabetId=%s", pair.SansabetId)
+    }
+    if !pinnacleExists {
+        log.Printf("[DEBUG] Нет данных для PinnacleId=%s", pair.PinnacleId)
+    }
+
+    if sansabetExists && pinnacleExists {
+        log.Printf("[DEBUG] Найдены данные для пары: %s | SansabetData=%s | PinnacleData=%s", pair.MatchName, sansabetData, pinnacleData)
         analyzeAndSend(pair.MatchName, sansabetData, pinnacleData)
     }
 }
 
-// Запрос данных
-func fetchOdds(conn *websocket.Conn, matchId string) string {
-    if conn == nil {
-        log.Printf("[Analyzer] fetchOdds: conn == nil для MatchId=%s", matchId)
-        return ""
-    }
-
-    log.Printf("[Analyzer] fetchOdds: Отправка ID: %s", matchId)
-    if err := conn.WriteMessage(websocket.TextMessage, []byte(matchId)); err != nil {
-        log.Printf("[Analyzer] fetchOdds: Ошибка отправки ID: %v", err)
-        return ""
-    }
-
-    _, msg, err := conn.ReadMessage()
-    if err != nil {
-        log.Printf("[Analyzer] fetchOdds: Ошибка чтения данных: %v", err)
-        return ""
-    }
-
-    log.Printf("[Analyzer] fetchOdds: Исходные данные от парсера (MatchId=%s): %s", matchId, string(msg))
-    return string(msg)
-}
 
 
-// Анализ данных и отправка на сайт
+
 func analyzeAndSend(matchName, sansabetData, pinnacleData string) {
-    log.Printf("[Analyzer] Начало анализа для матча: %s", matchName)
     commonOutcomes := findCommonOutcomes(sansabetData, pinnacleData)
-
+    log.Printf("[DEBUG] Общие исходы для пары %s: %+v", matchName, commonOutcomes)
     if len(commonOutcomes) == 0 {
-        log.Printf("[Analyzer] Общих исходов не найдено для матча: %s", matchName)
+        log.Printf("[DEBUG] Нет общих исходов для матча %s", matchName)
         return
     }
 
-    // Используем новую функцию для расчёта ROI и фильтрации
-    filteredOutcomes := calculateAndFilterCommonOutcomes(matchName, commonOutcomes)
-
-    if len(filteredOutcomes) == 0 {
-        log.Printf("[Analyzer] Нет исходов с положительным ROI для матча: %s", matchName)
+    filtered := calculateAndFilterCommonOutcomes(matchName, commonOutcomes)
+    if len(filtered) == 0 {
+        log.Printf("[DEBUG] Нет подходящих исходов для матча %s", matchName)
         return
     }
 
-    for _, message := range filteredOutcomes {
-        log.Printf("[Analyzer] Отправка данных на сайт: %s", message)
-        forwardToFrontend([]byte(message))
+    for _, result := range filtered {
+        forwardToFrontend([]byte(result))
     }
 }
 
-
-// Вспомогательная функция для форматирования float
-func formatFloat(value float64) string {
-    return fmt.Sprintf("%.2f", value)
-}
-
-
-// Отправка на сайт
 func forwardToFrontend(data []byte) {
-    log.Printf("[Analyzer] Данные для отправки клиентам: %s", string(data))
-
+    log.Printf("[DEBUG] Отправка данных клиентам: %s", string(data))
     frontendMutex.Lock()
     defer frontendMutex.Unlock()
 
     for client := range frontendClients {
         if err := client.WriteMessage(websocket.TextMessage, data); err != nil {
-            log.Printf("[Analyzer] Ошибка отправки данных клиенту: %v", err)
+            log.Printf("[ERROR] Ошибка отправки данных клиенту: %v", err)
             client.Close()
             delete(frontendClients, client)
         }
     }
 }
 
-// Запуск фронтенд-сервера
 func startFrontendServer() {
     http.HandleFunc("/output", func(w http.ResponseWriter, r *http.Request) {
         conn, err := upgrader.Upgrade(w, r, nil)
         if err != nil {
-            log.Printf("[Analyzer] Ошибка подключения клиента: %v", err)
+            log.Printf("[ERROR] Ошибка подключения клиента: %v", err)
             return
         }
 
@@ -424,7 +368,6 @@ func startFrontendServer() {
     log.Fatal(http.ListenAndServe(":7300", nil))
 }
 
-// Главная функция
 func main() {
     startAnalyzer()
     select {}
