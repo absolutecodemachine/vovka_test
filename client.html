@@ -15,32 +15,22 @@
         const ws = new WebSocket("ws://localhost:7300/output");
 
         ws.onmessage = function(event) {
-            console.log("Получено сообщение от сервера:", event.data); // Логируем исходное сообщение
+            console.log("Получено сообщение от сервера:", event.data);
 
             const matchesDiv = document.getElementById("matches");
 
-            // Просто добавляем строку в интерфейс
-            const matchElement = document.createElement("p");
-            matchElement.innerText = event.data; // Пишем строку напрямую
-            matchesDiv.appendChild(matchElement);
+            // Парсим сообщение по строкам
+            const messages = event.data.split("\n");
+
+            messages.forEach(msg => {
+                if (!msg.trim()) return; // Пропуск пустых строк
+
+                // Создаём новый элемент
+                const matchElement = document.createElement("p");
+                matchElement.innerText = msg.trim(); // Добавляем строку как есть
+                matchesDiv.appendChild(matchElement);
+            });
         };
-
-
-        function addSection(container, title, match) {
-            // Проверяем, есть ли уже заголовок
-            let section = document.querySelector(`h2[data-source="${title}"]`);
-            if (!section) {
-                const header = document.createElement("h2");
-                header.setAttribute("data-source", title);
-                header.innerText = title;
-                container.appendChild(header);
-            }
-
-            // Добавляем матч
-            const matchElement = document.createElement("p");
-            matchElement.innerText = match;
-            container.appendChild(matchElement);
-        }
 
         ws.onopen = function() {
             console.log("Подключено к серверу.");
