@@ -8,9 +8,17 @@ import (
     "sort"
     "sync"
     "time"
-
+    "crypto/sha1"
+    "encoding/hex"
+    //"strings"
     "github.com/gorilla/websocket"
 )
+
+func generateMatchKey(home, away string) string {
+    h1 := sha1.Sum([]byte(home))
+    h2 := sha1.Sum([]byte(away))
+    return hex.EncodeToString(h1[:]) + hex.EncodeToString(h2[:])
+}
 
 var matchData = map[string]map[string]string{
     "Sansabet": make(map[string]string),
@@ -230,31 +238,33 @@ func matchingHandler(w http.ResponseWriter, r *http.Request) {
 
 func saveMatchData(name string, msg []byte) {
     log.Printf("[DEBUG] Текущее состояние matchPairs: %+v", matchPairs)
-
     var parsedMsg struct {
         MatchId string `json:"MatchId"`
+        Home    string `json:"Home"`
+        Away    string `json:"Away"`
     }
+
     if err := json.Unmarshal(msg, &parsedMsg); err != nil {
         log.Printf("[ERROR] Ошибка парсинга сообщения из %s: %v | Сообщение: %s", name, err, string(msg))
         return
     }
 
-    log.Printf("[DEBUG] Извлечён MatchId из сообщения: %s (длина: %d)", parsedMsg.MatchId, len(parsedMsg.MatchId))
+    // Генерируем ключ на основе хешей
+    key := generateMatchKey(parsedMsg.Home, parsedMsg.Away)
+    log.Printf("[DEBUG] Сгенерированный ключ: %s для матчей %s - %s", key, parsedMsg.Home, parsedMsg.Away)
 
     pairsMutex.Lock()
     defer pairsMutex.Unlock()
 
     matchFound := false
     for _, pair := range matchPairs {
-        log.Printf("[DEBUG] Сравнение с парой: SansabetId=%s, PinnacleId=%s", pair.SansabetId, pair.PinnacleId)
-
         if name == "Sansabet" && pair.SansabetId == parsedMsg.MatchId {
-            matchData["Sansabet"][pair.SansabetId] = string(msg)
+            matchData["Sansabet"][key] = string(msg)
             log.Printf("[DEBUG] Совпадение найдено для Sansabet: MatchId=%s", parsedMsg.MatchId)
             matchFound = true
             break
         } else if name == "Pinnacle" && pair.PinnacleId == parsedMsg.MatchId {
-            matchData["Pinnacle"][pair.PinnacleId] = string(msg)
+            matchData["Pinnacle"][key] = string(msg)
             log.Printf("[DEBUG] Совпадение найдено для Pinnacle: MatchId=%s", parsedMsg.MatchId)
             matchFound = true
             break
@@ -264,6 +274,7 @@ func saveMatchData(name string, msg []byte) {
     if !matchFound {
         log.Printf("[DEBUG] Нет совпадений для MatchId=%s в %s | Сообщение: %s", parsedMsg.MatchId, name, string(msg))
     }
+
     matchingMutex.Lock()
     defer matchingMutex.Unlock()
     if matchingConnection != nil {
@@ -273,6 +284,7 @@ func saveMatchData(name string, msg []byte) {
             matchingConnection = nil // Reset connection
         }
     }
+
 }
 
 func processPairs() {
@@ -303,11 +315,12 @@ func groupResultsByMatch(pairs []MatchPair) []map[string]interface{} {
 }
 
 func processPairAndGetResult(pair MatchPair) map[string]interface{} {
-    sansabetData, sansabetExists := matchData["Sansabet"][pair.SansabetId]
-    pinnacleData, pinnacleExists := matchData["Pinnacle"][pair.PinnacleId]
+    key := generateMatchKey(pair.MatchName, pair.MatchName) // Используйте home и away из данных
+    sansabetData, sansabetExists := matchData["Sansabet"][key]
+    pinnacleData, pinnacleExists := matchData["Pinnacle"][key]
 
     if !sansabetExists || !pinnacleExists {
-        log.Printf("[DEBUG] Данные для пары отсутствуют: SansabetId=%s, PinnacleId=%s", pair.SansabetId, pair.PinnacleId)
+        log.Printf("[DEBUG] Данные для пары отсутствуют: SansabetKey=%s, PinnacleKey=%s", key, key)
         return nil
     }
 
@@ -351,8 +364,8 @@ func processPairAndGetResult(pair MatchPair) map[string]interface{} {
     }
 
     // Удаляем обработанные данные
-    delete(matchData["Sansabet"], pair.SansabetId)
-    delete(matchData["Pinnacle"], pair.PinnacleId)
+    delete(matchData["Sansabet"], key)
+    delete(matchData["Pinnacle"], key)
 
     return result
 }
