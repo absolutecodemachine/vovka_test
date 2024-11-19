@@ -26,6 +26,9 @@ func main() {
     // Запуск анализатора
     go startProcess("go run analyzer.go", "Analyzer")
 
+    // Запуск калькулятора
+    go startProcess("go run calculator_server.go", "Calculator")
+
     // Основной цикл
     select {}
 }
@@ -35,14 +38,14 @@ func startProcess(command string, name string) {
     // Создаём путь для файла логов
     logFilePath := filepath.Join("logs", name+".log")
 
-    // Открываем файл логов
-    logFile, err := os.OpenFile(logFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-    if err != nil {
-        log.Fatalf("Ошибка создания файла логов для %s: %v", name, err)
-    }
-    defer logFile.Close()
-
     for {
+        // Открываем файл логов
+        logFile, err := os.OpenFile(logFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+        if err != nil {
+            log.Fatalf("Ошибка создания файла логов для %s: %v", name, err)
+        }
+        defer logFile.Close()
+
         log.Printf("Запуск процесса %s", name)
         cmd := exec.Command("sh", "-c", command) // Используем "sh -c", чтобы обрабатывать команды
         cmd.Stdout = logFile                    // Перенаправляем stdout в файл

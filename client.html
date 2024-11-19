@@ -3,45 +3,366 @@
 <head>
     <meta charset="UTF-8">
     <title>Результаты Анализатора</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+        .match-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        .match-card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .match-header h4 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .arrow {
+            font-size: 20px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .outcomes {
+            display: none;
+            margin-top: 10px;
+        }
+        .outcome {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 5px;
+            background-color: #f0f0f0;
+        }
+        .calculator {
+            background: #fff;
+            border: 2px solid #007bff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .calculator h3 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+        .status {
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .green {
+            background-color: green;
+        }
+        .red {
+            background-color: red;
+        }
+        .gray {
+            background-color: gray;
+        }
+        #calculator-content {
+            white-space: pre-wrap;
+            font-family: monospace;
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 15px;
+        }
+        /* Индикатор загрузки */
+        .indicator.gray {
+            background-color: gray;
+            position: relative;
+        }
+        .indicator.gray::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #ccc;
+            border-top: 2px solid gray;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Убираем анимацию для других цветов */
+        .indicator.green::after,
+        .indicator.red::after {
+            content: '';
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <h1>Матчи</h1>
 
+    <!-- Индикатор статуса -->
+    <div class="status">
+        <span id="connection-indicator" class="indicator gray"></span>
+        <span id="connection-status">Подключение...</span>
+    </div>
+
+    <!-- Калькулятор -->
+    <div class="calculator" id="calculator">
+        <h3>Калькулятор ставок</h3>
+        <!-- Индикатор статуса внутри калькулятора -->
+        <div class="status">
+            <span id="calculator-indicator" class="indicator gray"></span>
+            <span id="calculator-status">Обновление...</span>
+        </div>
+        <div id="calculator-content">
+            <!-- Здесь будут отображаться данные -->
+        </div>
+        <!-- Кнопка "Сделать ставку" -->
+        <button id="place-bet-button" style="display: none;">Сделать ставку</button>
+    </div>
+
+    <!-- Список матчей -->
     <div id="matches">
-        <!-- Здесь будут отображаться матчи -->
+        <!-- Динамически загружаемые данные -->
     </div>
 
     <script>
+        // WebSocket для обновления данных в калькуляторе
+        const calculatorSocket = new WebSocket("ws://localhost:7500/ws");
+
+        let lastCalculatorDataTime = Date.now();
+        let calculatorIndicatorTimeout;
+
+        // Подключение WebSocket
+        calculatorSocket.onopen = function() {
+            console.log("Подключено к серверу калькулятора");
+            document.getElementById("connection-indicator").className = "indicator green";
+            document.getElementById("connection-status").textContent = "Подключено";
+        };
+
+        // Получение данных от сервера калькулятора
+        calculatorSocket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            displayCalculatorData(data);
+
+            // Обновляем время последнего полученного сообщения
+            lastCalculatorDataTime = Date.now();
+
+            // Обновляем индикатор
+            updateCalculatorIndicator("green", "Обновлено");
+
+            // Сбрасываем предыдущий таймер
+            if (calculatorIndicatorTimeout) {
+                clearTimeout(calculatorIndicatorTimeout);
+            }
+
+            // После 0.75 секунд возвращаемся к статусу "Обновление..."
+            calculatorIndicatorTimeout = setTimeout(function() {
+                updateCalculatorIndicator("gray", "Обновление...");
+            }, 750);
+        };
+
+        // Закрытие соединения
+        calculatorSocket.onclose = function() {
+            console.log("Соединение с калькулятором закрыто");
+            document.getElementById("connection-indicator").className = "indicator red";
+            document.getElementById("connection-status").textContent = "Соединение закрыто";
+        };
+
+        calculatorSocket.onerror = function(error) {
+            console.error("Ошибка WebSocket:", error);
+            document.getElementById("connection-indicator").className = "indicator red";
+            document.getElementById("connection-status").textContent = "Ошибка подключения";
+        };
+
+        // Функция для обновления индикатора в калькуляторе
+        function updateCalculatorIndicator(color, text) {
+            const indicator = document.getElementById("calculator-indicator");
+            const status = document.getElementById("calculator-status");
+            indicator.className = `indicator ${color}`;
+            status.textContent = text;
+        }
+
+        // Проверка отсутствия ответа более 6 секунд
+        setInterval(function() {
+            const now = Date.now();
+            if (now - lastCalculatorDataTime > 6000) {
+                updateCalculatorIndicator("red", "Нет ответа");
+            }
+        }, 1000);
+
+        // Функция для отображения данных в калькуляторе
+        function displayCalculatorData(data) {
+            const calculatorContent = document.getElementById("calculator-content");
+            calculatorContent.innerHTML = '';
+
+            // Создаем элементы для отображения данных
+            const league = document.createElement('div');
+            league.innerHTML = `<strong>Лига:</strong> ${data.LeagueName}`;
+
+            const matchName = document.createElement('div');
+            matchName.innerHTML = `<strong>Матч:</strong> ${data.MatchName}`;
+
+            const outcome = data.SelectedOutcome;
+            const outcomeDiv = document.createElement('div');
+            outcomeDiv.innerHTML = `
+                <strong>Исход:</strong> ${outcome.Outcome}<br>
+                <strong>Цена Sansabet:</strong> ${outcome.Sansabet}<br>
+                <strong>Цена Pinnacle:</strong> ${outcome.Pinnacle}<br>
+                <strong>ROI:</strong> ${outcome.ROI}%
+            `;
+
+            // Добавляем элементы в калькулятор
+            calculatorContent.appendChild(league);
+            calculatorContent.appendChild(matchName);
+            calculatorContent.appendChild(outcomeDiv);
+
+            // Показать кнопку "Сделать ставку"
+            const placeBetButton = document.getElementById("place-bet-button");
+            placeBetButton.style.display = "block";
+        }
+
+        // Функция для отправки данных в калькулятор
+        function sendToCalculator(data) {
+            console.log("Отправка данных в калькулятор:", data); // Лог перед отправкой
+            // Обновляем индикатор на "Обновление..."
+            updateCalculatorIndicator("gray", "Обновление...");
+            fetch("http://localhost:7500/receive", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Ошибка отправки данных в калькулятор");
+                }
+                console.log("Данные успешно отправлены в калькулятор:", data); // Лог успешной отправки
+            })
+            .catch(error => {
+                console.error("Ошибка при отправке данных в калькулятор:", error); // Лог ошибки
+            });
+        }
+
+        // Обработка матчей
         const ws = new WebSocket("ws://localhost:7300/output");
 
+        ws.onopen = function() {
+            console.log("Подключено к серверу матчей");
+        };
+
         ws.onmessage = function(event) {
-            console.log("Получено сообщение от сервера:", event.data);
+            const matches = JSON.parse(event.data); // Парсим JSON
 
             const matchesDiv = document.getElementById("matches");
+            matchesDiv.innerHTML = ""; // Очищаем старые данные
 
-            // Парсим сообщение по строкам
-            const messages = event.data.split("\n");
+            matches.forEach(match => {
+                const matchCard = document.createElement("div");
+                matchCard.className = "match-card";
 
-            messages.forEach(msg => {
-                if (!msg.trim()) return; // Пропуск пустых строк
+                // Найти самый выгодный исход (по максимальному ROI)
+                const bestOutcome = match.Outcomes.reduce((best, curr) => curr.ROI > best.ROI ? curr : best);
 
-                // Создаём новый элемент
-                const matchElement = document.createElement("p");
-                matchElement.innerText = msg.trim(); // Добавляем строку как есть
-                matchesDiv.appendChild(matchElement);
+                // Создаем заголовок матча
+                matchCard.innerHTML = `
+                    <div class="match-header">
+                        <h4>${match.MatchName}</h4>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <p>${match.LeagueName}</p>
+                `;
+
+                // Создаем элемент для лучшего исхода
+                const bestOutcomeDiv = document.createElement("div");
+                bestOutcomeDiv.className = "outcome";
+                bestOutcomeDiv.innerHTML = `
+                    <strong>${bestOutcome.Outcome}</strong> | Sansabet: ${bestOutcome.Sansabet} | Pinnacle: ${bestOutcome.Pinnacle} | ROI: ${bestOutcome.ROI}%
+                `;
+                // Добавляем обработчик клика для лучшего исхода
+                bestOutcomeDiv.onclick = function(event) {
+                    event.stopPropagation(); // Останавливаем всплытие события
+                    sendToCalculator({
+                        ...match,
+                        SelectedOutcome: bestOutcome
+                    });
+                };
+                // Добавляем лучший исход к карточке матча
+                matchCard.appendChild(bestOutcomeDiv);
+
+                // Создаем контейнер для остальных исходов
+                const outcomesDiv = matchCard.querySelector(".outcomes") || document.createElement("div");
+                outcomesDiv.className = "outcomes";
+                outcomesDiv.style.display = "none";
+
+                // Генерируем остальные исходы
+                match.Outcomes.forEach(o => {
+                    const outcomeDiv = document.createElement("div");
+                    outcomeDiv.className = "outcome";
+                    outcomeDiv.innerHTML = `
+                        ${o.Outcome} | Sansabet: ${o.Sansabet} | Pinnacle: ${o.Pinnacle} | ROI: ${o.ROI}%
+                    `;
+                    // Добавляем обработчик клика для исхода
+                    outcomeDiv.onclick = function(event) {
+                        event.stopPropagation(); // Останавливаем всплытие события
+                        sendToCalculator({
+                            ...match,
+                            SelectedOutcome: o
+                        });
+                    };
+                    outcomesDiv.appendChild(outcomeDiv);
+                });
+
+                // Добавляем остальные исходы к карточке матча
+                matchCard.appendChild(outcomesDiv);
+
+                // Обработка клика на стрелочку
+                const arrow = matchCard.querySelector(".arrow");
+                arrow.onclick = function(event) {
+                    event.stopPropagation(); // Останавливаем всплытие события
+                    if (outcomesDiv.style.display === "none") {
+                        outcomesDiv.style.display = "block";
+                        arrow.textContent = "▲";
+                    } else {
+                        outcomesDiv.style.display = "none";
+                        arrow.textContent = "▼";
+                    }
+                };
+
+                // Обработка клика на карточку матча
+                matchCard.onclick = function(event) {
+                    if (!event.target.classList.contains("arrow")) { // Игнорируем клик по стрелочке
+                        // Отправляем данные в калькулятор
+                        sendToCalculator({
+                            ...match,
+                            SelectedOutcome: bestOutcome
+                        });
+                    }
+                };
+
+                matchesDiv.appendChild(matchCard);
             });
-        };
-
-        ws.onopen = function() {
-            console.log("Подключено к серверу.");
-        };
-
-        ws.onclose = function() {
-            console.log("Отключено от сервера.");
-        };
-
-        ws.onerror = function(event) {
-            console.error("Ошибка веб-сокета:", event);
         };
     </script>
 </body>

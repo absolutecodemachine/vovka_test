@@ -2,11 +2,11 @@ package main
 
 import (
     "encoding/json"
-    "fmt"
+    //"fmt"
     "log"
     "net/http"
     "sort"
-    "strings"
+    //"strings"
     "sync"
     "time"
     "github.com/gorilla/websocket"
@@ -91,38 +91,28 @@ func findCommonOutcomes(sansabetData, pinnacleData string) map[string][2]float64
 }
 
 // Полный расчет ROI
-func calculateAndFilterCommonOutcomes(matchName string, commonOutcomes map[string][2]float64) []string {
-    filtered := []struct {
-        Outcome  string
-        ROI      float64
-        Sansa    float64
-        Pinnacle float64
-    }{}
+func calculateAndFilterCommonOutcomes(matchName string, commonOutcomes map[string][2]float64) []map[string]interface{} {
+    filtered := []map[string]interface{}{}
 
     for outcome, values := range commonOutcomes {
         roi := calculateROI(values[0], values[1])
         if roi > -30 {
-            filtered = append(filtered, struct {
-                Outcome  string
-                ROI      float64
-                Sansa    float64
-                Pinnacle float64
-            }{outcome, roi, values[0], values[1]})
+            filtered = append(filtered, map[string]interface{}{
+                "Outcome":  outcome,
+                "ROI":      roi,
+                "Sansabet": values[0],
+                "Pinnacle": values[1],
+            })
         }
     }
 
     sort.Slice(filtered, func(i, j int) bool {
-        return filtered[i].ROI > filtered[j].ROI
+        return filtered[i]["ROI"].(float64) > filtered[j]["ROI"].(float64)
     })
 
-    results := []string{}
-    for _, item := range filtered {
-        results = append(results, fmt.Sprintf("%s | Исход: %s | ROI: %.2f%% | Sansabet: %.2f | Pinnacle: %.2f",
-            matchName, item.Outcome, item.ROI, item.Sansa, item.Pinnacle))
-    }
-
-    return results
+    return filtered
 }
+
 
 var matchPairs []MatchPair
 var pairsMutex sync.Mutex
@@ -199,18 +189,20 @@ func connectToParser(url string, connection **websocket.Conn, name string) {
 }
 
 func processIncomingMessages(conn *websocket.Conn, name string) {
-    log.Printf("[DEBUG] Текущее состояние matchPairs при получении данных: %+v", matchPairs)
     for {
         _, msg, err := conn.ReadMessage()
-        log.Printf("[DEBUG] Получены данные из потока %s: %s", name, string(msg))
         if err != nil {
             log.Printf("[ERROR] Ошибка чтения из потока %s: %v", name, err)
             break
         }
-        log.Printf("[DEBUG] Потоковые данные от %s: %s", name, string(msg))
+
+        // Логируем исходное сообщение
+        log.Printf("[DEBUG] Входящее сообщение от %s: %s", name, string(msg))
+
         saveMatchData(name, msg)
     }
 }
+
 
 func saveMatchData(name string, msg []byte) {
     log.Printf("[DEBUG] Текущее состояние matchPairs: %+v", matchPairs)
@@ -263,25 +255,16 @@ func saveMatchData(name string, msg []byte) {
     }
 }
 
-
-
 func processPairs() {
     for {
-        time.Sleep(500 * time.Millisecond) // Увеличиваем частоту до 2 раз в секунду
+        time.Sleep(500 * time.Millisecond) // Пауза 0.5 секунды
 
         pairsMutex.Lock()
         currentPairs := make([]MatchPair, len(matchPairs))
         copy(currentPairs, matchPairs)
         pairsMutex.Unlock()
 
-        results := []string{}
-        for _, pair := range currentPairs {
-            result := processPairAndGetResult(pair)
-            if result != "" {
-                results = append(results, result)
-            }
-        }
-
+        results := groupResultsByMatch(currentPairs)
         if len(results) > 0 {
             forwardToFrontendBatch(results)
         }
@@ -289,47 +272,71 @@ func processPairs() {
 }
 
 
-
-func processPairAndGetResult(pair MatchPair) string {
+func processPairAndGetResult(pair MatchPair) map[string]interface{} {
     sansabetData, sansabetExists := matchData["Sansabet"][pair.SansabetId]
     pinnacleData, pinnacleExists := matchData["Pinnacle"][pair.PinnacleId]
 
-    log.Printf("[DEBUG] Проверяем пару: %s | SansabetId=%s | PinnacleId=%s", pair.MatchName, pair.SansabetId, pair.PinnacleId)
-
-    if sansabetExists && pinnacleExists {
-        log.Printf("[DEBUG] Найдены данные для пары: %s | SansabetData=%s | PinnacleData=%s", pair.MatchName, sansabetData, pinnacleData)
-        commonOutcomes := findCommonOutcomes(sansabetData, pinnacleData)
-
-        if len(commonOutcomes) == 0 {
-            log.Printf("[DEBUG] Нет общих исходов для пары: %s", pair.MatchName)
-            return ""
-        }
-
-        filtered := calculateAndFilterCommonOutcomes(pair.MatchName, commonOutcomes)
-        if len(filtered) == 0 {
-            log.Printf("[DEBUG] Нет подходящих исходов для пары: %s", pair.MatchName)
-            return ""
-        }
-
-        // Формируем результат в виде строки
-        result := ""
-        for _, outcome := range filtered {
-            result += outcome + "\n"
-        }
-
-        // Удаляем обработанные данные
-        delete(matchData["Sansabet"], pair.SansabetId)
-        delete(matchData["Pinnacle"], pair.PinnacleId)
-
-        return result
+    if !sansabetExists || !pinnacleExists {
+        log.Printf("[DEBUG] Данные для пары отсутствуют: SansabetId=%s, PinnacleId=%s", pair.SansabetId, pair.PinnacleId)
+        return nil
     }
 
-    return "" // Данных для пары нет
+    log.Printf("[DEBUG] Анализируем пару: %s | SansabetId=%s | PinnacleId=%s", pair.MatchName, pair.SansabetId, pair.PinnacleId)
+
+    commonOutcomes := findCommonOutcomes(sansabetData, pinnacleData)
+    if len(commonOutcomes) == 0 {
+        log.Printf("[DEBUG] Нет общих исходов для пары: %s", pair.MatchName)
+        return nil
+    }
+
+    filtered := calculateAndFilterCommonOutcomes(pair.MatchName, commonOutcomes)
+    if len(filtered) == 0 {
+        log.Printf("[DEBUG] Нет подходящих исходов для пары: %s", pair.MatchName)
+        return nil
+    }
+
+    // Формируем результат в формате JSON-совместимой структуры
+    result := map[string]interface{}{
+        "MatchName":      pair.MatchName,
+        "SansabetId":     pair.SansabetId,
+        "PinnacleId":     pair.PinnacleId,
+        "LeagueName":     "", // Будет извлечено из sansabetData и pinnacleData
+        "Country":        "", // Если есть
+        "Outcomes":       filtered,
+    }
+
+    // Добавляем данные лиги и страны, если присутствуют
+    var sansabetParsed, pinnacleParsed map[string]interface{}
+    json.Unmarshal([]byte(sansabetData), &sansabetParsed)
+    json.Unmarshal([]byte(pinnacleData), &pinnacleParsed)
+
+    if leagueName, ok := sansabetParsed["LeagueName"].(string); ok && leagueName != "" {
+        result["LeagueName"] = leagueName
+    } else if leagueName, ok := pinnacleParsed["LeagueName"].(string); ok {
+        result["LeagueName"] = leagueName
+    }
+
+    if country, ok := sansabetParsed["Country"].(string); ok {
+        result["Country"] = country
+    }
+
+    // Удаляем обработанные данные
+    delete(matchData["Sansabet"], pair.SansabetId)
+    delete(matchData["Pinnacle"], pair.PinnacleId)
+
+    return result
 }
 
-
-
-
+func groupResultsByMatch(pairs []MatchPair) []map[string]interface{} {
+    results := []map[string]interface{}{}
+    for _, pair := range pairs {
+        result := processPairAndGetResult(pair)
+        if result != nil {
+            results = append(results, result)
+        }
+    }
+    return results
+}
 
 
 func analyzeAndSend(matchName, sansabetData, pinnacleData string) {
@@ -351,22 +358,27 @@ func analyzeAndSend(matchName, sansabetData, pinnacleData string) {
     forwardToFrontendBatch(filtered)
 }
 
-func forwardToFrontendBatch(results []string) {
-    log.Printf("[DEBUG] Отправка %d результатов клиентам", len(results))
-    data := strings.Join(results, "\n")
+func forwardToFrontendBatch(results []map[string]interface{}) {
+    log.Printf("[DEBUG] Отправка %d матчей клиентам", len(results))
+
+    // Кодируем результаты в JSON
+    data, err := json.Marshal(results)
+    if err != nil {
+        log.Printf("[ERROR] Ошибка кодирования JSON: %v", err)
+        return
+    }
 
     frontendMutex.Lock()
     defer frontendMutex.Unlock()
 
     for client := range frontendClients {
-        if err := client.WriteMessage(websocket.TextMessage, []byte(data)); err != nil {
+        if err := client.WriteMessage(websocket.TextMessage, data); err != nil {
             log.Printf("[ERROR] Ошибка отправки данных клиенту: %v", err)
             client.Close()
             delete(frontendClients, client)
         }
     }
 }
-
 
 
 func startFrontendServer() {
