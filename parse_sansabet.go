@@ -5,7 +5,6 @@ import (
     "compress/gzip"
     "encoding/json"
     "fmt"
-    "io"
     "io/ioutil"
     "log"
     "net/http"
@@ -16,8 +15,13 @@ import (
     "github.com/gorilla/websocket"
 )
 
+var analyzerConnection *websocket.Conn
+var analyzerConnMutex sync.Mutex
+
+
 // Структуры данных
 type OneGame struct {
+    Source           string                 `json:"Source"`
     Name             string                 `json:"Name"`
     Pid              int64                  `json:"Pid"`
     Slid             int64                  `json:"Slid"`
@@ -28,8 +32,8 @@ type OneGame struct {
     Win1x2           Win1x2Struct           `json:"Win1x2"`
     Totals           map[string]WinLessMore `json:"Totals"`
     Handicap         map[string]WinHandicap `json:"Handicap"`
-    FirstTeamTotals  map[string]WinLessMore `json:"FirstTeamTotals"`  // Новое поле
-    SecondTeamTotals map[string]WinLessMore `json:"SecondTeamTotals"` // Новое поле
+    FirstTeamTotals  map[string]WinLessMore `json:"FirstTeamTotals"`
+    SecondTeamTotals map[string]WinLessMore `json:"SecondTeamTotals"`
 }
 
 type WinLessMore struct {
@@ -65,52 +69,6 @@ var (
     ListGames    = make(map[int64]OneGame)
     ListGamesMux sync.RWMutex
 )
-
-// Создаем апдейтер для веб-соединения, превращающего его в сокет.
-var upgrader = websocket.Upgrader{
-    CheckOrigin: func(r *http.Request) bool {
-        return true // Пропускаем любой запрос
-    },
-}
-
-type Server struct {
-    clients       map[*websocket.Conn]bool // Простая карта для хранения подключенных клиентов.
-    handleMessage func(message []byte)     // Хандлер новых сообщений
-    mutex         sync.Mutex               // Добавлено
-}
-
-var serverInstance *Server
-
-func handleMessage(msg []byte) {
-    // Игнорируем сообщения с тестовой строкой "Bla-Bla"
-    if string(msg) == "Bla-Bla" {
-        log.Println("Пропуск тестового сообщения: Bla-Bla")
-        return
-    }
-
-    // Остальной код обработки...
-    reader, err := gzip.NewReader(bytes.NewReader(msg))
-    if err != nil {
-        log.Printf("Ошибка распаковки gzip: %v", err)
-        return
-    }
-    defer reader.Close()
-
-    data, err := io.ReadAll(reader)
-    if err != nil {
-        log.Printf("Ошибка чтения данных: %v", err)
-        return
-    }
-
-    var game OneGame
-    if err := json.Unmarshal(data, &game); err != nil {
-        log.Printf("Ошибка разбора JSON: %v. Данные: %s", err, string(data))
-        return
-    }
-
-    log.Printf("Получен матч: %s vs %s", game.LeagueName, game.MatchName)
-}
-
 
 // Вспомогательные функции
 func InterfaceToInt64(inVal interface{}) int64 {
@@ -231,6 +189,7 @@ func ParseOneGame(nGameKey int64, nGame OneGame) {
         return
     }
 
+    nOneGame.Source = "Sansabet"
     nOneGame.LeagueName = mapHInterface["LigaNaziv"].(string)
     nOneGame.Slid = InterfaceToInt64(mapHInterface["SLID"])
     nOneGame.MatchName = mapHInterface["ParNaziv"].(string)
@@ -251,8 +210,8 @@ func ParseOneGame(nGameKey int64, nGame OneGame) {
     Win1x2 := Win1x2Struct{Win1: 0, Win2: 0, WinNone: 0}
     Totals := make(map[string]WinLessMore)
     Handicap := make(map[string]WinHandicap)
-    FirstTeamTotals := make(map[string]WinLessMore)  // Новое поле
-    SecondTeamTotals := make(map[string]WinLessMore) // Новое поле
+    FirstTeamTotals := make(map[string]WinLessMore)
+    SecondTeamTotals := make(map[string]WinLessMore)
 
     for _, nKoef := range mapKoeffInterface {
         nKoefMap := nKoef.(map[string]interface{})
@@ -433,8 +392,13 @@ func ParseOneGame(nGameKey int64, nGame OneGame) {
 
     fmt.Println(string(jsonResult))
 
-    // Отправляем данные в открытые сокеты.
-    serverInstance.WriteMessage(jsonResult)
+    // Отправляем данные в анализатор с использованием мьютекса для синхронизации
+    analyzerConnMutex.Lock()
+    err = analyzerConnection.WriteMessage(websocket.TextMessage, jsonResult)
+    analyzerConnMutex.Unlock()
+    if err != nil {
+        log.Printf("Ошибка отправки сообщения: %v", err)
+    }
 
     // Обновляем список игр
     ListGamesMux.Lock()
@@ -556,7 +520,7 @@ func ParseEvents() {
         ListGamesMux.Unlock()
 
     }
-    DebugLog(fmt.Sprintf("Получение данных о всех матчах закончено. Новый ключ полуения: %d Сейчас в обработке: %d", SlidAll, len(ListGames)))
+    DebugLog(fmt.Sprintf("Получение данных о всех матчах закончено. Новый ключ получения: %d Сейчас в обработке: %d", SlidAll, len(ListGames)))
 }
 
 // Запуск парсинга событий
@@ -575,59 +539,18 @@ func ParseGamesStart() {
     }
 }
 
-// Хандлер сообщений
-func messageHandler(message []byte) {
-    fmt.Println(string(message))
-}
-
-// Инициализация сервера
-func StartServer(handleMessage func(message []byte)) *Server {
-    server := &Server{
-        clients:       make(map[*websocket.Conn]bool),
-        handleMessage: handleMessage,
-    }
-
-    http.HandleFunc("/", server.echo)
-    go http.ListenAndServe(":7200", nil) // Убедись, что порт 7200 свободен
-
-    return server
-}
-
-// Обработка соединения
-func (server *Server) echo(w http.ResponseWriter, r *http.Request) {
-    connection, err := upgrader.Upgrade(w, r, nil)
-    if err != nil {
-        log.Println("Ошибка обновления соединения:", err)
-        return
-    }
-    defer connection.Close()
-
-    server.clients[connection] = true // Сохраняем соединение, используя его как ключ
-    defer delete(server.clients, connection) // Удаляем соединение
-
+// Функция подключения к анализатору
+func connectToAnalyzer() {
     for {
-        mt, message, err := connection.ReadMessage()
-
-        if err != nil || mt == websocket.CloseMessage {
-            break // Выходим из цикла, если клиент пытается закрыть соединение или связь прервана
-        }
-
-        go server.handleMessage(message)
-    }
-}
-
-// Отправка сообщений всем подключенным клиентам
-func (server *Server) WriteMessage(message []byte) {
-    server.mutex.Lock()         // Добавлено
-    defer server.mutex.Unlock() // Добавлено
-
-    for conn := range server.clients {
-        err := conn.WriteMessage(websocket.TextMessage, message)
+        var err error
+        analyzerConnection, _, err = websocket.DefaultDialer.Dial("ws://localhost:7100", nil)
         if err != nil {
-            log.Printf("Ошибка отправки сообщения: %v", err)
-            conn.Close()
-            delete(server.clients, conn)
+            log.Printf("[ERROR] Ошибка подключения к анализатору: %v", err)
+            time.Sleep(5 * time.Second)
+            continue
         }
+        log.Printf("[DEBUG] Подключение к анализатору установлено")
+        break
     }
 }
 
@@ -636,15 +559,14 @@ func main() {
     DebugLog("Старт скрипта")
     ListGames = make(map[int64]OneGame)
 
-    serverInstance = StartServer(messageHandler)
+    // Подключаемся к анализатору
+    connectToAnalyzer()
+    defer analyzerConnection.Close()
 
     // Запускаем парсинг в горутинах
     go ParseEventsStart()
     go ParseGamesStart()
 
     // Основной цикл
-    for {
-        //serverInstance.WriteMessage([]byte("Bla-Bla"))
-        time.Sleep(2 * time.Second)
-    }
+    select {}
 }
