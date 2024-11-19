@@ -6,6 +6,7 @@ import (
     "log"
     "net/http"
     "sort"
+    "strings"
     "sync"
     "time"
     "github.com/gorilla/websocket"
@@ -266,43 +267,67 @@ func saveMatchData(name string, msg []byte) {
 
 func processPairs() {
     for {
-        time.Sleep(1 * time.Second) // Интервал между циклами обработки
+        time.Sleep(500 * time.Millisecond) // Увеличиваем частоту до 2 раз в секунду
 
         pairsMutex.Lock()
         currentPairs := make([]MatchPair, len(matchPairs))
         copy(currentPairs, matchPairs)
         pairsMutex.Unlock()
 
+        results := []string{}
         for _, pair := range currentPairs {
-            processPair(pair)
+            result := processPairAndGetResult(pair)
+            if result != "" {
+                results = append(results, result)
+            }
+        }
+
+        if len(results) > 0 {
+            forwardToFrontendBatch(results)
         }
     }
 }
 
 
-func processPair(pair MatchPair) {
-    pairsMutex.Lock()
-    defer pairsMutex.Unlock()
 
+func processPairAndGetResult(pair MatchPair) string {
     sansabetData, sansabetExists := matchData["Sansabet"][pair.SansabetId]
     pinnacleData, pinnacleExists := matchData["Pinnacle"][pair.PinnacleId]
 
     log.Printf("[DEBUG] Проверяем пару: %s | SansabetId=%s | PinnacleId=%s", pair.MatchName, pair.SansabetId, pair.PinnacleId)
-    log.Printf("[DEBUG] Данные в matchData для Sansabet: %v", matchData["Sansabet"])
-    log.Printf("[DEBUG] Данные в matchData для Pinnacle: %v", matchData["Pinnacle"])
-
-    if !sansabetExists {
-        log.Printf("[DEBUG] Нет данных для SansabetId=%s", pair.SansabetId)
-    }
-    if !pinnacleExists {
-        log.Printf("[DEBUG] Нет данных для PinnacleId=%s", pair.PinnacleId)
-    }
 
     if sansabetExists && pinnacleExists {
         log.Printf("[DEBUG] Найдены данные для пары: %s | SansabetData=%s | PinnacleData=%s", pair.MatchName, sansabetData, pinnacleData)
-        analyzeAndSend(pair.MatchName, sansabetData, pinnacleData)
+        commonOutcomes := findCommonOutcomes(sansabetData, pinnacleData)
+
+        if len(commonOutcomes) == 0 {
+            log.Printf("[DEBUG] Нет общих исходов для пары: %s", pair.MatchName)
+            return ""
+        }
+
+        filtered := calculateAndFilterCommonOutcomes(pair.MatchName, commonOutcomes)
+        if len(filtered) == 0 {
+            log.Printf("[DEBUG] Нет подходящих исходов для пары: %s", pair.MatchName)
+            return ""
+        }
+
+        // Формируем результат в виде строки
+        result := ""
+        for _, outcome := range filtered {
+            result += outcome + "\n"
+        }
+
+        // Удаляем обработанные данные
+        delete(matchData["Sansabet"], pair.SansabetId)
+        delete(matchData["Pinnacle"], pair.PinnacleId)
+
+        return result
     }
+
+    return "" // Данных для пары нет
 }
+
+
 
 
 
@@ -310,6 +335,7 @@ func processPair(pair MatchPair) {
 func analyzeAndSend(matchName, sansabetData, pinnacleData string) {
     commonOutcomes := findCommonOutcomes(sansabetData, pinnacleData)
     log.Printf("[DEBUG] Общие исходы для пары %s: %+v", matchName, commonOutcomes)
+
     if len(commonOutcomes) == 0 {
         log.Printf("[DEBUG] Нет общих исходов для матча %s", matchName)
         return
@@ -321,24 +347,27 @@ func analyzeAndSend(matchName, sansabetData, pinnacleData string) {
         return
     }
 
-    for _, result := range filtered {
-        forwardToFrontend([]byte(result))
-    }
+    // Отправляем все результаты пачкой
+    forwardToFrontendBatch(filtered)
 }
 
-func forwardToFrontend(data []byte) {
-    log.Printf("[DEBUG] Отправка данных клиентам: %s", string(data))
+func forwardToFrontendBatch(results []string) {
+    log.Printf("[DEBUG] Отправка %d результатов клиентам", len(results))
+    data := strings.Join(results, "\n")
+
     frontendMutex.Lock()
     defer frontendMutex.Unlock()
 
     for client := range frontendClients {
-        if err := client.WriteMessage(websocket.TextMessage, data); err != nil {
+        if err := client.WriteMessage(websocket.TextMessage, []byte(data)); err != nil {
             log.Printf("[ERROR] Ошибка отправки данных клиенту: %v", err)
             client.Close()
             delete(frontendClients, client)
         }
     }
 }
+
+
 
 func startFrontendServer() {
     http.HandleFunc("/output", func(w http.ResponseWriter, r *http.Request) {

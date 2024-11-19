@@ -9,3 +9,198 @@
     Анализатор слушает данные от мэтчинга на 7400 (http.ListenAndServe(":7400", nil)).
     Для отправки данных на сайт (frontend):
     Используется порт 7300 для клиентов (http.ListenAndServe(":7300", nil)).
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    1. main
+
+func main() {
+    startAnalyzer()
+    select {}
+}
+
+    Что происходит:
+        Вызов функции startAnalyzer(), которая запускает основные потоки для работы с парсерами, мэтчингом и frontend-сервером.
+        select {} используется, чтобы программа продолжала работать, оставаясь в состоянии ожидания, поскольку без этого выполнение завершилось бы.
+
+2. startAnalyzer
+
+func startAnalyzer() {
+    log.Println("[DEBUG] Анализатор запущен")
+    go connectParsers()
+    go processPairs()
+    go startFrontendServer()
+
+    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+        conn, err := upgrader.Upgrade(w, r, nil)
+        if err != nil {
+            log.Printf("[ERROR] Ошибка подключения мэтчинга: %v", err)
+            return
+        }
+        defer conn.Close()
+        // Обработка соединения для мэтчинга
+    })
+
+    log.Fatal(http.ListenAndServe(":7400", nil))
+}
+
+    Основная логика:
+        Лог запуска анализатора.
+        go connectParsers(): Запускает подключение к парсерам Sansabet и Pinnacle.
+        go processPairs(): Поток обработки полученных матчей.
+        go startFrontendServer(): Поток для обработки frontend-клиентов, подключающихся по WebSocket.
+        Создаётся HTTP-сервер на порту 7400, который обрабатывает входящие соединения от компонента мэтчинга.
+
+3. connectParsers
+
+func connectParsers() {
+    go connectToParser("ws://localhost:7100", &sansabetConnection, "Sansabet")
+    go connectToParser("ws://localhost:7200", &pinnacleConnection, "Pinnacle")
+}
+
+    Что происходит:
+        Для каждого парсера (Sansabet и Pinnacle) создаётся поток, который:
+            Подключается к WebSocket серверу парсера.
+            Сохраняет соединение в глобальной переменной (sansabetConnection, pinnacleConnection).
+            Запускает обработку входящих сообщений через processIncomingMessages.
+
+4. connectToParser
+
+func connectToParser(url string, connection **websocket.Conn, name string) {
+    for {
+        conn, _, err := websocket.DefaultDialer.Dial(url, nil)
+        if err != nil {
+            log.Printf("[ERROR] Ошибка подключения к %s: %v", name, err)
+            time.Sleep(5 * time.Second)
+            continue
+        }
+        *connection = conn
+        log.Printf("[DEBUG] Подключение к %s установлено", name)
+        go processIncomingMessages(conn, name)
+        break
+    }
+}
+
+    Основная логика:
+        Цикл подключения к WebSocket серверу парсера с интервалом в 5 секунд при неудаче.
+        При успешном подключении:
+            Сохраняется WebSocket соединение.
+            Запускается поток для обработки входящих сообщений от парсера.
+
+5. processIncomingMessages
+
+func processIncomingMessages(conn *websocket.Conn, name string) {
+    for {
+        _, msg, err := conn.ReadMessage()
+        if err != nil {
+            log.Printf("[ERROR] Ошибка чтения из потока %s: %v", name, err)
+            break
+        }
+        saveMatchData(name, msg)
+    }
+}
+
+    Что делает:
+        Постоянно читает сообщения от парсера.
+        Если сообщение успешно получено, передаёт его в saveMatchData для сохранения.
+
+6. saveMatchData
+
+func saveMatchData(name string, msg []byte) {
+    var parsedMsg struct {
+        MatchId string `json:"MatchId"`
+    }
+    if err := json.Unmarshal(msg, &parsedMsg); err != nil {
+        log.Printf("[ERROR] Ошибка парсинга сообщения из %s: %v", name, err)
+        return
+    }
+    pairsMutex.Lock()
+    defer pairsMutex.Unlock()
+    // Сохранение данных для конкретного ID
+}
+
+    Логика:
+        Декодирует сообщение от парсера, извлекая MatchId.
+        Сравнивает MatchId с парами matchPairs из мэтчинга (например, по длине ID).
+        Если пара найдена, сохраняет данные в matchData.
+
+7. processPairs
+
+func processPairs() {
+    for {
+        time.Sleep(1 * time.Second)
+        pairsMutex.Lock()
+        currentPairs := make([]MatchPair, len(matchPairs))
+        copy(currentPairs, matchPairs)
+        pairsMutex.Unlock()
+
+        for _, pair := range currentPairs {
+            processPair(pair)
+        }
+    }
+}
+
+    Логика:
+        Периодически проверяет matchPairs.
+        Для каждой пары вызывает processPair для анализа данных.
+
+8. processPair
+
+func processPair(pair MatchPair) {
+    sansabetData, sansabetExists := matchData["Sansabet"][pair.SansabetId]
+    pinnacleData, pinnacleExists := matchData["Pinnacle"][pair.PinnacleId]
+
+    if sansabetExists && pinnacleExists {
+        analyzeAndSend(pair.MatchName, sansabetData, pinnacleData)
+        delete(matchData["Sansabet"], pair.SansabetId)
+        delete(matchData["Pinnacle"], pair.PinnacleId)
+    }
+}
+
+    Логика:
+        Проверяет, есть ли данные по SansabetId и PinnacleId.
+        Если данные найдены, передаёт их на анализ.
+        После анализа удаляет обработанные данные.
+
+9. analyzeAndSend
+
+func analyzeAndSend(matchName, sansabetData, pinnacleData string) {
+    commonOutcomes := findCommonOutcomes(sansabetData, pinnacleData)
+    filtered := calculateAndFilterCommonOutcomes(matchName, commonOutcomes)
+    for _, result := range filtered {
+        forwardToFrontend([]byte(result))
+    }
+}
+
+    Логика:
+        Находит общие исходы между Sansabet и Pinnacle через findCommonOutcomes.
+        Рассчитывает и фильтрует исходы через calculateAndFilterCommonOutcomes.
+        Отправляет подходящие результаты клиентам через forwardToFrontend.
+
+10. startFrontendServer
+
+func startFrontendServer() {
+    http.HandleFunc("/output", func(w http.ResponseWriter, r *http.Request) {
+        conn, err := upgrader.Upgrade(w, r, nil)
+        if err != nil {
+            log.Printf("[ERROR] Ошибка подключения клиента: %v", err)
+            return
+        }
+        frontendClients[conn] = true
+    })
+    log.Fatal(http.ListenAndServe(":7300", nil))
+}
+
+    Логика:
+        Запускает сервер WebSocket для клиентов.
+        Клиенты подключаются на /output.
+        Сохраняются соединения клиентов, чтобы им отправлять результаты анализа.
+
+Каждая функция выполняет свою задачу: от получения данных, их анализа до отправки результатов на frontend. Скрипт написан с учётом многопоточности.
