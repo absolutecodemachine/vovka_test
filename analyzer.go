@@ -10,9 +10,100 @@ import (
     "time"
     "crypto/sha1"
     "encoding/hex"
-    //"strings"
+    "database/sql"
+    "strings"
+    _ "github.com/go-sql-driver/mysql"
     "github.com/gorilla/websocket"
 )
+
+var db *sql.DB
+
+// Инициализация подключения к базе
+func initDB() {
+    var err error
+    dsn := "matchingTeams:local_password@tcp(localhost:3306)/matchingTeams"
+    db, err = sql.Open("mysql", dsn)
+    if err != nil {
+        log.Fatalf("[ERROR] Ошибка подключения к базе данных: %v", err)
+    }
+
+    // Проверяем соединение
+    if err := db.Ping(); err != nil {
+        log.Fatalf("[ERROR] Не удалось подключиться к базе: %v", err)
+    }
+
+    log.Println("[DEBUG] Подключение к базе данных успешно установлено")
+}
+
+// Вставка команды
+func insertTeam(source, teamName string) {
+    query := fmt.Sprintf("INSERT INTO %sTeams(teamName) VALUES (?)", strings.ToLower(source))
+    _, err := db.Exec(query, teamName)
+    if err != nil {
+        log.Printf("[ERROR] Ошибка вставки команды %s в %s: %v", teamName, source, err)
+        return
+    }
+    log.Printf("[DEBUG] Команда %s успешно добавлена в %s", teamName, source)
+}
+
+// Проверка команды
+func teamExists(source, teamName string) bool {
+    query := fmt.Sprintf("SELECT id FROM %sTeams WHERE teamName = ? LIMIT 1", strings.ToLower(source))
+    row := db.QueryRow(query, teamName)
+
+    var id int
+    if err := row.Scan(&id); err != nil {
+        if err == sql.ErrNoRows {
+            log.Printf("[DEBUG] Команда %s отсутствует в %s", teamName, source)
+            return false
+        }
+        log.Printf("[ERROR] Ошибка проверки команды %s в %s: %v", teamName, source, err)
+        return false
+    }
+    log.Printf("[DEBUG] Команда %s найдена в %s", teamName, source)
+    return true
+}
+
+// Полный матчинг
+func getTeamMatching() []map[string]string {
+    query := `
+        SELECT 
+            sansabetTeams.id as sansabetId, 
+            pinnacleTeams.id as pinnacleId, 
+            sansabetTeams.teamName as sansabetName, 
+            pinnacleTeams.teamName as pinnacleName
+        FROM 
+            sansabetTeams 
+        LEFT JOIN 
+            pinnacleTeams 
+        ON 
+            (sansabetTeams.pinnacleId = pinnacleTeams.id)
+        LIMIT 1
+    `
+
+    rows, err := db.Query(query)
+    if err != nil {
+        log.Printf("[ERROR] Ошибка получения матчей: %v", err)
+        return nil
+    }
+    defer rows.Close()
+
+    var results []map[string]string
+    for rows.Next() {
+        var sansabetId, pinnacleId, sansabetName, pinnacleName string
+        if err := rows.Scan(&sansabetId, &pinnacleId, &sansabetName, &pinnacleName); err != nil {
+            log.Printf("[ERROR] Ошибка чтения строки: %v", err)
+            continue
+        }
+        results = append(results, map[string]string{
+            "sansabetId":   sansabetId,
+            "pinnacleId":   pinnacleId,
+            "sansabetName": sansabetName,
+            "pinnacleName": pinnacleName,
+        })
+    }
+    return results
+}
 
 func generateMatchKey(home, away string) string {
     h1 := sha1.Sum([]byte(home))
@@ -235,57 +326,125 @@ func matchingHandler(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+func splitMatchName(matchName, source string) []string {
+    log.Printf("[DEBUG] Разделяем MatchName: %s для источника %s", matchName, source)
 
-func saveMatchData(name string, msg []byte) {
-    log.Printf("[DEBUG] Текущее состояние matchPairs: %+v", matchPairs)
-    var parsedMsg struct {
-        MatchId string `json:"MatchId"`
-        Home    string `json:"Home"`
-        Away    string `json:"Away"`
+    var separator string
+    if source == "Sansabet" {
+        separator = " : "
+    } else if source == "Pinnacle" {
+        separator = " vs "
+    } else {
+        log.Printf("[ERROR] Неизвестный источник: %s", source)
+        return nil
     }
 
+    teams := strings.Split(matchName, separator)
+    log.Printf("[DEBUG] Разделённые команды: %v", teams)
+    return teams
+}
+
+
+func saveMatchData(name string, msg []byte) {
+    log.Printf("[DEBUG] Начало обработки сообщения из %s", name)
+
+    // Логируем полученное сообщение
+    log.Printf("[DEBUG] Получено сообщение из %s: %s", name, string(msg))
+
+    // Структура для парсинга JSON
+    var parsedMsg struct {
+        MatchId   string `json:"MatchId"`
+        MatchName string `json:"MatchName"`
+        Home      string // Поле для домашней команды
+        Away      string // Поле для гостевой команды
+    }
+
+    // Парсинг сообщения
     if err := json.Unmarshal(msg, &parsedMsg); err != nil {
-        log.Printf("[ERROR] Ошибка парсинга сообщения из %s: %v | Сообщение: %s", name, err, string(msg))
+        log.Printf("[ERROR] Ошибка парсинга JSON из %s: %v | Сообщение: %s", name, err, string(msg))
         return
     }
 
-    // Генерируем ключ на основе хешей
-    key := generateMatchKey(parsedMsg.Home, parsedMsg.Away)
-    log.Printf("[DEBUG] Сгенерированный ключ: %s для матчей %s - %s", key, parsedMsg.Home, parsedMsg.Away)
+    // Логируем распарсенные данные
+    log.Printf("[DEBUG] Распарсенные данные: MatchId=%s, MatchName=%s", parsedMsg.MatchId, parsedMsg.MatchName)
 
-    pairsMutex.Lock()
-    defer pairsMutex.Unlock()
+    // Извлечение Home и Away из MatchName
+    teams := splitMatchName(parsedMsg.MatchName, name)
+    if len(teams) != 2 {
+        log.Printf("[ERROR] Не удалось разделить MatchName на команды: %s", parsedMsg.MatchName)
+        return
+    }
+    parsedMsg.Home = teams[0]
+    parsedMsg.Away = teams[1]
 
-    matchFound := false
-    for _, pair := range matchPairs {
-        if name == "Sansabet" && pair.SansabetId == parsedMsg.MatchId {
-            matchData["Sansabet"][key] = string(msg)
-            log.Printf("[DEBUG] Совпадение найдено для Sansabet: MatchId=%s", parsedMsg.MatchId)
-            matchFound = true
-            break
-        } else if name == "Pinnacle" && pair.PinnacleId == parsedMsg.MatchId {
-            matchData["Pinnacle"][key] = string(msg)
-            log.Printf("[DEBUG] Совпадение найдено для Pinnacle: MatchId=%s", parsedMsg.MatchId)
-            matchFound = true
-            break
-        }
+    // Логируем извлечённые команды
+    log.Printf("[DEBUG] Извлечённые команды: Home=%s, Away=%s", parsedMsg.Home, parsedMsg.Away)
+
+    // Проверяем на пустые поля
+    if parsedMsg.Home == "" || parsedMsg.Away == "" {
+        log.Printf("[ERROR] Пустые данные команды: Home=%s, Away=%s", parsedMsg.Home, parsedMsg.Away)
+        return
     }
 
-    if !matchFound {
-        log.Printf("[DEBUG] Нет совпадений для MatchId=%s в %s | Сообщение: %s", parsedMsg.MatchId, name, string(msg))
+    // Проверка наличия команд в базе
+    log.Printf("[DEBUG] Проверяем наличие команды %s в %s", parsedMsg.Home, name)
+    homeTeamExists := teamExists(name, parsedMsg.Home)
+    log.Printf("[DEBUG] Проверяем наличие команды %s в %s", parsedMsg.Away, name)
+    awayTeamExists := teamExists(name, parsedMsg.Away)
+
+    // Добавляем команды, если их нет
+    if !homeTeamExists {
+        log.Printf("[DEBUG] Команда %s отсутствует в %s, добавляем её", parsedMsg.Home, name)
+        insertTeam(name, parsedMsg.Home)
+    }
+    if !awayTeamExists {
+        log.Printf("[DEBUG] Команда %s отсутствует в %s, добавляем её", parsedMsg.Away, name)
+        insertTeam(name, parsedMsg.Away)
     }
 
-    matchingMutex.Lock()
-    defer matchingMutex.Unlock()
-    if matchingConnection != nil {
-        err := matchingConnection.WriteMessage(websocket.TextMessage, msg)
-        if err != nil {
-            log.Printf("[ERROR] Ошибка отправки данных в мэтчинг: %v", err)
-            matchingConnection = nil // Reset connection
-        }
+    // Пытаемся связать команды (если это возможно)
+    log.Printf("[DEBUG] Пытаемся связать команды для %s", name)
+    if name == "Sansabet" {
+        linkTeams(parsedMsg.Home, parsedMsg.Home)
+        linkTeams(parsedMsg.Away, parsedMsg.Away)
+    } else if name == "Pinnacle" {
+        linkTeams(parsedMsg.Home, parsedMsg.Home)
+        linkTeams(parsedMsg.Away, parsedMsg.Away)
     }
 
+    log.Printf("[DEBUG] Завершение обработки сообщения из %s", name)
 }
+
+
+func linkTeams(sansabetTeam, pinnacleTeam string) {
+    // Получаем ID команд
+    var sansabetId, pinnacleId int
+    if db == nil {
+        log.Fatal("[ERROR] Подключение к базе данных не инициализировано")
+    }
+
+    err := db.QueryRow("SELECT id FROM sansabetTeams WHERE teamName = ? LIMIT 1", sansabetTeam).Scan(&sansabetId)
+    if err != nil {
+        log.Printf("[ERROR] Не удалось найти команду %s в Sansabet: %v", sansabetTeam, err)
+        return
+    }
+
+    err = db.QueryRow("SELECT id FROM pinnacleTeams WHERE teamName = ? LIMIT 1", pinnacleTeam).Scan(&pinnacleId)
+    if err != nil {
+        log.Printf("[ERROR] Не удалось найти команду %s в Pinnacle: %v", pinnacleTeam, err)
+        return
+    }
+
+    // Обновляем связь
+    _, err = db.Exec("UPDATE sansabetTeams SET pinnacleId = ? WHERE id = ?", pinnacleId, sansabetId)
+    if err != nil {
+        log.Printf("[ERROR] Не удалось связать команды %s и %s: %v", sansabetTeam, pinnacleTeam, err)
+        return
+    }
+
+    log.Printf("[DEBUG] Команды %s (Sansabet) и %s (Pinnacle) успешно связаны", sansabetTeam, pinnacleTeam)
+}
+
 
 func processPairs() {
     for {
@@ -426,6 +585,8 @@ func startFrontendServer() {
 }
 
 func main() {
+    initDB() // Обязательно инициализируем базу
     startAnalyzer()
-    select {} // Блокируем основную горутину, чтобы программа не завершалась
+    select {} // Блокируем основную горутину
 }
+

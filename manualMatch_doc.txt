@@ -1,0 +1,53 @@
+Вставка данных в мускул. 
+Для пинакла:
+	insert into pinnacleTeams(teamName) values ('ROTOR') limit 1;
+Для шансбета:
+	insert into sansabetTeams(teamName) values ('ротор') limit 1;
+
+
+Запросить есть ли такие данные
+Для пинакла:
+	select * from pinnacleTeams where teamName = 'ROTOR' limit 1;
+Для шансбета:
+	select * from sansabetTeams where teamName = 'ротор' limit 1;
+
+
+
+
+Запросить полный матчинг (это не когда надо проверить есть ли вообще данные, а конктетно какая команда в пинакле соответсвует команде шансбета)
+select 
+    sansabetTeams.id as sansabetId, pinnacleTeams.id as pinnacleId, sansabetTeams.teamName as sansabetName, pinnacleTeams.teamName as pinnacleName
+from 
+    sansabetTeams 
+left join 
+    pinnacleTeams on (sansabetTeams.pinnacleId = pinnacleTeams.id)
+limit 1;
+
+запрос в результате вернет данные ТОЛЬКО если совпадение между командами есть. Иначе будет пустой результат.
+
+
+
+
+Переходим к инструкции:
+1 - ставим мускул и запускаем его:
+sudo apt install mysql-server
+sudo systemctl start mysql.service
+
+2 - после этого у нас должен быть уже быть запущен сервер. войти в него можно просто командой в консоли: mysql
+3 - заходим в мускул (пункт 2) и просто копированием переносим команды из файла manualMatch.sql (можно по другому, но будет сложнее). Выйти из мускула можно вбив команду: exit;
+4 - теперь ставим аппачь, пхп и что еще нам нужно будет:
+sudo apt install apache2 php php-mysql
+sudo systemctl start apache2
+sudo systemctl restart apache2
+
+5 - проверяем что у нас поставлен ПДО. 
+sudo nano /etc/php/8.2/apache2/php.ini (в этой команде вместо 8.2 может быть другая версия, если у тебя система смогла поставить другую. Это не страшно. Просто вбей sudo nano /etc/php/ и нажим 2 раза на tab клавишу - тебе консль сама подскажет что поставлено и какой весии. потом продолжи вбивать)
+нажимаем на ctrl+w (это поиск внизу откроется строка с поиском. Туда вбиваем на поиск строчку: extension=pdo_mysql)
+Если в строке стоит символ ; тогда убираем его что бы в начале этой строчки не было.
+После нажимаем ctrl+x (выход) и если были сохранения сначала согласимся с ними нажав "y" а потом enter. Если изменений не было - он сразу закроет редактор.
+
+Профит. Готово. У тебя должно все сработать.
+Файл сайта (который с расширением php) положи в путь по адресу: /var/www/html/
+После этого в адресной строке браузера: http://localhost/manualMatch.php
+
+

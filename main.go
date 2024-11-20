@@ -20,9 +20,6 @@ func main() {
     go startProcess("go run parse_sansabet.go", "Sansabet Parser")
     go startProcess("go run parse_pinnacle.go", "Pinnacle Parser")
 
-    // Запуск мэтчинга
-    go startProcess("go run matching.go", "Matching")
-
     // Запуск анализатора
     go startProcess("go run analyzer.go", "Analyzer")
 
