@@ -425,39 +425,61 @@ func ensureTeamsExist(source, home, away string) {
     }
 }
 
+// Проверка и связывание команд для матча
 func linkTeamsForMatch(source, home, away string) (bool, bool) {
-    log.Printf("[DEBUG] Пытаемся связать команды для %s", source)
+    log.Printf("[DEBUG] Пытаемся найти связи для матча из %s: Home=%s, Away=%s", source, home, away)
 
-    homeLinked := linkTeams(home, home)
-    awayLinked := linkTeams(away, away)
+    // Проверяем наличие соответствий для обеих команд
+    homeLinked := linkTeam(home, source)
+    awayLinked := linkTeam(away, source)
 
     if homeLinked && awayLinked {
-        log.Printf("[DEBUG] Обе команды успешно связаны: Home=%s, Away=%s", home, away)
+        log.Printf("[DEBUG] Оба соответствия найдены: Home=%s, Away=%s", home, away)
     } else {
-        log.Printf("[DEBUG] Связать обе команды не удалось: HomeLinked=%t, AwayLinked=%t", homeLinked, awayLinked)
+        log.Printf("[DEBUG] Не удалось найти соответствия: HomeLinked=%t, AwayLinked=%t", homeLinked, awayLinked)
     }
 
     return homeLinked, awayLinked
 }
 
-func linkTeams(sansabetTeam, pinnacleTeam string) bool {
-    var sansabetId, pinnacleId int
+// Проверяем связь для одной команды
+func linkTeam(teamName, source string) bool {
+    log.Printf("[DEBUG] Ищем связь для команды %s из источника %s", teamName, source)
 
-    err := db.QueryRow("SELECT id FROM sansabetTeams WHERE teamName = ? LIMIT 1", sansabetTeam).Scan(&sansabetId)
-    if err != nil {
-        log.Printf("[ERROR] Не удалось найти команду %s в Sansabet: %v", sansabetTeam, err)
+    var query string
+    var linkedId int
+
+    if source == "Sansabet" {
+        // Проверяем pinnacleId у команды из sansabetTeams
+        query = `SELECT pinnacleId 
+                 FROM sansabetTeams 
+                 WHERE teamName = ? AND pinnacleId > 0 LIMIT 1`
+    } else if source == "Pinnacle" {
+        // Проверяем, есть ли команда в sansabetTeams, связанная с pinnacleTeams
+        query = `SELECT id 
+                 FROM sansabetTeams 
+                 WHERE pinnacleId = (SELECT id FROM pinnacleTeams WHERE teamName = ?) LIMIT 1`
+    } else {
+        log.Printf("[ERROR] Неизвестный источник: %s", source)
         return false
     }
 
-    err = db.QueryRow("SELECT id FROM pinnacleTeams WHERE teamName = ? LIMIT 1", pinnacleTeam).Scan(&pinnacleId)
+    // Выполняем запрос
+    err := db.QueryRow(query, teamName).Scan(&linkedId)
     if err != nil {
-        log.Printf("[ERROR] Не удалось найти команду %s в Pinnacle: %v", pinnacleTeam, err)
+        if err == sql.ErrNoRows {
+            log.Printf("[DEBUG] Связь не найдена для команды %s в источнике %s", teamName, source)
+        } else {
+            log.Printf("[ERROR] Ошибка запроса для команды %s в источнике %s: %v", teamName, source, err)
+        }
         return false
     }
 
-    log.Printf("[DEBUG] Проверка команд завершена: Sansabet=%s, Pinnacle=%s", sansabetTeam, pinnacleTeam)
+    log.Printf("[DEBUG] Связь найдена для команды %s в источнике %s: LinkedId=%d", teamName, source, linkedId)
     return true
 }
+
+
 
 func processPairs() {
     for {
