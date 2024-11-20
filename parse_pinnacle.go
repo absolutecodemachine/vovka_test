@@ -9,25 +9,31 @@ import (
     "net/url"
     "sync"
     "time"
+
     "github.com/gorilla/websocket"
 )
 
 // Константы конфигурации
 const (
-    PINNACLE_API_URL  = "https://api.pinnacle.com/"
-    PINNACLE_USERNAME = "AG1677099"  // Замените на ваш логин Pinnacle
-    PINNACLE_PASSWORD = "5421123A"   // Замените на ваш пароль Pinnacle
-    SPORT_ID          = 29
-    LIVE_MODE         = 1
-    ODDS_FORMAT       = "Decimal"
-    REQUEST_TIMEOUT   = 5 * time.Second
-    PROXY             = "http://AllivanService:PinnacleProxy@154.7.188.227:5242" // Замените на ваш прокси, если используете
+    PINNACLE_API_URL = "https://api.pinnacle.com/"
+    SPORT_ID         = 29
+    LIVE_MODE        = 1
+    ODDS_FORMAT      = "Decimal"
+    REQUEST_TIMEOUT  = 2 * time.Second
 )
 
-// Глобальное хранилище данных матчей
+// Замените на ваши данные
+const (
+    PINNACLE_USERNAME = "AG1677099"
+    PINNACLE_PASSWORD = "5421123A"
+    PROXY             = "http://AllivanService:PinnacleProxy@154.7.188.227:5242"
+)
+
+// Глобальные переменные
 var (
-    matchesData      = make(map[int64]MatchData)
-    matchesDataMutex sync.RWMutex
+    analyzerConnection *websocket.Conn
+    matchesData        = make(map[int64]MatchData)
+    matchesDataMutex   sync.RWMutex
 )
 
 // Структуры данных
@@ -81,17 +87,14 @@ type PinnacleAPI struct {
     Client   *http.Client
 }
 
-// Глобальная переменная для подключения к анализатору
-var analyzerConnection *websocket.Conn
-
-// Функция для создания нового экземпляра PinnacleAPI
+// Вспомогательные функции
 func NewPinnacleAPI(username, password, proxy string) *PinnacleAPI {
     transport := &http.Transport{}
 
     if proxy != "" {
         proxyURL, err := url.Parse(proxy)
         if err != nil {
-            fmt.Printf("[ERROR] Invalid proxy URL: %v\n", err)
+            fmt.Printf("[ERROR] Неверный URL прокси: %v\n", err)
         } else {
             transport.Proxy = http.ProxyURL(proxyURL)
         }
@@ -109,11 +112,10 @@ func NewPinnacleAPI(username, password, proxy string) *PinnacleAPI {
     }
 }
 
-// Функция для построения URL с параметрами
 func (api *PinnacleAPI) buildURL(endpoint string, params map[string]string) string {
     u, err := url.Parse(PINNACLE_API_URL + endpoint)
     if err != nil {
-        fmt.Printf("[ERROR] Error parsing URL: %v\n", err)
+        fmt.Printf("[ERROR] Ошибка парсинга URL: %v\n", err)
         return ""
     }
 
@@ -127,7 +129,6 @@ func (api *PinnacleAPI) buildURL(endpoint string, params map[string]string) stri
     return u.String()
 }
 
-// Функция для выполнения GET-запроса к API
 func (api *PinnacleAPI) query(urlStr string) (map[string]interface{}, error) {
     req, err := http.NewRequest("GET", urlStr, nil)
     if err != nil {
@@ -144,8 +145,8 @@ func (api *PinnacleAPI) query(urlStr string) (map[string]interface{}, error) {
     }
     defer resp.Body.Close()
 
-    fmt.Printf("[LOG] Request to URL: %s\n", urlStr)
-    fmt.Printf("[LOG] Response status: %d\n", resp.StatusCode)
+    // fmt.Printf("[LOG] Запрос к URL: %s\n", urlStr)
+    // fmt.Printf("[LOG] Статус ответа: %d\n", resp.StatusCode)
 
     body, err := ioutil.ReadAll(resp.Body)
     if err != nil {
@@ -160,7 +161,7 @@ func (api *PinnacleAPI) query(urlStr string) (map[string]interface{}, error) {
     return result, nil
 }
 
-// Функция для обновления глобального хранилища данных матчей
+// Функция для обновления данных матчей
 func fetchMatches(api *PinnacleAPI) error {
     params := map[string]string{
         "sportId": fmt.Sprintf("%d", SPORT_ID),
@@ -170,14 +171,14 @@ func fetchMatches(api *PinnacleAPI) error {
     urlStr := api.buildURL("v1/fixtures", params)
     data, err := api.query(urlStr)
     if err != nil {
-        fmt.Printf("[ERROR] Error fetching matches: %v\n", err)
+        fmt.Printf("[ERROR] Ошибка при получении матчей: %v\n", err)
         return err
     }
 
     leagues, ok := data["league"].([]interface{})
     if !ok {
-        fmt.Println("[ERROR] Failed to load match data.")
-        return fmt.Errorf("missing 'league' key in response")
+        fmt.Println("[ERROR] Не удалось загрузить данные матчей.")
+        return fmt.Errorf("отсутствует ключ 'league' в ответе")
     }
 
     matchesDataMutex.Lock()
@@ -222,7 +223,7 @@ func fetchMatches(api *PinnacleAPI) error {
                     Home:      homeTeam,
                     Away:      awayTeam,
                     League:    leagueName,
-                    StartTime: "", // Если не используете startTime, оставьте пустым
+                    StartTime: "",
                 }
             }
         }
@@ -231,7 +232,7 @@ func fetchMatches(api *PinnacleAPI) error {
     return nil
 }
 
-// Функция для обработки данных события и формирования структуры OneGame
+// Функция обработки данных матча
 func processMatchData(eventData map[string]interface{}) (*OneGame, error) {
     defer func() {
         if r := recover(); r != nil {
@@ -257,7 +258,7 @@ func processMatchData(eventData map[string]interface{}) (*OneGame, error) {
         awayTeam = matchData.Away
         leagueName = matchData.League
     } else {
-        fmt.Printf("[WARNING] Event %d not found in matchesData.\n", eventID)
+        // fmt.Printf("[WARNING] Событие %d не найдено в matchesData.\n", eventID)
         homeTeam = "Неизвестная команда"
         awayTeam = "Неизвестная команда"
         leagueName = "Неизвестная лига"
@@ -266,11 +267,11 @@ func processMatchData(eventData map[string]interface{}) (*OneGame, error) {
     nOneGame := OneGame{
         Name:       fmt.Sprintf("%s vs %s", homeTeam, awayTeam),
         Pid:        eventID,
-        Slid:       0, // Pinnacle не предоставляет SLID
+        Slid:       0,
         LeagueName: leagueName,
         MatchName:  fmt.Sprintf("%s vs %s", homeTeam, awayTeam),
         MatchId:    fmt.Sprintf("%d", eventID),
-        LeagueId:   "0", // Если есть идентификатор лиги, используйте его
+        LeagueId:   "0",
     }
 
     Win1x2 := Win1x2Struct{}
@@ -342,7 +343,7 @@ func processMatchData(eventData map[string]interface{}) (*OneGame, error) {
                 Handicap[detailBet] = WinHandicap{
                     Win1:    homeOdds,
                     Win2:    awayOdds,
-                    Win1O:   0, // Pinnacle не предоставляет отдельные значения для Win1O и Win1
+                    Win1O:   0,
                     Win2O:   0,
                     WinNone: 0,
                 }
@@ -377,7 +378,7 @@ func processMatchData(eventData map[string]interface{}) (*OneGame, error) {
         }
     }
 
-    // Присваиваем собранные данные
+    // Присвоение коэффициентов матчу
     nOneGame.Source = "Pinnacle"
     nOneGame.Win1x2 = Win1x2
     nOneGame.Totals = Totals
@@ -388,7 +389,7 @@ func processMatchData(eventData map[string]interface{}) (*OneGame, error) {
     return &nOneGame, nil
 }
 
-// Функция для получения текущих коэффициентов и отправки данных через WebSocket
+// Функция получения текущих коэффициентов и отправки данных
 func getLiveOdds(api *PinnacleAPI) error {
     params := map[string]string{
         "sportId":    fmt.Sprintf("%d", SPORT_ID),
@@ -399,17 +400,15 @@ func getLiveOdds(api *PinnacleAPI) error {
     urlStr := api.buildURL("v1/odds", params)
     data, err := api.query(urlStr)
     if err != nil {
-        fmt.Printf("[ERROR] API response is empty or contains an error: %v\n", err)
+        fmt.Printf("[ERROR] Ошибка получения коэффициентов: %v\n", err)
         return err
     }
 
-    fmt.Println("[LOG] API response successfully received.")
-
     leagues, ok := data["leagues"].([]interface{})
     if !ok {
-        fmt.Println("[ERROR] Key 'leagues' is missing in response.")
-        fmt.Printf("Response: %v\n", data)
-        return fmt.Errorf("missing 'leagues' key in response")
+        fmt.Println("[ERROR] Ключ 'leagues' отсутствует в ответе.")
+        fmt.Printf("Ответ: %v\n", data)
+        return fmt.Errorf("отсутствует ключ 'leagues' в ответе")
     }
 
     for _, leagueInterface := range leagues {
@@ -420,7 +419,7 @@ func getLiveOdds(api *PinnacleAPI) error {
 
         events, ok := leagueMap["events"].([]interface{})
         if !ok {
-            fmt.Printf("[WARNING] В лиге отсутствуют события.\n")
+            // fmt.Printf("[WARNING] В лиге отсутствуют события.\n")
             continue
         }
 
@@ -432,24 +431,23 @@ func getLiveOdds(api *PinnacleAPI) error {
 
             nOneGame, err := processMatchData(eventMap)
             if err != nil {
-                fmt.Printf("[WARNING] Не удалось обработать событие: %v\n", err)
+                // fmt.Printf("[WARNING] Не удалось обработать событие: %v\n", err)
                 continue
             }
 
-            // Преобразуем nOneGame в JSON
+            // Преобразование в JSON
             jsonResult, err := json.MarshalIndent(nOneGame, "", "    ")
             if err != nil {
-                fmt.Printf("[ERROR] Не удалось преобразовать данные в JSON: %v\n", err)
+                // fmt.Printf("[ERROR] Не удалось преобразовать данные в JSON: %v\n", err)
                 continue
             }
 
-            // Отправляем данные через WebSocket в анализатор
+            // Отправка данных в анализатор
             err = analyzerConnection.WriteMessage(websocket.TextMessage, jsonResult)
             if err != nil {
                 log.Printf("Ошибка отправки сообщения: %v", err)
             }
 
-            // Выводим данные в консоль
             fmt.Println(string(jsonResult))
         }
     }
@@ -467,28 +465,28 @@ func connectToAnalyzer() {
             time.Sleep(5 * time.Second)
             continue
         }
-        log.Printf("[DEBUG] Подключение к анализатору установлено")
+        // log.Printf("[DEBUG] Подключение к анализатору установлено")
         break
     }
 }
 
-// Основная функция программы
+// Основная функция
 func main() {
     api := NewPinnacleAPI(PINNACLE_USERNAME, PINNACLE_PASSWORD, PROXY)
 
-    // Подключаемся к анализатору
+    // Подключение к анализатору
     connectToAnalyzer()
     defer analyzerConnection.Close()
 
     for {
         if err := fetchMatches(api); err != nil {
-            fmt.Printf("[ERROR] Error in main loop (fetchMatches): %v\n", err)
+            fmt.Printf("[ERROR] Ошибка в цикле (fetchMatches): %v\n", err)
         }
 
         if err := getLiveOdds(api); err != nil {
-            fmt.Printf("[ERROR] Error in main loop (getLiveOdds): %v\n", err)
+            fmt.Printf("[ERROR] Ошибка в цикле (getLiveOdds): %v\n", err)
         }
 
-        time.Sleep(5 * time.Second)
+        time.Sleep(2 * time.Second)
     }
 }

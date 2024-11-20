@@ -15,9 +15,21 @@ import (
     "github.com/gorilla/websocket"
 )
 
-var analyzerConnection *websocket.Conn
-var analyzerConnMutex sync.Mutex
+// Константы для URL запросов
+const (
+    allEventURL   = "https://apilive.sansabet.com/api/LiveOdds/GetAll?SLID=%d"
+    matchEventURL = "https://apilive.sansabet.com/api/LiveOdds/GetByParIDs?SLID=%d&ParIDs=%d"
+)
 
+// Глобальные переменные
+var (
+    analyzerConnection *websocket.Conn
+    analyzerConnMutex  sync.Mutex
+
+    SlidAll      int64 = 0
+    ListGames          = make(map[int64]OneGame)
+    ListGamesMux sync.RWMutex
+)
 
 // Структуры данных
 type OneGame struct {
@@ -56,49 +68,33 @@ type Win1x2Struct struct {
     Win2    float64 `json:"Win2"`
 }
 
-type RequestGame struct {
-    Slid  string
-    Parid string
-}
-
-const allEventUrl = "https://apilive.sansabet.com/api/LiveOdds/GetAll?SLID=%d"
-const matchEventUrl = "https://apilive.sansabet.com/api/LiveOdds/GetByParIDs?SLID=%d&ParIDs=%d"
-
-var (
-    SlidAll      = int64(0)
-    ListGames    = make(map[int64]OneGame)
-    ListGamesMux sync.RWMutex
-)
-
 // Вспомогательные функции
 func InterfaceToInt64(inVal interface{}) int64 {
-    resInt, ok := inVal.(float64)
-    if ok {
+    if resInt, ok := inVal.(float64); ok {
         return int64(resInt)
     }
     return -1
 }
 
 func StringToInt64(inVal string) int64 {
-    i, err := strconv.ParseInt(inVal, 10, 64)
-    if err == nil {
+    if i, err := strconv.ParseInt(inVal, 10, 64); err == nil {
         return i
     }
     return -1
 }
 
 func DebugLog(str string) {
-    fmt.Println(str)
+    // fmt.Println(str)
 }
 
 // Основная функция парсинга одного матча
 func ParseOneGame(nGameKey int64, nGame OneGame) {
-    DebugLog(fmt.Sprintf("Начало анализа Slid: %d Pid: %d", nGame.Slid, nGame.Pid))
+    // DebugLog(fmt.Sprintf("Начало анализа Slid: %d Pid: %d", nGame.Slid, nGame.Pid))
 
     client := &http.Client{}
-    req, _ := http.NewRequest("GET", fmt.Sprintf(matchEventUrl, nGame.Slid, nGame.Pid), nil)
+    req, _ := http.NewRequest("GET", fmt.Sprintf(matchEventURL, nGame.Slid, nGame.Pid), nil)
 
-    // Установите заголовки
+    // Установка заголовков запроса
     req.Header.Set("Accept", "application/json, text/javascript, */*; q=0.01")
     req.Header.Set("Accept-Encoding", "gzip")
     req.Header.Set("Accept-Language", "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7")
@@ -111,30 +107,30 @@ func ParseOneGame(nGameKey int64, nGame OneGame) {
     req.Header.Set("Sec-Fetch-Dest", "empty")
     req.Header.Set("Sec-Fetch-Mode", "cors")
     req.Header.Set("Sec-Fetch-Site", "same-site")
-    req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36")
+    req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64)")
 
     res, err := client.Do(req)
     if err != nil {
-        DebugLog(fmt.Sprintf("Ошибка запроса: %v", err))
+        // DebugLog(fmt.Sprintf("Ошибка запроса: %v", err))
         return
     }
     defer res.Body.Close()
 
     if res.Body == nil {
-        DebugLog(fmt.Sprintf("Не смогли получить данные по запросу о матче. Slid %d Pid %d", nGame.Slid, nGame.Pid))
+        // DebugLog(fmt.Sprintf("Нет данных по запросу о матче. Slid %d Pid %d", nGame.Slid, nGame.Pid))
         return
     }
 
     body, err := ioutil.ReadAll(res.Body)
     if err != nil {
-        DebugLog(fmt.Sprintf("Ошибка чтения тела ответа: %v", err))
+        // DebugLog(fmt.Sprintf("Ошибка чтения тела ответа: %v", err))
         return
     }
 
     b := bytes.NewBuffer(body)
     r, err := gzip.NewReader(b)
     if err != nil {
-        DebugLog(fmt.Sprintf("Ошибка создания gzip reader: %v", err))
+        // DebugLog(fmt.Sprintf("Ошибка создания gzip reader: %v", err))
         return
     }
     defer r.Close()
@@ -142,7 +138,7 @@ func ParseOneGame(nGameKey int64, nGame OneGame) {
     var resB bytes.Buffer
     _, err = resB.ReadFrom(r)
     if err != nil {
-        DebugLog(fmt.Sprintf("Ошибка чтения из gzip reader: %v", err))
+        // DebugLog(fmt.Sprintf("Ошибка чтения из gzip reader: %v", err))
         return
     }
     resData := resB.Bytes()
@@ -151,48 +147,26 @@ func ParseOneGame(nGameKey int64, nGame OneGame) {
     var mapAllInterface []interface{}
     jsonErr := json.Unmarshal(resData, &mapAllInterface)
     if jsonErr != nil {
-        DebugLog(fmt.Sprintf("Ошибка разбора JSON: %v", jsonErr))
+        // DebugLog(fmt.Sprintf("Ошибка разбора JSON: %v", jsonErr))
         return
     }
 
-    // Мы получили пустые данные. Такое бывает, если матч просрочен или данные не отдаются сервером, пропустим.
+    // Проверка на пустой ответ
     if len(mapAllInterface) == 0 {
-        DebugLog(fmt.Sprintf("Пустой ответ от сервера для матча. Slid %d Pid %d", nGame.Slid, nGame.Pid))
+        // DebugLog(fmt.Sprintf("Пустой ответ от сервера для матча. Slid %d Pid %d", nGame.Slid, nGame.Pid))
         return
     }
 
     nOneGame := nGame
 
-    mapCoreItemInterface := mapAllInterface[0].(map[string]interface{})
-    mapHInterface := mapCoreItemInterface["H"].(map[string]interface{})
-    // Проверяем "LigaNaziv"
-    if ligaNaziv, ok := mapHInterface["LigaNaziv"].(string); ok {
-        nOneGame.LeagueName = ligaNaziv
-    } else {
-        DebugLog(fmt.Sprintf("Ошибка: LigaNaziv отсутствует или nil. Slid %d Pid %d", nGame.Slid, nGame.Pid))
-        return
-    }
+    mapCoreItemInterface, _ := mapAllInterface[0].(map[string]interface{})
+    mapHInterface, _ := mapCoreItemInterface["H"].(map[string]interface{})
 
-    // Проверяем "SLID"
-    if slid, ok := mapHInterface["SLID"]; ok {
-        nOneGame.Slid = InterfaceToInt64(slid)
-    } else {
-        DebugLog(fmt.Sprintf("Ошибка: SLID отсутствует или nil. Slid %d Pid %d", nGame.Slid, nGame.Pid))
-        return
-    }
-
-    // Проверяем "ParNaziv"
-    if parNaziv, ok := mapHInterface["ParNaziv"].(string); ok {
-        nOneGame.MatchName = parNaziv
-    } else {
-        DebugLog(fmt.Sprintf("Ошибка: ParNaziv отсутствует или nil. Slid %d Pid %d", nGame.Slid, nGame.Pid))
-        return
-    }
-
-    nOneGame.Source = "Sansabet"
-    nOneGame.LeagueName = mapHInterface["LigaNaziv"].(string)
+    // Заполнение полей матча
+    nOneGame.LeagueName, _ = mapHInterface["LigaNaziv"].(string)
     nOneGame.Slid = InterfaceToInt64(mapHInterface["SLID"])
-    nOneGame.MatchName = mapHInterface["ParNaziv"].(string)
+    nOneGame.MatchName, _ = mapHInterface["ParNaziv"].(string)
+    nOneGame.Source = "Sansabet"
     nOneGame.MatchId = strconv.FormatInt(nOneGame.Pid, 10)
     nOneGame.LeagueId = "0"
 
@@ -200,12 +174,13 @@ func ParseOneGame(nGameKey int64, nGame OneGame) {
     ListGames[nGameKey] = nOneGame
     ListGamesMux.Unlock()
 
-    // Если у нас не указан массив M в полученных данных - значит нет коэффициентов к событиям. Значит нам нечего дальше анализировать
+    // Проверка наличия коэффициентов
     if mapCoreItemInterface["M"] == nil {
-        DebugLog(fmt.Sprintf("Нет подмассива М в полученных данных. Не можем получить коэффициенты. Slid %d Pid %d", nGame.Slid, nGame.Pid))
+        // DebugLog(fmt.Sprintf("Нет коэффициентов для матча. Slid %d Pid %d", nGame.Slid, nGame.Pid))
         return
     }
 
+    // Инициализация структур для хранения коэффициентов
     mapKoeffInterface := mapCoreItemInterface["M"].([]interface{})
     Win1x2 := Win1x2Struct{Win1: 0, Win2: 0, WinNone: 0}
     Totals := make(map[string]WinLessMore)
@@ -213,6 +188,7 @@ func ParseOneGame(nGameKey int64, nGame OneGame) {
     FirstTeamTotals := make(map[string]WinLessMore)
     SecondTeamTotals := make(map[string]WinLessMore)
 
+    // Парсинг коэффициентов
     for _, nKoef := range mapKoeffInterface {
         nKoefMap := nKoef.(map[string]interface{})
         mapValBet, ok := nKoefMap["S"].([]interface{})
@@ -221,178 +197,127 @@ func ParseOneGame(nGameKey int64, nGame OneGame) {
         }
 
         for _, nValBet := range mapValBet {
-            typeBet := int64(nValBet.(map[string]interface{})["N"].(float64))
+            nValBetMap := nValBet.(map[string]interface{})
+            typeBet := int64(nValBetMap["N"].(float64))
+            detailBet := ""
+            if nKoefMap["B"] != nil {
+                detailBet = nKoefMap["B"].(string)
+            }
+
             switch typeBet {
-            // ПОБЕДА КОМАНДЫ
-            case 1: // победа первой команды
-                Win1x2.Win1 = nValBet.(map[string]interface{})["O"].(float64)
-            case 2: // победа второй команды
-                Win1x2.WinNone = nValBet.(map[string]interface{})["O"].(float64)
-            case 10: // ничья между командами
-                Win1x2.Win2 = nValBet.(map[string]interface{})["O"].(float64)
-
-            // ТОТАЛЫ
-            case 103: // тотал меньше чем указано в коэффициенте
-                detailBet := ""
-                if nKoefMap["B"] != nil {
-                    detailBet = nKoefMap["B"].(string)
-                }
+            case 1:
+                Win1x2.Win1 = nValBetMap["O"].(float64)
+            case 2:
+                Win1x2.WinNone = nValBetMap["O"].(float64)
+            case 10:
+                Win1x2.Win2 = nValBetMap["O"].(float64)
+            case 103:
                 if _, ok := Totals[detailBet]; !ok {
-                    Totals[detailBet] = WinLessMore{WinLess: 0, WinMore: 0}
+                    Totals[detailBet] = WinLessMore{}
                 }
                 nK := Totals[detailBet]
-                nK.WinLess = nValBet.(map[string]interface{})["O"].(float64)
+                nK.WinLess = nValBetMap["O"].(float64)
                 Totals[detailBet] = nK
-            case 105: // тотал больше чем указано в коэффициенте
-                detailBet := ""
-                if nKoefMap["B"] != nil {
-                    detailBet = nKoefMap["B"].(string)
-                }
+            case 105:
                 if _, ok := Totals[detailBet]; !ok {
-                    Totals[detailBet] = WinLessMore{WinLess: 0, WinMore: 0}
+                    Totals[detailBet] = WinLessMore{}
                 }
                 nK := Totals[detailBet]
-                nK.WinMore = nValBet.(map[string]interface{})["O"].(float64)
+                nK.WinMore = nValBetMap["O"].(float64)
                 Totals[detailBet] = nK
-
-            // ИНДИВИДУАЛЬНЫЕ ТОТАЛЫ ПЕРВОЙ КОМАНДЫ
-            case 169: // тотал меньше для первой команды
-                detailBet := ""
-                if nKoefMap["B"] != nil {
-                    detailBet = nKoefMap["B"].(string)
-                }
+            case 169:
                 if _, ok := FirstTeamTotals[detailBet]; !ok {
-                    FirstTeamTotals[detailBet] = WinLessMore{WinLess: 0, WinMore: 0}
+                    FirstTeamTotals[detailBet] = WinLessMore{}
                 }
                 nK := FirstTeamTotals[detailBet]
-                nK.WinLess = nValBet.(map[string]interface{})["O"].(float64)
+                nK.WinLess = nValBetMap["O"].(float64)
                 FirstTeamTotals[detailBet] = nK
-            case 168: // тотал больше для первой команды
-                detailBet := ""
-                if nKoefMap["B"] != nil {
-                    detailBet = nKoefMap["B"].(string)
-                }
+            case 168:
                 if _, ok := FirstTeamTotals[detailBet]; !ok {
-                    FirstTeamTotals[detailBet] = WinLessMore{WinLess: 0, WinMore: 0}
+                    FirstTeamTotals[detailBet] = WinLessMore{}
                 }
                 nK := FirstTeamTotals[detailBet]
-                nK.WinMore = nValBet.(map[string]interface{})["O"].(float64)
+                nK.WinMore = nValBetMap["O"].(float64)
                 FirstTeamTotals[detailBet] = nK
-
-            // ИНДИВИДУАЛЬНЫЕ ТОТАЛЫ ВТОРОЙ КОМАНДЫ
-            case 171: // тотал меньше для второй команды
-                detailBet := ""
-                if nKoefMap["B"] != nil {
-                    detailBet = nKoefMap["B"].(string)
-                }
+            case 171:
                 if _, ok := SecondTeamTotals[detailBet]; !ok {
-                    SecondTeamTotals[detailBet] = WinLessMore{WinLess: 0, WinMore: 0}
+                    SecondTeamTotals[detailBet] = WinLessMore{}
                 }
                 nK := SecondTeamTotals[detailBet]
-                nK.WinLess = nValBet.(map[string]interface{})["O"].(float64)
+                nK.WinLess = nValBetMap["O"].(float64)
                 SecondTeamTotals[detailBet] = nK
-            case 170: // тотал больше для второй команды
-                detailBet := ""
-                if nKoefMap["B"] != nil {
-                    detailBet = nKoefMap["B"].(string)
-                }
+            case 170:
                 if _, ok := SecondTeamTotals[detailBet]; !ok {
-                    SecondTeamTotals[detailBet] = WinLessMore{WinLess: 0, WinMore: 0}
+                    SecondTeamTotals[detailBet] = WinLessMore{}
                 }
                 nK := SecondTeamTotals[detailBet]
-                nK.WinMore = nValBet.(map[string]interface{})["O"].(float64)
+                nK.WinMore = nValBetMap["O"].(float64)
                 SecondTeamTotals[detailBet] = nK
-
-            // ГЕНДИКАПЫ (ФОРА)
-            case 734: // {"t": "1 Ostatak"
-                detailBet := ""
-                if nKoefMap["R"] != nil {
-                    detailBet = nKoefMap["R"].(string)
-                }
+            case 734:
                 if _, ok := Handicap[detailBet]; !ok {
                     Handicap[detailBet] = WinHandicap{}
                 }
                 nK := Handicap[detailBet]
-                nK.Win1O = nValBet.(map[string]interface{})["O"].(float64)
+                nK.Win1O = nValBetMap["O"].(float64)
                 Handicap[detailBet] = nK
-            case 735: // {"t": "X Ostatak"
-                detailBet := ""
-                if nKoefMap["R"] != nil {
-                    detailBet = nKoefMap["R"].(string)
-                }
+            case 735:
                 if _, ok := Handicap[detailBet]; !ok {
                     Handicap[detailBet] = WinHandicap{}
                 }
                 nK := Handicap[detailBet]
-                nK.WinNoneO = nValBet.(map[string]interface{})["O"].(float64)
+                nK.WinNoneO = nValBetMap["O"].(float64)
                 Handicap[detailBet] = nK
-            case 736: // {"t": "2 Ostatak"
-                detailBet := ""
-                if nKoefMap["R"] != nil {
-                    detailBet = nKoefMap["R"].(string)
-                }
+            case 736:
                 if _, ok := Handicap[detailBet]; !ok {
                     Handicap[detailBet] = WinHandicap{}
                 }
                 nK := Handicap[detailBet]
-                nK.Win2O = nValBet.(map[string]interface{})["O"].(float64)
+                nK.Win2O = nValBetMap["O"].(float64)
                 Handicap[detailBet] = nK
-            case 737: // {"t": "1 Ost. I",
-                detailBet := ""
-                if nKoefMap["R"] != nil {
-                    detailBet = nKoefMap["R"].(string)
-                }
+            case 737:
                 if _, ok := Handicap[detailBet]; !ok {
                     Handicap[detailBet] = WinHandicap{}
                 }
                 nK := Handicap[detailBet]
-                nK.Win1 = nValBet.(map[string]interface{})["O"].(float64)
+                nK.Win1 = nValBetMap["O"].(float64)
                 Handicap[detailBet] = nK
-            case 738: // {"t": "X Ost. I",
-                detailBet := ""
-                if nKoefMap["R"] != nil {
-                    detailBet = nKoefMap["R"].(string)
-                }
+            case 738:
                 if _, ok := Handicap[detailBet]; !ok {
                     Handicap[detailBet] = WinHandicap{}
                 }
                 nK := Handicap[detailBet]
-                nK.WinNone = nValBet.(map[string]interface{})["O"].(float64)
+                nK.WinNone = nValBetMap["O"].(float64)
                 Handicap[detailBet] = nK
-            case 739: // {"t": "2 Ost. I",
-                detailBet := ""
-                if nKoefMap["R"] != nil {
-                    detailBet = nKoefMap["R"].(string)
-                }
+            case 739:
                 if _, ok := Handicap[detailBet]; !ok {
                     Handicap[detailBet] = WinHandicap{}
                 }
                 nK := Handicap[detailBet]
-                nK.Win2 = nValBet.(map[string]interface{})["O"].(float64)
+                nK.Win2 = nValBetMap["O"].(float64)
                 Handicap[detailBet] = nK
             default:
-                // Другие типы ставок
+                // Другие типы ставок не обрабатываем
             }
         }
     }
 
-    // Присвоение новых полей
+    // Присвоение коэффициентов матчу
     nOneGame.Win1x2 = Win1x2
     nOneGame.Totals = Totals
     nOneGame.Handicap = Handicap
-    nOneGame.FirstTeamTotals = FirstTeamTotals   // Присвоение новых данных
-    nOneGame.SecondTeamTotals = SecondTeamTotals // Присвоение новых данных
+    nOneGame.FirstTeamTotals = FirstTeamTotals
+    nOneGame.SecondTeamTotals = SecondTeamTotals
 
     // Преобразование в JSON
     jsonResult, err := json.MarshalIndent(nOneGame, "", "    ")
     if err != nil {
-        DebugLog(fmt.Sprintf("Не смогли сформировать конечный json для вывода на экран для матча. Slid %d Pid %d", nGame.Slid, nGame.Pid))
+        // DebugLog(fmt.Sprintf("Не удалось сформировать JSON для матча. Slid %d Pid %d", nGame.Slid, nGame.Pid))
         return
     }
 
     fmt.Println(string(jsonResult))
 
-    // Отправляем данные в анализатор с использованием мьютекса для синхронизации
+    // Отправка данных в анализатор
     analyzerConnMutex.Lock()
     err = analyzerConnection.WriteMessage(websocket.TextMessage, jsonResult)
     analyzerConnMutex.Unlock()
@@ -400,7 +325,7 @@ func ParseOneGame(nGameKey int64, nGame OneGame) {
         log.Printf("Ошибка отправки сообщения: %v", err)
     }
 
-    // Обновляем список игр
+    // Обновление списка игр
     ListGamesMux.Lock()
     ListGames[nGameKey] = nOneGame
     ListGamesMux.Unlock()
@@ -408,7 +333,7 @@ func ParseOneGame(nGameKey int64, nGame OneGame) {
 
 // Функция парсинга всех игр
 func ParseGames() {
-    DebugLog("Закидываем в потоки парсеры конкретных матчей")
+    // DebugLog("Запуск парсинга всех матчей")
     ListGamesMux.RLock()
     defer ListGamesMux.RUnlock()
     for nGameKey, nGame := range ListGames {
@@ -418,11 +343,11 @@ func ParseGames() {
 
 // Функция получения всех событий
 func ParseEvents() {
-    DebugLog("Начало получения данных о всех матчах")
+    // DebugLog("Получение данных о всех матчах")
     client := &http.Client{}
-    req, _ := http.NewRequest("GET", fmt.Sprintf(allEventUrl, SlidAll), nil)
+    req, _ := http.NewRequest("GET", fmt.Sprintf(allEventURL, SlidAll), nil)
 
-    // Установите заголовки
+    // Установка заголовков запроса
     req.Header.Set("Accept", "application/json, text/javascript, */*; q=0.01")
     req.Header.Set("Accept-Encoding", "gzip")
     req.Header.Set("Accept-Language", "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7")
@@ -435,30 +360,30 @@ func ParseEvents() {
     req.Header.Set("Sec-Fetch-Dest", "empty")
     req.Header.Set("Sec-Fetch-Mode", "cors")
     req.Header.Set("Sec-Fetch-Site", "same-site")
-    req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36")
+    req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64)")
 
     res, err := client.Do(req)
     if err != nil {
-        DebugLog(fmt.Sprintf("Ошибка запроса: %v", err))
+        // DebugLog(fmt.Sprintf("Ошибка запроса: %v", err))
         return
     }
     defer res.Body.Close()
 
     if res.Body == nil {
-        DebugLog("Не смогли получить ответ от сервера для всех матчах")
+        // DebugLog("Нет ответа от сервера для всех матчей")
         return
     }
 
     body, err := ioutil.ReadAll(res.Body)
     if err != nil {
-        DebugLog(fmt.Sprintf("Ошибка чтения тела ответа: %v", err))
+        // DebugLog(fmt.Sprintf("Ошибка чтения тела ответа: %v", err))
         return
     }
 
     b := bytes.NewBuffer(body)
     r, err := gzip.NewReader(b)
     if err != nil {
-        DebugLog(fmt.Sprintf("Ошибка создания gzip reader: %v", err))
+        // DebugLog(fmt.Sprintf("Ошибка создания gzip reader: %v", err))
         return
     }
     defer r.Close()
@@ -466,7 +391,7 @@ func ParseEvents() {
     var resB bytes.Buffer
     _, err = resB.ReadFrom(r)
     if err != nil {
-        DebugLog(fmt.Sprintf("Ошибка чтения из gzip reader: %v", err))
+        // DebugLog(fmt.Sprintf("Ошибка чтения из gzip reader: %v", err))
         return
     }
     resData := resB.Bytes()
@@ -474,13 +399,12 @@ func ParseEvents() {
     var mapAllInterface []interface{}
     jsonErr := json.Unmarshal(resData, &mapAllInterface)
     if jsonErr != nil {
-        DebugLog(fmt.Sprintf("Не смогли разложить json в объект для ответа о всех матчах"))
+        // DebugLog("Не удалось разобрать JSON с данными всех матчей")
         return
     }
 
     for _, nAllInterface := range mapAllInterface {
         allInterfaceMap := nAllInterface.(map[string]interface{})
-
         hMap := allInterfaceMap["H"].(map[string]interface{})
 
         nSlid := InterfaceToInt64(hMap["SLID"])
@@ -490,12 +414,12 @@ func ParseEvents() {
             SlidAll = nSlid
         }
 
-        // Фильтруем только по футболу
+        // Фильтруем только футбол
         if hMap["S"].(string) != "F" {
             continue
         }
 
-        // Из функции periodTextDesktop понимаем, что время для футбола должно лежать по адресу p->t->m
+        // Получение времени матча
         pMap := allInterfaceMap["P"].(map[string]interface{})
         tMap := pMap["T"].(map[string]interface{})
         nTime := int64(-2)
@@ -503,31 +427,29 @@ func ParseEvents() {
             nTime = StringToInt64(tMap["M"].(string))
         }
 
-        // Фильтрация лайва: если время матча больше нуля, но меньше 90 - это лайв
+        // Фильтрация по времени матча (лайв)
         if nTime <= 0 || nTime >= 90 {
             continue
         }
 
         ListGamesMux.Lock()
         if _, ok := ListGames[nPid]; !ok {
-            // Добавляем все футбольные матчи с указанием MatchId = Pid
             ListGames[nPid] = OneGame{
                 Pid:     nPid,
                 Slid:    0,
-                MatchId: strconv.FormatInt(nPid, 10), // Присваиваем MatchId равным Pid
+                MatchId: strconv.FormatInt(nPid, 10),
             }
         }
         ListGamesMux.Unlock()
-
     }
-    DebugLog(fmt.Sprintf("Получение данных о всех матчах закончено. Новый ключ получения: %d Сейчас в обработке: %d", SlidAll, len(ListGames)))
+    // DebugLog(fmt.Sprintf("Обновление SLID: %d, количество матчей: %d", SlidAll, len(ListGames)))
 }
 
 // Запуск парсинга событий
 func ParseEventsStart() {
     for {
         ParseEvents()
-        time.Sleep(5 * time.Second)
+        time.Sleep(2 * time.Second)
     }
 }
 
@@ -535,7 +457,7 @@ func ParseEventsStart() {
 func ParseGamesStart() {
     for {
         ParseGames()
-        time.Sleep(5 * time.Second)
+        time.Sleep(2 * time.Second)
     }
 }
 
@@ -546,24 +468,24 @@ func connectToAnalyzer() {
         analyzerConnection, _, err = websocket.DefaultDialer.Dial("ws://localhost:7100", nil)
         if err != nil {
             log.Printf("[ERROR] Ошибка подключения к анализатору: %v", err)
-            time.Sleep(5 * time.Second)
+            time.Sleep(2 * time.Second)
             continue
         }
-        log.Printf("[DEBUG] Подключение к анализатору установлено")
+        // log.Printf("[DEBUG] Подключение к анализатору установлено")
         break
     }
 }
 
 // Основная функция
 func main() {
-    DebugLog("Старт скрипта")
+    // DebugLog("Старт скрипта")
     ListGames = make(map[int64]OneGame)
 
-    // Подключаемся к анализатору
+    // Подключение к анализатору
     connectToAnalyzer()
     defer analyzerConnection.Close()
 
-    // Запускаем парсинг в горутинах
+    // Запуск парсинга в горутинах
     go ParseEventsStart()
     go ParseGamesStart()
 
