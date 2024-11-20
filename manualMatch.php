@@ -20,7 +20,7 @@ class Matching
 	public function CreateNewMatching($pinnacleId, $sansabetId){
 		$pinnacleId = (int) $pinnacleId;
 		$sansabetId = (int) $sansabetId;
-		$query = "update sansabetTeams set pinnacleId = $sansabetId where id = $pinnacleId limit 1";
+		$query = "update sansabetTeams set pinnacleId = $pinnacleId where id = $sansabetId limit 1";
 		$res = $this->Mysql->query($query);
 		return true;
 	}
