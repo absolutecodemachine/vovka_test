@@ -12,14 +12,17 @@ import (
     "strings"
     "sync"
     "time"
-
     _ "github.com/go-sql-driver/mysql"
     "github.com/gorilla/websocket"
 )
 
+var matchDataTTL = map[string]map[string]time.Time{
+    "Sansabet": make(map[string]time.Time),
+    "Pinnacle": make(map[string]time.Time),
+}
+
 // Подключение к базе данных
 var db *sql.DB
-
 // Мьютексы и переменные для синхронизации
 var (
     lastSentResults []map[string]interface{}
@@ -27,7 +30,6 @@ var (
     pairsMutex      sync.Mutex
     frontendMutex   sync.Mutex
 )
-
 // Структуры для хранения данных
 type ParsedMessage struct {
     MatchId   string
@@ -37,11 +39,14 @@ type ParsedMessage struct {
 }
 
 type MatchPair struct {
-    SansabetId string `json:"SansabetId"`
-    PinnacleId string `json:"PinnacleId"`
-    MatchName  string `json:"MatchName"`
-    Home       string
-    Away       string
+    SansabetId   string `json:"SansabetId"`
+    PinnacleId   string `json:"PinnacleId"`
+    SansabetName string // Название матча от Sansabet
+    PinnacleName string // Название матча от Pinnacle
+    SansabetHome string // Название домашней команды от Sansabet
+    SansabetAway string // Название гостевой команды от Sansabet
+    PinnacleHome string // Название домашней команды от Pinnacle
+    PinnacleAway string // Название гостевой команды от Pinnacle
 }
 
 var (
@@ -71,6 +76,7 @@ var (
 
 const MARGIN = 1.08
 
+
 // Инициализация подключения к базе данных
 func initDB() {
     var err error
@@ -85,6 +91,7 @@ func initDB() {
     log.Println("[DEBUG] Подключение к базе данных успешно установлено")
 }
 
+
 // Запуск анализатора
 func startAnalyzer() {
     log.Println("[DEBUG] Анализатор запущен")
@@ -93,6 +100,7 @@ func startAnalyzer() {
     go startFrontendServer()
     go processPairs()
 }
+
 
 // Сервер для приема данных от парсеров
 func startParserServer(port int, sourceName string) {
@@ -136,6 +144,7 @@ func startParserServer(port int, sourceName string) {
     }
 }
 
+
 // Сервер для фронтенда
 func startFrontendServer() {
     mux := http.NewServeMux()
@@ -171,29 +180,44 @@ func startFrontendServer() {
     }
 }
 
+
 // Обработка полученных данных от парсеров
 func saveMatchData(name string, msg []byte) {
     log.Printf("[DEBUG] Начало обработки сообщения из %s", name)
 
     parsedMsg, err := parseMessage(name, msg)
+    log.Printf("[DEBUG] результат parseMessage(name, msg): %v, error: %v", parsedMsg, err)
     if err != nil {
         log.Printf("[ERROR] %v", err)
         return
     }
 
     ensureTeamsExist(name, parsedMsg.Home, parsedMsg.Away)
-    homeLinked, awayLinked := linkTeamsForMatch(name, parsedMsg.Home, parsedMsg.Away)
 
-    if homeLinked && awayLinked {
-        updateMatchPairs(name, parsedMsg)
+    if name == "Sansabet" {
+        linked, linkedHome, linkedAway := linkTeamsForMatch(parsedMsg.Home, parsedMsg.Away)
+        if linked {
+            log.Printf("[DEBUG] Найдена связь для команд: Home=%s, Away=%s", linkedHome, linkedAway)
+            updateMatchPairs(parsedMsg)
+        }
+
+    }
+    log.Printf("[ZAEB] Я сейвматчдата вызываю для ", name)
+    key := generateMatchKey(parsedMsg.Home, parsedMsg.Away)
+    // Удаление устаревших данных для текущего ключа
+    if _, exists := matchData[name][key]; exists {
+        delete(matchData[name], key)
+        delete(matchDataTTL[name], key)
+        log.Printf("[DEBUG] Удалены старые данные: Source=%s, Key=%s", name, key)
     }
 
-    key := generateMatchKey(parsedMsg.Home, parsedMsg.Away)
     matchData[name][key] = string(msg)
+    matchDataTTL[name][key] = time.Now()
 
     log.Printf("[DEBUG] Данные матча сохранены в matchData[%s][%s]", name, key)
     log.Printf("[DEBUG] Завершение обработки сообщения из %s", name)
 }
+
 
 // Парсинг сообщения
 func parseMessage(name string, msg []byte) (*ParsedMessage, error) {
@@ -285,85 +309,248 @@ func insertTeam(source, teamName string) {
 }
 
 // Проверка и связывание команд для матча
-func linkTeamsForMatch(source, home, away string) (bool, bool) {
-    log.Printf("[DEBUG] Пытаемся найти связи для матча из %s: Home=%s, Away=%s", source, home, away)
+func linkTeamsForMatch(home, away string) (bool, string, string) {
+    log.Printf("[DEBUG] Пытаемся найти связи для матча: Home=%s, Away=%s", home, away)
 
-    homeLinked := linkTeam(home, source)
-    awayLinked := linkTeam(away, source)
+    homeLinked := linkTeam(home)
+    awayLinked := linkTeam(away)
 
-    if homeLinked && awayLinked {
-        log.Printf("[DEBUG] Оба соответствия найдены: Home=%s, Away=%s", home, away)
-    } else {
-        log.Printf("[DEBUG] Не удалось найти соответствия: HomeLinked=%t, AwayLinked=%t", homeLinked, awayLinked)
+    linkedHome := ""
+    linkedAway := ""
+
+    if homeLinked {
+        linkedHome = home
+    }
+    if awayLinked {
+        linkedAway = away
     }
 
-    return homeLinked, awayLinked
+    if homeLinked || awayLinked {
+        log.Printf("[DEBUG] Найдена связь: HomeLinked=%t, AwayLinked=%t", homeLinked, awayLinked)
+        return true, linkedHome, linkedAway
+    }
+
+    log.Printf("[DEBUG] Связи не найдены для обеих команд: Home=%s, Away=%s", home, away)
+    return false, linkedHome, linkedAway
 }
 
 // Проверяем связь для одной команды
-func linkTeam(teamName, source string) bool {
-    log.Printf("[DEBUG] Ищем связь для команды %s из источника %s", teamName, source)
+func linkTeam(teamName string) bool {
+    log.Printf("[DEBUG] Проверяем связь для команды %s в sansabetTeams", teamName)
 
-    var query string
+    query := `SELECT pinnacleId FROM sansabetTeams WHERE teamName = ? AND pinnacleId > 0 LIMIT 1`
     var linkedId int
-
-    if source == "Sansabet" {
-        query = `SELECT pinnacleId FROM sansabetTeams WHERE teamName = ? AND pinnacleId > 0 LIMIT 1`
-    } else if source == "Pinnacle" {
-        query = `SELECT id FROM sansabetTeams WHERE pinnacleId = (SELECT id FROM pinnacleTeams WHERE teamName = ?) LIMIT 1`
-    } else {
-        log.Printf("[ERROR] Неизвестный источник: %s", source)
-        return false
-    }
 
     err := db.QueryRow(query, teamName).Scan(&linkedId)
     if err != nil {
         if err == sql.ErrNoRows {
-            log.Printf("[DEBUG] Связь не найдена для команды %s в источнике %s", teamName, source)
+            log.Printf("[DEBUG] Связь не найдена для команды %s", teamName)
         } else {
-            log.Printf("[ERROR] Ошибка запроса для команды %s в источнике %s: %v", teamName, source, err)
+            log.Printf("[ERROR] Ошибка запроса для команды %s: %v", teamName, err)
         }
         return false
     }
 
-    log.Printf("[DEBUG] Связь найдена для команды %s в источнике %s: LinkedId=%d", teamName, source, linkedId)
+    log.Printf("[DEBUG] Связь найдена для команды %s: pinnacleId=%d", teamName, linkedId)
     return true
 }
 
-// Обновление matchPairs
-func updateMatchPairs(source string, parsedMsg *ParsedMessage) {
-    key := generateMatchKey(parsedMsg.Home, parsedMsg.Away)
+func updateMatchPairs(parsedMsg *ParsedMessage) {
+    log.Printf("[ZAEB] Я updateMatchPairs вызываю для Санса")
+    keySansabet := generateMatchKey(parsedMsg.Home, parsedMsg.Away)
 
     pairsMutex.Lock()
     defer pairsMutex.Unlock()
 
-    if _, exists := matchKeys[key]; exists {
+    if _, exists := matchKeys[keySansabet]; exists {
         log.Printf("[DEBUG] Матч уже существует: %s vs %s", parsedMsg.Home, parsedMsg.Away)
         return
     }
 
+    pinnacleHomeId, err := getTeamPinnacleId(parsedMsg.Home)
+    if err != nil && err != sql.ErrNoRows {
+        log.Printf("[ERROR] Ошибка получения Pinnacle ID для команды Home: %v", err)
+        return
+    }
+
+    pinnacleAwayId, err := getTeamPinnacleId(parsedMsg.Away)
+    if err != nil && err != sql.ErrNoRows {
+        log.Printf("[ERROR] Ошибка получения Pinnacle ID для команды Away: %v", err)
+        return
+    }
+
+    // Проверяем, есть ли связь хотя бы для одной команды
+    if pinnacleHomeId == 0 && pinnacleAwayId == 0 {
+        log.Printf("[DEBUG] Нет связи с Pinnacle ни для одной из команд: %s vs %s", parsedMsg.Home, parsedMsg.Away)
+        return
+    }
+
+    // Если связь с Pinnacle есть только у одной команды, дособираем данные для второй команды
+    if pinnacleHomeId != 0 && pinnacleAwayId == 0 {
+        pinnacleAwayId, err = getTeamPinnacleId(parsedMsg.Away)
+        if err != nil {
+            log.Printf("[ERROR] Ошибка получения Pinnacle ID для второй команды Away: %v", err)
+            return
+        }
+    }
+
+    if pinnacleAwayId != 0 && pinnacleHomeId == 0 {
+        pinnacleHomeId, err = getTeamPinnacleId(parsedMsg.Home)
+        if err != nil {
+            log.Printf("[ERROR] Ошибка получения Pinnacle ID для второй команды Home: %v", err)
+            return
+        }
+    }
+
+    // Проверяем, есть ли обе команды после получения ID
+    if pinnacleHomeId == 0 || pinnacleAwayId == 0 {
+        log.Printf("[ERROR] Не удалось получить обе команды для матча: HomeId=%d, AwayId=%d", pinnacleHomeId, pinnacleAwayId)
+        return
+    }
+
+    linkedHome, err := getTeamNameByPinnacleId(pinnacleHomeId)
+    if err != nil {
+        log.Printf("[ERROR] Ошибка получения названия команды Home по Pinnacle ID: %d. Ошибка: %v", pinnacleHomeId, err)
+        return
+    }
+
+    linkedAway, err := getTeamNameByPinnacleId(pinnacleAwayId)
+    if err != nil {
+        log.Printf("[ERROR] Ошибка получения названия команды Away по Pinnacle ID: %d. Ошибка: %v", pinnacleAwayId, err)
+        return
+    }
+
+    keyPinnacle := generateMatchKey(linkedHome, linkedAway)
+
+    // Проверяем наличие данных от Pinnacle
+    pinnacleData, pinnacleExists := matchData["Pinnacle"][keyPinnacle]
+    if !pinnacleExists {
+        log.Printf("[DEBUG] Отсутствуют данные от Pinnacle для матча: %s", parsedMsg.MatchName)
+        return
+    }
+
+    var pinnacleMsg struct {
+        MatchId   string `json:"MatchId"`
+        MatchName string `json:"MatchName"`
+    }
+
+    log.Printf("[ZAEB] This is pinnacleData: %s", pinnacleData)
+    if err := json.Unmarshal([]byte(pinnacleData), &pinnacleMsg); err != nil {
+        log.Printf("[ERROR] Ошибка парсинга данных Pinnacle: %v", err)
+        return
+    }
+
+    // Разделяем MatchName на Home и Away
+    matchParts := strings.SplitN(pinnacleMsg.MatchName, " vs ", 2)
+    if len(matchParts) != 2 {
+        log.Printf("[ERROR] Некорректный формат MatchName: %s", pinnacleMsg.MatchName)
+        return
+    }
+    pinnacleHome := matchParts[0]
+    pinnacleAway := matchParts[1]
+
+    log.Printf("[ZAEB] This is pinnacleMsg: %+v", pinnacleMsg)
+
+    // Создаём новую пару
     newPair := MatchPair{
-        Home:      parsedMsg.Home,
-        Away:      parsedMsg.Away,
-        MatchName: parsedMsg.Home + " vs " + parsedMsg.Away,
+        SansabetId:   parsedMsg.MatchId,
+        SansabetName: parsedMsg.MatchName,
+        SansabetHome: parsedMsg.Home,
+        SansabetAway: parsedMsg.Away,
+        PinnacleId:   pinnacleMsg.MatchId,
+        PinnacleName: pinnacleMsg.MatchName,
+        PinnacleHome: pinnacleHome,
+        PinnacleAway: pinnacleAway,
     }
-    if source == "Sansabet" {
-        newPair.SansabetId = parsedMsg.MatchId
-    } else if source == "Pinnacle" {
-        newPair.PinnacleId = parsedMsg.MatchId
-    }
+
+    log.Printf("[INFO] New pair created: %+v", newPair)
+
     matchPairs = append(matchPairs, newPair)
-    matchKeys[key] = true
+    matchKeys[keySansabet] = true
 
     log.Printf("[DEBUG] Новая пара добавлена в matchPairs: %v", newPair)
 }
 
+
+func getTeamNameByPinnacleId(pinnacleId int) (string, error) {
+    query := `
+        SELECT teamName
+        FROM sansabetTeams
+        WHERE pinnacleId = ?
+        LIMIT 1
+    `
+    var teamName string
+    err := db.QueryRow(query, pinnacleId).Scan(&teamName)
+    if err != nil {
+        return "", err
+    }
+    return teamName, nil
+}
+
+
+func getTeamPinnacleId(teamName string) (int, error) {
+    query := `
+        SELECT sansabetTeams.pinnacleId
+        FROM sansabetTeams
+        WHERE sansabetTeams.teamName = ?
+        LIMIT 1
+    `
+    var pinnacleId int
+    err := db.QueryRow(query, teamName).Scan(&pinnacleId)
+    if err != nil {
+        return 0, err
+    }
+    return pinnacleId, nil
+}
+
+
+func getPinnacleTeams(pinnacleId int) (string, string, error) {
+    query := `
+        SELECT teamName
+        FROM pinnacleTeams
+        WHERE id = ?
+    `
+    var teamName string
+    err := db.QueryRow(query, pinnacleId).Scan(&teamName)
+    if err != nil {
+        return "", "", err
+    }
+
+    // Логи
+    log.Printf("[DEBUG] Название команды Pinnacle для id=%d: %s", pinnacleId, teamName)
+
+    // Разбиваем название команды Pinnacle на Home и Away
+    parts := strings.Split(teamName, " vs ")
+    if len(parts) != 2 {
+        log.Printf("[ERROR] Неверный формат названия команды Pinnacle: %s", teamName)
+        return "", "", fmt.Errorf("Неверный формат названия команды Pinnacle: %s", teamName)
+    }
+
+    // Логи
+    log.Printf("[DEBUG] Разделённые команды Pinnacle: Home=%s, Away=%s", parts[0], parts[1])
+
+    return parts[0], parts[1], nil
+}
+
+
 // Генерация ключа матча
 func generateMatchKey(home, away string) string {
+    const emptyHash = "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+    
+    log.Printf("[ZAEB] team 1 and team 2: %s, %s", home, away)
     h1 := sha1.Sum([]byte(home))
     h2 := sha1.Sum([]byte(away))
-    return hex.EncodeToString(h1[:]) + hex.EncodeToString(h2[:])
+    
+    hexH1 := hex.EncodeToString(h1[:])
+    hexH2 := hex.EncodeToString(h2[:])
+    
+    if hexH1 == emptyHash || hexH2 == emptyHash {
+        log.Printf("[WARNING] One of the teams has an empty hash: home hash = %s, away hash = %s", hexH1, hexH2)
+    }
+    
+    return hexH1 + hexH2
 }
+
 
 // Обработка пар матчей
 func processPairs() {
@@ -371,6 +558,17 @@ func processPairs() {
     defer ticker.Stop()
 
     for range ticker.C {
+        // Удаление устаревших данных
+        for source, keys := range matchDataTTL {
+            for key, timestamp := range keys {
+                if time.Since(timestamp) > 10*time.Second { // TTL = 10 секунд
+                    delete(matchData[source], key)
+                    delete(matchDataTTL[source], key)
+                    log.Printf("[DEBUG] Удалены устаревшие данные: Source=%s, Key=%s", source, key)
+                }
+            }
+        }
+
         pairsMutex.Lock()
         currentPairs := make([]MatchPair, len(matchPairs))
         copy(currentPairs, matchPairs)
@@ -392,19 +590,9 @@ func processPairs() {
         }
 
         forwardToFrontendBatch(results)
-
-        if len(results) > 0 {
-            pairsMutex.Lock()
-            for _, pair := range currentPairs {
-                key := generateMatchKey(pair.Home, pair.Away)
-                delete(matchData["Sansabet"], key)
-                delete(matchData["Pinnacle"], key)
-            }
-            log.Printf("[DEBUG] Обработанные данные удалены")
-            pairsMutex.Unlock()
-        }
     }
 }
+
 
 // Группировка результатов по матчам
 func groupResultsByMatch(pairs []MatchPair) []map[string]interface{} {
@@ -418,56 +606,72 @@ func groupResultsByMatch(pairs []MatchPair) []map[string]interface{} {
     return results
 }
 
+
 // Обработка одной пары и получение результата
 func processPairAndGetResult(pair MatchPair) map[string]interface{} {
-    key := generateMatchKey(pair.Home, pair.Away)
-    sansabetData, sansabetExists := matchData["Sansabet"][key]
-    pinnacleData, pinnacleExists := matchData["Pinnacle"][key]
+    log.Printf("[ZAEB] Я processPairAndGetResult вызываю для Санса")
+    keySansabet := generateMatchKey(pair.SansabetHome, pair.SansabetAway)
+    log.Printf("[ZAEB] Я processPairAndGetResult вызываю для пинки")
+    keyPinnacle := generateMatchKey(pair.PinnacleHome, pair.PinnacleAway)
+
+    sansabetData, sansabetExists := matchData["Sansabet"][keySansabet]
+    pinnacleData, pinnacleExists := matchData["Pinnacle"][keyPinnacle]
+    log.Printf("[ZAEB] вся матчдата ", matchData)
 
     if !sansabetExists || !pinnacleExists {
-        log.Printf("[DEBUG] Данные для пары отсутствуют: SansabetKey=%s, PinnacleKey=%s", key, key)
+        if !sansabetExists {
+            log.Printf("[DEBUG] Нет данных для Sansabet: ключ %s", keySansabet)
+        }
+        if !pinnacleExists {
+            log.Printf("[DEBUG] Нет данных для Pinnacle: ключ %s", keyPinnacle)
+        }
         return nil
     }
 
-    log.Printf("[DEBUG] Анализируем пару: %s | SansabetId=%s | PinnacleId=%s", pair.MatchName, pair.SansabetId, pair.PinnacleId)
+    log.Printf("[DEBUG] Анализируем пару: %s | SansabetId=%s | PinnacleId=%s", pair.PinnacleName, pair.SansabetId, pair.PinnacleId)
 
     commonOutcomes := findCommonOutcomes(sansabetData, pinnacleData)
     if len(commonOutcomes) == 0 {
-        log.Printf("[DEBUG] Нет общих исходов для пары: %s", pair.MatchName)
+        log.Printf("[DEBUG] Нет общих исходов для пары: %s", pair.SansabetName)
         return nil
     }
 
-    filtered := calculateAndFilterCommonOutcomes(pair.MatchName, commonOutcomes)
+    filtered := calculateAndFilterCommonOutcomes(commonOutcomes)
     if len(filtered) == 0 {
-        log.Printf("[DEBUG] Нет подходящих исходов для пары: %s", pair.MatchName)
+        log.Printf("[DEBUG] Нет подходящих исходов для пары: %s", pair.SansabetName)
         return nil
-    }
-
-    result := map[string]interface{}{
-        "MatchName":  pair.MatchName,
-        "SansabetId": pair.SansabetId,
-        "PinnacleId": pair.PinnacleId,
-        "LeagueName": "",
-        "Country":    "",
-        "Outcomes":   filtered,
     }
 
     var sansabetParsed, pinnacleParsed map[string]interface{}
     json.Unmarshal([]byte(sansabetData), &sansabetParsed)
     json.Unmarshal([]byte(pinnacleData), &pinnacleParsed)
 
-    if leagueName, ok := sansabetParsed["LeagueName"].(string); ok && leagueName != "" {
-        result["LeagueName"] = leagueName
-    } else if leagueName, ok := pinnacleParsed["LeagueName"].(string); ok {
-        result["LeagueName"] = leagueName
+    leagueName := ""
+    if leagueNamePinnacle, ok := pinnacleParsed["LeagueName"].(string); ok && leagueNamePinnacle != "" {
+        leagueName = leagueNamePinnacle
+    } else if leagueNameSansabet, ok := sansabetParsed["LeagueName"].(string); ok {
+        leagueName = leagueNameSansabet
     }
 
-    if country, ok := sansabetParsed["Country"].(string); ok {
-        result["Country"] = country
+    country := ""
+    if countryPinnacle, ok := pinnacleParsed["Country"].(string); ok {
+        country = countryPinnacle
+    } else if countrySansabet, ok := sansabetParsed["Country"].(string); ok {
+        country = countrySansabet
+    }
+
+    result := map[string]interface{}{
+        "MatchName":  pair.PinnacleName, // Используем имя Pinnacle
+        "SansabetId": pair.SansabetId,
+        "PinnacleId": pair.PinnacleId,
+        "LeagueName": leagueName,
+        "Country":    country,
+        "Outcomes":   filtered,
     }
 
     return result
 }
+
 
 // Поиск общих исходов
 func findCommonOutcomes(sansabetData, pinnacleData string) map[string][2]float64 {
@@ -509,12 +713,14 @@ func findCommonOutcomes(sansabetData, pinnacleData string) map[string][2]float64
     return common
 }
 
+
 // Расчет ROI
 func calculateROI(sansaOdd, pinnacleOdd float64) float64 {
     extraPercent := getExtraPercent(pinnacleOdd)
     roi := (sansaOdd/(pinnacleOdd*MARGIN*extraPercent) - 1 - 0.03) * 100 * 0.67
     return roi
 }
+
 
 // Получение дополнительного процента
 func getExtraPercent(pinnacleOdd float64) float64 {
@@ -526,8 +732,9 @@ func getExtraPercent(pinnacleOdd float64) float64 {
     return 1.0
 }
 
+
 // Расчет и фильтрация общих исходов
-func calculateAndFilterCommonOutcomes(matchName string, commonOutcomes map[string][2]float64) []map[string]interface{} {
+func calculateAndFilterCommonOutcomes(commonOutcomes map[string][2]float64) []map[string]interface{} {
     filtered := []map[string]interface{}{}
 
     for outcome, values := range commonOutcomes {
@@ -541,13 +748,14 @@ func calculateAndFilterCommonOutcomes(matchName string, commonOutcomes map[strin
             })
         }
     }
-
+    // Сортируем результаты по убыванию ROI
     sort.Slice(filtered, func(i, j int) bool {
         return filtered[i]["ROI"].(float64) > filtered[j]["ROI"].(float64)
     })
 
     return filtered
 }
+
 
 // Отправка данных клиентам фронтенда
 func forwardToFrontendBatch(results []map[string]interface{}) {
@@ -577,6 +785,7 @@ func forwardToFrontendBatch(results []map[string]interface{}) {
         }
     }
 }
+
 
 func main() {
     initDB()
