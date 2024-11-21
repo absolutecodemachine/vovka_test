@@ -26,7 +26,6 @@ var (
     lastSentMutex   sync.Mutex
     pairsMutex      sync.Mutex
     frontendMutex   sync.Mutex
-    matchingMutex   sync.Mutex
 )
 
 // Структуры для хранения данных
@@ -60,7 +59,6 @@ var (
     // Соединения парсеров
     sansabetConnections  = make(map[*websocket.Conn]bool)
     pinnacleConnections  = make(map[*websocket.Conn]bool)
-    matchingConnection   *websocket.Conn
     upgrader             = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
     extraPercents        = []struct {
         Min, Max, ExtraPercent float64
@@ -93,7 +91,6 @@ func startAnalyzer() {
     go startParserServer(7100, "Sansabet")
     go startParserServer(7200, "Pinnacle")
     go startFrontendServer()
-    go startMatchingServer()
     go processPairs()
 }
 
@@ -136,47 +133,6 @@ func startParserServer(port int, sourceName string) {
     err := http.ListenAndServe(fmt.Sprintf(":%d", port), mux)
     if err != nil {
         log.Printf("[ERROR] Ошибка запуска сервера для парсера %s: %v", sourceName, err)
-    }
-}
-
-// Хендлер для подключения мэтчинга
-func startMatchingServer() {
-    mux := http.NewServeMux()
-    mux.HandleFunc("/matching", matchingHandler)
-    log.Println("[DEBUG] Сервер для мэтчинга запущен на порту 7400")
-    err := http.ListenAndServe(":7400", mux)
-    if err != nil {
-        log.Printf("[ERROR] Ошибка запуска сервера для мэтчинга: %v", err)
-    }
-}
-
-func matchingHandler(w http.ResponseWriter, r *http.Request) {
-    conn, err := upgrader.Upgrade(w, r, nil)
-    if err != nil {
-        log.Printf("[ERROR] Ошибка подключения мэтчинга: %v", err)
-        return
-    }
-
-    log.Printf("[DEBUG] Новое подключение мэтчинга")
-
-    matchingMutex.Lock()
-    matchingConnection = conn
-    matchingMutex.Unlock()
-
-    defer func() {
-        matchingMutex.Lock()
-        if matchingConnection == conn {
-            matchingConnection = nil
-        }
-        matchingMutex.Unlock()
-        conn.Close()
-    }()
-
-    for {
-        if _, _, err := conn.ReadMessage(); err != nil {
-            log.Printf("[ERROR] Ошибка чтения от мэтчинга: %v", err)
-            break
-        }
     }
 }
 
