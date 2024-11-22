@@ -186,7 +186,6 @@ func saveMatchData(name string, msg []byte) {
     log.Printf("[DEBUG] Начало обработки сообщения из %s", name)
 
     parsedMsg, err := parseMessage(name, msg)
-    log.Printf("[DEBUG] результат parseMessage(name, msg): %v, error: %v", parsedMsg, err)
     if err != nil {
         log.Printf("[ERROR] %v", err)
         return
@@ -202,7 +201,6 @@ func saveMatchData(name string, msg []byte) {
         }
 
     }
-    log.Printf("[ZAEB] Я сейвматчдата вызываю для ", name)
     key := generateMatchKey(parsedMsg.Home, parsedMsg.Away)
     // Удаление устаревших данных для текущего ключа
     if _, exists := matchData[name][key]; exists {
@@ -324,7 +322,7 @@ func linkTeamsForMatch(home, away string) (bool, string, string) {
     if awayLinked {
         linkedAway = away
     }
-
+    // здесь видимо не дописана логика ммм
     if homeLinked || awayLinked {
         log.Printf("[DEBUG] Найдена связь: HomeLinked=%t, AwayLinked=%t", homeLinked, awayLinked)
         return true, linkedHome, linkedAway
@@ -355,10 +353,24 @@ func linkTeam(teamName string) bool {
     return true
 }
 
-func updateMatchPairs(parsedMsg *ParsedMessage) {
-    log.Printf("[ZAEB] Я updateMatchPairs вызываю для Санса")
-    keySansabet := generateMatchKey(parsedMsg.Home, parsedMsg.Away)
 
+// getPinnacleIdByTeamName получает Pinnacle ID напрямую из таблицы pinnacleTeams по имени команды
+func getPinnacleIdByTeamName(teamName string) (int, error) {
+    query := "SELECT id FROM pinnacleTeams WHERE teamName = ? LIMIT 1"
+    var pinnacleId int
+    err := db.QueryRow(query, teamName).Scan(&pinnacleId)
+    if err != nil {
+        if err == sql.ErrNoRows {
+            return 0, fmt.Errorf("нет команды Pinnacle с именем %s", teamName)
+        }
+        return 0, err
+    }
+    return pinnacleId, nil
+}
+
+// вызываем только для сансы, имей ввиду
+func updateMatchPairs(parsedMsg *ParsedMessage) {
+    keySansabet := generateMatchKey(parsedMsg.Home, parsedMsg.Away)
     pairsMutex.Lock()
     defer pairsMutex.Unlock()
 
@@ -385,28 +397,59 @@ func updateMatchPairs(parsedMsg *ParsedMessage) {
         return
     }
 
-    // Если связь с Pinnacle есть только у одной команды, дособираем данные для второй команды
-    if pinnacleHomeId != 0 && pinnacleAwayId == 0 {
-        pinnacleAwayId, err = getTeamPinnacleId(parsedMsg.Away)
-        if err != nil {
-            log.Printf("[ERROR] Ошибка получения Pinnacle ID для второй команды Away: %v", err)
-            return
-        }
-    }
-
-    if pinnacleAwayId != 0 && pinnacleHomeId == 0 {
-        pinnacleHomeId, err = getTeamPinnacleId(parsedMsg.Home)
-        if err != nil {
-            log.Printf("[ERROR] Ошибка получения Pinnacle ID для второй команды Home: %v", err)
-            return
-        }
-    }
-
     // Проверяем, есть ли обе команды после получения ID
     if pinnacleHomeId == 0 || pinnacleAwayId == 0 {
-        log.Printf("[ERROR] Не удалось получить обе команды для матча: HomeId=%d, AwayId=%d", pinnacleHomeId, pinnacleAwayId)
-        return
+        log.Printf("[DEBUG] Необходим PinnacleId для одной или обеих команд, пытаемся получить отсутствующие данные")
+
+        if pinnacleHomeId != 0 && pinnacleAwayId == 0 {
+            // Есть Home, ищем Away
+            knownTeamName, err := getTeamNameByPinnacleId(pinnacleHomeId)
+            if err != nil {
+                log.Printf("[ERROR] Ошибка получения названия команды по Pinnacle ID Home: %d. Ошибка: %v", pinnacleHomeId, err)
+                return
+            }
+
+            missingTeamName, err := findMissingTeamInMatchData(knownTeamName)
+            if err != nil {
+                log.Printf("[ERROR] Не удалось найти недостающую команду в matchData: %v", err)
+                return
+            }
+
+            pinnacleAwayId, err = getPinnacleIdDirectly(missingTeamName)
+            if err != nil {
+                log.Printf("[ERROR] Ошибка получения Pinnacle ID для недостающей команды Away: %s. Ошибка: %v", missingTeamName, err)
+                return
+            }
+        }
+
+        if pinnacleAwayId != 0 && pinnacleHomeId == 0 {
+            // Есть Away, ищем Home
+            knownTeamName, err := getTeamNameByPinnacleId(pinnacleAwayId)
+            if err != nil {
+                log.Printf("[ERROR] Ошибка получения названия команды по Pinnacle ID Away: %d. Ошибка: %v", pinnacleAwayId, err)
+                return
+            }
+
+            missingTeamName, err := findMissingTeamInMatchData(knownTeamName)
+            if err != nil {
+                log.Printf("[ERROR] Не удалось найти недостающую команду в matchData: %v", err)
+                return
+            }
+
+            pinnacleHomeId, err = getPinnacleIdDirectly(missingTeamName)
+            if err != nil {
+                log.Printf("[ERROR] Ошибка получения Pinnacle ID для недостающей команды Home: %s. Ошибка: %v", missingTeamName, err)
+                return
+            }
+        }
+
+        // Финальная проверка: если после всех попыток ID всё ещё отсутствуют, выходим
+        if pinnacleHomeId == 0 || pinnacleAwayId == 0 {
+            log.Printf("[ERROR] Не удалось получить обе команды для матча после попыток: HomeId=%d, AwayId=%d", pinnacleHomeId, pinnacleAwayId)
+            return
+        }
     }
+
 
     linkedHome, err := getTeamNameByPinnacleId(pinnacleHomeId)
     if err != nil {
@@ -422,7 +465,6 @@ func updateMatchPairs(parsedMsg *ParsedMessage) {
 
     keyPinnacle := generateMatchKey(linkedHome, linkedAway)
 
-    // Проверяем наличие данных от Pinnacle
     pinnacleData, pinnacleExists := matchData["Pinnacle"][keyPinnacle]
     if !pinnacleExists {
         log.Printf("[DEBUG] Отсутствуют данные от Pinnacle для матча: %s", parsedMsg.MatchName)
@@ -449,8 +491,6 @@ func updateMatchPairs(parsedMsg *ParsedMessage) {
     pinnacleHome := matchParts[0]
     pinnacleAway := matchParts[1]
 
-    log.Printf("[ZAEB] This is pinnacleMsg: %+v", pinnacleMsg)
-
     // Создаём новую пару
     newPair := MatchPair{
         SansabetId:   parsedMsg.MatchId,
@@ -472,19 +512,85 @@ func updateMatchPairs(parsedMsg *ParsedMessage) {
 }
 
 
+func findMissingTeamInMatchData(knownTeam string) (string, error) {
+    log.Printf("[DRON] Начинаем поиск недостающей команды с известной командой: %s", knownTeam)
+    //log.Printf("[DRON] all matchData ", matchData)
+    if pinnacleMatches, exists := matchData["Pinnacle"]; exists {
+        log.Printf("[DRON] Найдены данные для источника Pinnacle, количество матчей: %d", len(pinnacleMatches))
+        
+        for key, matchJSON := range pinnacleMatches {
+            log.Printf("[DRON] Обрабатываем матч с ключом: %s", key)
+            
+            var match struct {
+                MatchName string `json:"MatchName"`
+            }
+            if err := json.Unmarshal([]byte(matchJSON), &match); err != nil {
+                log.Printf("[DRON] Ошибка парсинга JSON для ключа %s: %v", key, err)
+                continue
+            }
+
+            log.Printf("[DRON] Успешно распарсен матч: %s", match.MatchName)
+            
+            teams := strings.Split(match.MatchName, " vs ")
+            log.Printf("[DRON] Разделенные команды: %v", teams)
+            
+            if len(teams) == 2 {
+                if teams[0] == knownTeam {
+                    log.Printf("[DRON] Известная команда найдена как первая, возвращаем вторую: %s", teams[1])
+                    return teams[1], nil
+                } else if teams[1] == knownTeam {
+                    log.Printf("[DRON] Известная команда найдена как вторая, возвращаем первую: %s", teams[0])
+                    return teams[0], nil
+                }
+            } else {
+                log.Printf("[DRON] Ошибка: Название матча имеет некорректный формат: %s", match.MatchName)
+            }
+        }
+        log.Printf("[DRON] Матч с известной командой %s не найден в Pinnacle", knownTeam)
+    } else {
+        log.Printf("[DRON] Источник Pinnacle отсутствует в matchData")
+    }
+
+    return "", fmt.Errorf("команда %s не найдена в matchData", knownTeam)
+}
+
 func getTeamNameByPinnacleId(pinnacleId int) (string, error) {
     query := `
         SELECT teamName
-        FROM sansabetTeams
-        WHERE pinnacleId = ?
+        FROM pinnacleTeams
+        WHERE id = ?
         LIMIT 1
     `
+
     var teamName string
     err := db.QueryRow(query, pinnacleId).Scan(&teamName)
     if err != nil {
         return "", err
     }
     return teamName, nil
+}
+
+
+func getPinnacleIdDirectly(teamName string) (int, error) {
+    query := `
+        SELECT id
+        FROM pinnacleTeams
+        WHERE teamName = ?
+        LIMIT 1
+    `
+    var pinnacleId int
+    err := db.QueryRow(query, teamName).Scan(&pinnacleId)
+    if err != nil {
+        if err == sql.ErrNoRows {
+            log.Printf("[DEBUG] Команда %s отсутствует в pinnacleTeams", teamName)
+            return 0, fmt.Errorf("команда %s не найдена в pinnacleTeams", teamName)
+        }
+        log.Printf("[ERROR] Ошибка выполнения запроса для команды %s: %v", teamName, err)
+        return 0, err
+    }
+
+    log.Printf("[DEBUG] Найден Pinnacle ID для команды %s: %d", teamName, pinnacleId)
+    return pinnacleId, nil
 }
 
 
@@ -537,7 +643,7 @@ func getPinnacleTeams(pinnacleId int) (string, string, error) {
 func generateMatchKey(home, away string) string {
     const emptyHash = "da39a3ee5e6b4b0d3255bfef95601890afd80709"
     
-    log.Printf("[ZAEB] team 1 and team 2: %s, %s", home, away)
+    log.Printf("[generateMatchKey] team 1 and team 2: %s, %s", home, away)
     h1 := sha1.Sum([]byte(home))
     h2 := sha1.Sum([]byte(away))
     
@@ -561,7 +667,7 @@ func processPairs() {
         // Удаление устаревших данных
         for source, keys := range matchDataTTL {
             for key, timestamp := range keys {
-                if time.Since(timestamp) > 10*time.Second { // TTL = 10 секунд
+                if time.Since(timestamp) > 60*time.Second { // TTL = 10 секунд CHANGE!
                     delete(matchData[source], key)
                     delete(matchDataTTL[source], key)
                     log.Printf("[DEBUG] Удалены устаревшие данные: Source=%s, Key=%s", source, key)
@@ -609,15 +715,12 @@ func groupResultsByMatch(pairs []MatchPair) []map[string]interface{} {
 
 // Обработка одной пары и получение результата
 func processPairAndGetResult(pair MatchPair) map[string]interface{} {
-    log.Printf("[ZAEB] Я processPairAndGetResult вызываю для Санса")
     keySansabet := generateMatchKey(pair.SansabetHome, pair.SansabetAway)
-    log.Printf("[ZAEB] Я processPairAndGetResult вызываю для пинки")
     keyPinnacle := generateMatchKey(pair.PinnacleHome, pair.PinnacleAway)
 
     sansabetData, sansabetExists := matchData["Sansabet"][keySansabet]
     pinnacleData, pinnacleExists := matchData["Pinnacle"][keyPinnacle]
-    log.Printf("[ZAEB] вся матчдата ", matchData)
-
+    // но здесь матчдата содержит и пиннаклдату и сансу
     if !sansabetExists || !pinnacleExists {
         if !sansabetExists {
             log.Printf("[DEBUG] Нет данных для Sansabet: ключ %s", keySansabet)
@@ -675,7 +778,7 @@ func processPairAndGetResult(pair MatchPair) map[string]interface{} {
 
 // Поиск общих исходов
 func findCommonOutcomes(sansabetData, pinnacleData string) map[string][2]float64 {
-    log.Printf("[DEBUG] Входные данные для анализа: Sansabet=%s, Pinnacle=%s", sansabetData, pinnacleData)
+    //log.Printf("[DEBUG] Входные данные для анализа: Sansabet=%s, Pinnacle=%s", sansabetData, pinnacleData)
 
     var sansabetOdds, pinnacleOdds struct {
         Win1x2 map[string]float64 `json:"Win1x2"`
@@ -696,14 +799,14 @@ func findCommonOutcomes(sansabetData, pinnacleData string) map[string][2]float64
     }
 
     for key, sansabetValue := range sansabetOdds.Win1x2 {
-        if pinnacleValue, exists := pinnacleOdds.Win1x2[key]; exists && pinnacleValue >= 1.2 && pinnacleValue <= 3.5 {
+        if pinnacleValue, exists := pinnacleOdds.Win1x2[key]; exists && pinnacleValue >= 1.02 && pinnacleValue <= 35 {
             common[key] = [2]float64{sansabetValue, pinnacleValue}
             log.Printf("[DEBUG] Найден общий исход Win1x2: %s", key)
         }
     }
 
     for key, sansabetTotal := range sansabetOdds.Totals {
-        if pinnacleTotal, exists := pinnacleOdds.Totals[key]; exists && pinnacleTotal.WinMore >= 1.2 && pinnacleTotal.WinMore <= 3.5 {
+        if pinnacleTotal, exists := pinnacleOdds.Totals[key]; exists && pinnacleTotal.WinMore >= 1.02 && pinnacleTotal.WinMore <= 35 {
             common["Total "+key] = [2]float64{sansabetTotal.WinMore, pinnacleTotal.WinMore}
             log.Printf("[DEBUG] Найден общий исход Totals: %s", key)
         }
