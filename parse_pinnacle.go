@@ -19,7 +19,8 @@ const (
     SPORT_ID         = 29
     LIVE_MODE        = 1
     ODDS_FORMAT      = "Decimal"
-    REQUEST_TIMEOUT  = 2 * time.Second
+    REQUEST_TIMEOUT  = 1 * time.Second
+    SINCE = 0 // важный параметр, чтобы цены передавались актуальные
 )
 
 // Замените на ваши данные
@@ -153,6 +154,8 @@ func (api *PinnacleAPI) query(urlStr string) (map[string]interface{}, error) {
         return nil, err
     }
 
+    fmt.Printf("[DEBUG] Raw API response: %s\n", string(body))
+
     var result map[string]interface{}
     if err := json.Unmarshal(body, &result); err != nil {
         return nil, err
@@ -166,6 +169,7 @@ func fetchMatches(api *PinnacleAPI) error {
     params := map[string]string{
         "sportId": fmt.Sprintf("%d", SPORT_ID),
         "isLive":  fmt.Sprintf("%d", LIVE_MODE),
+        "since":  fmt.Sprintf("%d", SINCE),
     }
 
     urlStr := api.buildURL("v1/fixtures", params)
@@ -443,6 +447,7 @@ func getLiveOdds(api *PinnacleAPI) error {
             }
 
             // Отправка данных в анализатор
+            fmt.Printf("[LOG] Отправляем сообщение в анализатор: %s\n", string(jsonResult))
             err = analyzerConnection.WriteMessage(websocket.TextMessage, jsonResult)
             if err != nil {
                 log.Printf("Ошибка отправки сообщения: %v", err)

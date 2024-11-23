@@ -90,9 +90,12 @@ func DebugLog(str string) {
 // Основная функция парсинга одного матча
 func ParseOneGame(nGameKey int64, nGame OneGame) {
     // DebugLog(fmt.Sprintf("Начало анализа Slid: %d Pid: %d", nGame.Slid, nGame.Pid))
+    start := time.Now() // Начало замера времени
 
     client := &http.Client{}
-    req, _ := http.NewRequest("GET", fmt.Sprintf(matchEventURL, nGame.Slid, nGame.Pid), nil)
+    // мы заменили слид на ноль, чтобы получать данные даже если цены не изменились
+    req, _ := http.NewRequest("GET", fmt.Sprintf(matchEventURL, 0, nGame.Pid), nil)
+    //req, _ := http.NewRequest("GET", fmt.Sprintf(matchEventURL, nGame.Slid, nGame.Pid), nil)
 
     // Установка заголовков запроса
     req.Header.Set("Accept", "application/json, text/javascript, */*; q=0.01")
@@ -110,27 +113,30 @@ func ParseOneGame(nGameKey int64, nGame OneGame) {
     req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64)")
 
     res, err := client.Do(req)
+    elapsed := time.Since(start)
+    log.Printf("[INFO] Время получения данных для матча (Slid: %d, Pid: %d): %s", nGame.Slid, nGame.Pid, elapsed)
+
     if err != nil {
-        // DebugLog(fmt.Sprintf("Ошибка запроса: %v", err))
+        DebugLog(fmt.Sprintf("Ошибка запроса: %v", err))
         return
     }
     defer res.Body.Close()
 
     if res.Body == nil {
-        // DebugLog(fmt.Sprintf("Нет данных по запросу о матче. Slid %d Pid %d", nGame.Slid, nGame.Pid))
+        DebugLog(fmt.Sprintf("Нет данных по запросу о матче. Slid %d Pid %d", nGame.Slid, nGame.Pid))
         return
     }
 
     body, err := ioutil.ReadAll(res.Body)
     if err != nil {
-        // DebugLog(fmt.Sprintf("Ошибка чтения тела ответа: %v", err))
+        DebugLog(fmt.Sprintf("Ошибка чтения тела ответа: %v", err))
         return
     }
 
     b := bytes.NewBuffer(body)
     r, err := gzip.NewReader(b)
     if err != nil {
-        // DebugLog(fmt.Sprintf("Ошибка создания gzip reader: %v", err))
+        DebugLog(fmt.Sprintf("Ошибка создания gzip reader: %v", err))
         return
     }
     defer r.Close()
@@ -138,11 +144,16 @@ func ParseOneGame(nGameKey int64, nGame OneGame) {
     var resB bytes.Buffer
     _, err = resB.ReadFrom(r)
     if err != nil {
-        // DebugLog(fmt.Sprintf("Ошибка чтения из gzip reader: %v", err))
+        DebugLog(fmt.Sprintf("Ошибка чтения из gzip reader: %v", err))
         return
     }
-    resData := resB.Bytes()
 
+    resData := resB.Bytes()
+    log.Printf("[DEBUG] Полученные данные для матча (Slid: %d, Pid: %d): %s", nGame.Slid, nGame.Pid, string(resData))
+    if len(resData) == 0 {
+        log.Printf("[WARNING] Пустой ответ для матча (Slid: %d, Pid: %d)", nGame.Slid, nGame.Pid)
+        return
+    }
     // Обработка данных матча
     var mapAllInterface []interface{}
     jsonErr := json.Unmarshal(resData, &mapAllInterface)
@@ -318,6 +329,7 @@ func ParseOneGame(nGameKey int64, nGame OneGame) {
     fmt.Println(string(jsonResult))
 
     // Отправка данных в анализатор
+    fmt.Printf("[LOG] Отправляем сообщение в анализатор: %s\n", string(jsonResult))
     analyzerConnMutex.Lock()
     err = analyzerConnection.WriteMessage(websocket.TextMessage, jsonResult)
     analyzerConnMutex.Unlock()
