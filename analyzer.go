@@ -9,6 +9,7 @@ import (
     "log"
     "net/http"
     "sort"
+    "strconv"
     "strings"
     "sync"
     "time"
@@ -720,16 +721,35 @@ func processPairAndGetResult(pair MatchPair) map[string]interface{} {
     return result
 }
 
+// Нормализация ключа тотала
+func normalizeTotal(total string) string {
+    // Пробуем преобразовать строку в число
+    value, err := strconv.ParseFloat(total, 64)
+    if err != nil {
+        return total // Если не удалось преобразовать, возвращаем как есть
+    }
+    // Возвращаем строку с одним знаком после запятой
+    return fmt.Sprintf("%.1f", value)
+}
+
 // Поиск общих исходов
 func findCommonOutcomes(sansabetData, pinnacleData string) map[string][2]float64 {
     //log.Printf("[DEBUG] Входные данные для анализа: Sansabet=%s, Pinnacle=%s", sansabetData, pinnacleData)
 
     var sansabetOdds, pinnacleOdds struct {
-        Win1x2 map[string]float64 `json:"Win1x2"`
-        Totals map[string]struct {
+        Win1x2          map[string]float64 `json:"Win1x2"`
+        Totals         map[string]struct {
             WinMore float64 `json:"WinMore"`
             WinLess float64 `json:"WinLess"`
         } `json:"Totals"`
+        FirstTeamTotals map[string]struct {
+            WinMore float64 `json:"WinMore"`
+            WinLess float64 `json:"WinLess"`
+        } `json:"FirstTeamTotals"`
+        SecondTeamTotals map[string]struct {
+            WinMore float64 `json:"WinMore"`
+            WinLess float64 `json:"WinLess"`
+        } `json:"SecondTeamTotals"`
     }
     common := make(map[string][2]float64)
 
@@ -749,13 +769,111 @@ func findCommonOutcomes(sansabetData, pinnacleData string) map[string][2]float64
         }
     }
 
-    for key, sansabetTotal := range sansabetOdds.Totals {
-        if pinnacleTotal, exists := pinnacleOdds.Totals[key]; exists && pinnacleTotal.WinMore >= 1.02 && pinnacleTotal.WinMore <= 35 {
-            common["Total "+key] = [2]float64{sansabetTotal.WinMore, pinnacleTotal.WinMore}
-            log.Printf("[DEBUG] Найден общий исход Totals: %s", key)
+    // Создаем нормализованные мапы для тоталов
+    normalizedSansaTotals := make(map[string]struct {
+        WinMore float64 `json:"WinMore"`
+        WinLess float64 `json:"WinLess"`
+    })
+    normalizedPinnTotals := make(map[string]struct {
+        WinMore float64 `json:"WinMore"`
+        WinLess float64 `json:"WinLess"`
+    })
+
+    // Нормализуем ключи для основных тоталов
+    for key, value := range sansabetOdds.Totals {
+        normalizedKey := normalizeTotal(key)
+        normalizedSansaTotals[normalizedKey] = value
+    }
+    for key, value := range pinnacleOdds.Totals {
+        normalizedKey := normalizeTotal(key)
+        normalizedPinnTotals[normalizedKey] = value
+    }
+
+    // Проверяем тоталы с нормализованными ключами
+    for key, sansabetTotal := range normalizedSansaTotals {
+        if pinnacleTotal, exists := normalizedPinnTotals[key]; exists {
+            // Проверяем WinMore
+            if pinnacleTotal.WinMore >= 1.02 && pinnacleTotal.WinMore <= 35 {
+                common["Total More "+key] = [2]float64{sansabetTotal.WinMore, pinnacleTotal.WinMore}
+                log.Printf("[DEBUG] Найден общий исход Totals More: %s", key)
+            }
+            // Проверяем WinLess
+            if pinnacleTotal.WinLess >= 1.02 && pinnacleTotal.WinLess <= 35 {
+                common["Total Less "+key] = [2]float64{sansabetTotal.WinLess, pinnacleTotal.WinLess}
+                log.Printf("[DEBUG] Найден общий исход Totals Less: %s", key)
+            }
         }
     }
 
+    // Нормализуем ключи для индивидуальных тоталов первой команды
+    normalizedSansaFirstTeam := make(map[string]struct {
+        WinMore float64 `json:"WinMore"`
+        WinLess float64 `json:"WinLess"`
+    })
+    normalizedPinnFirstTeam := make(map[string]struct {
+        WinMore float64 `json:"WinMore"`
+        WinLess float64 `json:"WinLess"`
+    })
+
+    for key, value := range sansabetOdds.FirstTeamTotals {
+        normalizedKey := normalizeTotal(key)
+        normalizedSansaFirstTeam[normalizedKey] = value
+    }
+    for key, value := range pinnacleOdds.FirstTeamTotals {
+        normalizedKey := normalizeTotal(key)
+        normalizedPinnFirstTeam[normalizedKey] = value
+    }
+
+    // Проверяем индивидуальные тоталы первой команды с нормализованными ключами
+    for key, sansabetTotal := range normalizedSansaFirstTeam {
+        if pinnacleTotal, exists := normalizedPinnFirstTeam[key]; exists {
+            // Проверяем WinMore
+            if pinnacleTotal.WinMore >= 1.02 && pinnacleTotal.WinMore <= 35 {
+                common["First Team Total More "+key] = [2]float64{sansabetTotal.WinMore, pinnacleTotal.WinMore}
+                log.Printf("[DEBUG] Найден общий исход First Team Totals More: %s", key)
+            }
+            // Проверяем WinLess
+            if pinnacleTotal.WinLess >= 1.02 && pinnacleTotal.WinLess <= 35 {
+                common["First Team Total Less "+key] = [2]float64{sansabetTotal.WinLess, pinnacleTotal.WinLess}
+                log.Printf("[DEBUG] Найден общий исход First Team Totals Less: %s", key)
+            }
+        }
+    }
+
+    // Нормализуем ключи для индивидуальных тоталов второй команды
+    normalizedSansaSecondTeam := make(map[string]struct {
+        WinMore float64 `json:"WinMore"`
+        WinLess float64 `json:"WinLess"`
+    })
+    normalizedPinnSecondTeam := make(map[string]struct {
+        WinMore float64 `json:"WinMore"`
+        WinLess float64 `json:"WinLess"`
+    })
+
+    for key, value := range sansabetOdds.SecondTeamTotals {
+        normalizedKey := normalizeTotal(key)
+        normalizedSansaSecondTeam[normalizedKey] = value
+    }
+    for key, value := range pinnacleOdds.SecondTeamTotals {
+        normalizedKey := normalizeTotal(key)
+        normalizedPinnSecondTeam[normalizedKey] = value
+    }
+
+    // Проверяем индивидуальные тоталы второй команды с нормализованными ключами
+    for key, sansabetTotal := range normalizedSansaSecondTeam {
+        if pinnacleTotal, exists := normalizedPinnSecondTeam[key]; exists {
+            // Проверяем WinMore
+            if pinnacleTotal.WinMore >= 1.02 && pinnacleTotal.WinMore <= 35 {
+                common["Second Team Total More "+key] = [2]float64{sansabetTotal.WinMore, pinnacleTotal.WinMore}
+                log.Printf("[DEBUG] Найден общий исход Second Team Totals More: %s", key)
+            }
+            // Проверяем WinLess
+            if pinnacleTotal.WinLess >= 1.02 && pinnacleTotal.WinLess <= 35 {
+                common["Second Team Total Less "+key] = [2]float64{sansabetTotal.WinLess, pinnacleTotal.WinLess}
+                log.Printf("[DEBUG] Найден общий исход Second Team Totals Less: %s", key)
+            }
+        }
+    }
     //log.Printf("[DEBUG] Общие исходы: %+v", common)
     return common
 }
