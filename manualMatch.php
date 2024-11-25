@@ -28,7 +28,7 @@ class Matching
 	public function GetUnmachedTeams(){
 		$data = [];
 		
-		$query = "select * from sansabetTeams where pinnacleId = 0 order by id DESC limit 50";
+		$query = "select * from sansabetTeams where pinnacleId = 0 order by id DESC";
 		$res = $this->Mysql->query($query);
 		$data['sansabet'] = $res->fetchAll(PDO::FETCH_ASSOC);
 
@@ -41,8 +41,7 @@ class Matching
 			having 
 				sansabetTeams.pinnacleId IS NULL
 			order by 
-				pinnacleTeams.id DESC 
-			limit 50";
+				pinnacleTeams.id DESC";
 		$res = $this->Mysql->query($query);
 		$data['pinnacle'] = $res->fetchAll(PDO::FETCH_ASSOC);
 
@@ -107,7 +106,7 @@ $data = $matching->GetUnmachedTeams();
 	<div class="row">
 		<div class="col6">
 			<div class="row"><h4>Pinnacle:</h4></div>
-			<select form="mForm" name="pinnacleId" size="50">
+			<select form="mForm" name="pinnacleId" size="200">
 				<?php foreach ($data['pinnacle'] as $value) {
 					echo " <option value=\"$value[id]\">$value[teamName]</option> ";
 				} ?>
@@ -115,7 +114,7 @@ $data = $matching->GetUnmachedTeams();
 		</div>
 		<div class="col6">
 			<div class="row"><h4>Sansabet:</h4></div>
-			<select form="mForm" name="sansabetId" size="50">
+			<select form="mForm" name="sansabetId" size="200">
 				<?php foreach ($data['sansabet'] as $value) {
 					echo " <option value=\"$value[id]\">$value[teamName]</option> ";
 				} ?>

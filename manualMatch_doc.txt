@@ -51,3 +51,14 @@ sudo nano /etc/php/8.2/apache2/php.ini (в этой команде вместо 
 После этого в адресной строке браузера: http://localhost/manualMatch.php
 
 
+
+
+
+DELETE FROM sansabetTeams WHERE pinnacleId = 0 OR pinnacleId IS NULL;
+
+DELETE FROM pinnacleTeams 
+WHERE id NOT IN (
+    SELECT DISTINCT pinnacleId 
+    FROM sansabetTeams 
+    WHERE pinnacleId IS NOT NULL AND pinnacleId != 0
+);

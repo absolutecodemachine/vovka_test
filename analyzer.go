@@ -232,7 +232,7 @@ func sendCurrentMatchesToFrontend() {
 
 // Парсинг сообщения
 func parseMessage(name string, msg []byte) (*ParsedMessage, error) {
-    log.Printf("[DEBUG] Получено сообщение из %s: %s", name, string(msg))
+    //log.Printf("[DEBUG] Получено сообщение из %s: %s", name, string(msg))
 
     var parsedMsg ParsedMessage
     if err := json.Unmarshal(msg, &parsedMsg); err != nil {
@@ -510,8 +510,6 @@ func updateMatchPairs(parsedMsg *ParsedMessage) {
         PinnacleAway: pinnacleAway,
     }
 
-    log.Printf("[INFO] Новая пара создана: %+v", newPair)
-
     matchPairs = append(matchPairs, newPair)
     matchKeys[keySansabet] = true
 
@@ -630,21 +628,7 @@ func processPairs() {
             }
         }
     }
-
-    logMatchPairs()
     sendCurrentMatchesToFrontend()
-}
-
-// Логирование содержимого matchPairs
-func logMatchPairs() {
-    pairsMutex.Lock()
-    defer pairsMutex.Unlock()
-
-    log.Printf("[INFO] Текущее содержимое matchPairs:")
-    for _, pair := range matchPairs {
-        log.Printf("  [PAIR] SansabetId=%s, PinnacleId=%s, SansabetName=%s, PinnacleName=%s",
-            pair.SansabetId, pair.PinnacleId, pair.SansabetName, pair.PinnacleName)
-    }
 }
 
 // Группировка результатов по матчам
@@ -738,7 +722,7 @@ func processPairAndGetResult(pair MatchPair) map[string]interface{} {
 
 // Поиск общих исходов
 func findCommonOutcomes(sansabetData, pinnacleData string) map[string][2]float64 {
-    log.Printf("[DEBUG] Входные данные для анализа: Sansabet=%s, Pinnacle=%s", sansabetData, pinnacleData)
+    //log.Printf("[DEBUG] Входные данные для анализа: Sansabet=%s, Pinnacle=%s", sansabetData, pinnacleData)
 
     var sansabetOdds, pinnacleOdds struct {
         Win1x2 map[string]float64 `json:"Win1x2"`
@@ -772,7 +756,7 @@ func findCommonOutcomes(sansabetData, pinnacleData string) map[string][2]float64
         }
     }
 
-    log.Printf("[DEBUG] Общие исходы: %+v", common)
+    //log.Printf("[DEBUG] Общие исходы: %+v", common)
     return common
 }
 
