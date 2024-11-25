@@ -710,12 +710,13 @@ func processPairAndGetResult(pair MatchPair) map[string]interface{} {
     }
 
     result := map[string]interface{}{
-        "MatchName":  pair.PinnacleName,
-        "SansabetId": pair.SansabetId,
-        "PinnacleId": pair.PinnacleId,
-        "LeagueName": leagueName,
-        "Country":    country,
-        "Outcomes":   filtered,
+        "MatchName":      pair.PinnacleName,
+        "SansabetName":   pair.SansabetName,
+        "SansabetId":     pair.SansabetId,
+        "PinnacleId":     pair.PinnacleId,
+        "LeagueName":     leagueName,
+        "Country":        country,
+        "Outcomes":       filtered,
     }
 
     return result

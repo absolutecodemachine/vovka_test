@@ -248,6 +248,10 @@
                 line-height: 1.4;
             }
         }
+        .sansabet-name {
+            font-size: 14px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -373,7 +377,10 @@
             league.innerHTML = `<strong>Лига:</strong> ${data.LeagueName}`;
 
             const matchName = document.createElement('div');
-            matchName.innerHTML = `<strong>Матч:</strong> ${data.MatchName}`;
+            matchName.innerHTML = `
+                <strong>Матч:</strong> ${data.MatchName}
+                ${data.SansabetName ? `<br><span class="sansabet-name">${data.SansabetName}</span>` : ''}
+            `;
 
             const outcome = data.SelectedOutcome;
             const outcomeDiv = document.createElement('div');
@@ -523,7 +530,10 @@
 
                 matchCard.innerHTML = `
                     <div class="match-header">
-                        <h4>${match.MatchName}</h4>
+                        <div>
+                            <h4>${match.MatchName}</h4>
+                            <p class="sansabet-name">${match.SansabetName}</p>
+                        </div>
                         <span class="arrow">▼</span>
                     </div>
                     <p>${match.LeagueName}</p>
