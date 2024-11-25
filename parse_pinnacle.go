@@ -398,6 +398,7 @@ func getLiveOdds(api *PinnacleAPI) error {
     params := map[string]string{
         "sportId":    fmt.Sprintf("%d", SPORT_ID),
         "isLive":     fmt.Sprintf("%d", LIVE_MODE),
+        "since":  fmt.Sprintf("%d", SINCE),
         "oddsFormat": ODDS_FORMAT,
     }
 
