@@ -750,6 +750,10 @@ func findCommonOutcomes(sansabetData, pinnacleData string) map[string][2]float64
             WinMore float64 `json:"WinMore"`
             WinLess float64 `json:"WinLess"`
         } `json:"SecondTeamTotals"`
+        Handicap map[string]struct {
+            Win1 float64 `json:"Win1"`
+            Win2 float64 `json:"Win2"`
+        } `json:"Handicap"`
     }
     common := make(map[string][2]float64)
 
@@ -871,6 +875,41 @@ func findCommonOutcomes(sansabetData, pinnacleData string) map[string][2]float64
             if pinnacleTotal.WinLess >= 1.02 && pinnacleTotal.WinLess <= 35 {
                 common["Second Team Total Less "+key] = [2]float64{sansabetTotal.WinLess, pinnacleTotal.WinLess}
                 log.Printf("[DEBUG] Найден общий исход Second Team Totals Less: %s", key)
+            }
+        }
+    }
+
+    // Нормализуем ключи для гандикапов
+    normalizedSansaHandicap := make(map[string]struct {
+        Win1 float64 `json:"Win1"`
+        Win2 float64 `json:"Win2"`
+    })
+    normalizedPinnHandicap := make(map[string]struct {
+        Win1 float64 `json:"Win1"`
+        Win2 float64 `json:"Win2"`
+    })
+
+    for key, value := range sansabetOdds.Handicap {
+        normalizedKey := normalizeTotal(key)
+        normalizedSansaHandicap[normalizedKey] = value
+    }
+    for key, value := range pinnacleOdds.Handicap {
+        normalizedKey := normalizeTotal(key)
+        normalizedPinnHandicap[normalizedKey] = value
+    }
+
+    // Проверяем гандикапы с нормализованными ключами
+    for key, sansabetHandicap := range normalizedSansaHandicap {
+        if pinnacleHandicap, exists := normalizedPinnHandicap[key]; exists {
+            // Проверяем Win1
+            if pinnacleHandicap.Win1 >= 1.02 && pinnacleHandicap.Win1 <= 35 {
+                common["Handicap "+key+" Win1"] = [2]float64{sansabetHandicap.Win1, pinnacleHandicap.Win1}
+                log.Printf("[DEBUG] Найден общий исход Handicap Win1: %s", key)
+            }
+            // Проверяем Win2
+            if pinnacleHandicap.Win2 >= 1.02 && pinnacleHandicap.Win2 <= 35 {
+                common["Handicap "+key+" Win2"] = [2]float64{sansabetHandicap.Win2, pinnacleHandicap.Win2}
+                log.Printf("[DEBUG] Найден общий исход Handicap Win2: %s", key)
             }
         }
     }
