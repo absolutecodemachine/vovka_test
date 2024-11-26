@@ -198,7 +198,7 @@ func saveMatchData(name string, msg []byte) {
         return
     }
 
-    ensureTeamsExist(name, parsedMsg.Home, parsedMsg.Away, parsedMsg.LeagueName)
+    ensureTeamsExist(name, parsedMsg.Home, parsedMsg.Away, parsedMsg.LeagueName, "Soccer")
     if name == "Sansabet" {
         linked, linkedHome, linkedAway := linkTeamsForMatch(parsedMsg.Home, parsedMsg.Away)
         if linked {
@@ -275,51 +275,151 @@ func splitMatchName(matchName, source string) []string {
 }
 
 // Проверка наличия команд в базе данных
-func ensureTeamsExist(source, home, away, league string) {
+func ensureTeamsExist(source, home, away, league, sport string) {
     log.Printf("[DEBUG] Проверяем наличие команды %s в %s, лига: %s", home, source, league)
-    if !teamExists(source, home, league) {
+    if !teamExists(source, home, league, sport) {
         log.Printf("[DEBUG] Команда %s отсутствует в %s, добавляем её (лига: %s)", home, source, league)
-        insertTeam(source, home, league)
+        insertTeam(source, home, league, sport)
     }
 
     log.Printf("[DEBUG] Проверяем наличие команды %s в %s, лига: %s", away, source, league)
-    if !teamExists(source, away, league) {
+    if !teamExists(source, away, league, sport) {
         log.Printf("[DEBUG] Команда %s отсутствует в %s, добавляем её (лига: %s)", away, source, league)
-        insertTeam(source, away, league)
+        insertTeam(source, away, league, sport)
     }
 }
 
 // Проверка наличия команды в базе данных
-func teamExists(source, teamName, league string) bool {
-    query := fmt.Sprintf("SELECT id FROM %sTeams WHERE teamName = ? AND leagueName = ? LIMIT 1", strings.ToLower(source))
-    row := db.QueryRow(query, teamName, league)
-
-    var id int
-    if err := row.Scan(&id); err != nil {
-        if err == sql.ErrNoRows {
-            log.Printf("[DEBUG] Команда %s отсутствует в %s для лиги %s", teamName, source, league)
-            return false
-        }
-        log.Printf("[ERROR] Ошибка проверки команды %s в %s: %v", teamName, source, err)
+func teamExists(source, teamName, league, sport string) bool {
+    var exists bool
+    var query string
+    
+    if source == "Pinnacle" {
+        query = `
+            SELECT EXISTS(
+                SELECT 1 FROM pinnacle_teams pt 
+                JOIN pinnacle_leagues pl ON pt.league_id = pl.id 
+                JOIN sports s ON pt.sport_id = s.id
+                WHERE pt.name = ? AND pl.name = ? AND s.name = ?
+            )`
+    } else {
+        query = `
+            SELECT EXISTS(
+                SELECT 1 FROM sansabet_teams st 
+                JOIN sansabet_leagues sl ON st.league_id = sl.id 
+                JOIN sports s ON st.sport_id = s.id
+                WHERE st.name = ? AND sl.name = ? AND s.name = ?
+            )`
+    }
+    
+    err := db.QueryRow(query, teamName, league, sport).Scan(&exists)
+    if err != nil {
+        log.Printf("[ERROR] Ошибка проверки существования команды %s: %v", teamName, err)
         return false
     }
-    log.Printf("[DEBUG] Команда %s найдена в %s для лиги %s", teamName, source, league)
-    return true
+    return exists
 }
 
 // Вставка команды в базу данных
-func insertTeam(source, teamName, league string) {
-    const sport = "Soccer"
-
-    log.Printf("[DEBUG] Вставка команды %s в %s (лига: %s, спорт: %s)", teamName, source, league, sport)
-
-    query := fmt.Sprintf("INSERT INTO %sTeams(teamName, leagueName, sportName) VALUES (?, ?, ?)", strings.ToLower(source))
-    _, err := db.Exec(query, teamName, league, sport)
-    if err != nil {
-        log.Printf("[ERROR] Ошибка вставки команды %s в %s: %v", teamName, source, err)
+func insertTeam(source, teamName, league, sport string) {
+    // Сначала убедимся, что существует вид спорта
+    var sportId int64
+    err := db.QueryRow("SELECT id FROM sports WHERE name = ?", sport).Scan(&sportId)
+    if err == sql.ErrNoRows {
+        result, err := db.Exec("INSERT INTO sports (name) VALUES (?)", sport)
+        if err != nil {
+            log.Printf("[ERROR] Ошибка создания вида спорта %s: %v", sport, err)
+            return
+        }
+        sportId, _ = result.LastInsertId()
+    } else if err != nil {
+        log.Printf("[ERROR] Ошибка поиска вида спорта %s: %v", sport, err)
         return
     }
-    log.Printf("[DEBUG] Команда %s успешно добавлена в %s (лига: %s, спорт: %s)", teamName, source, league, sport)
+
+    // Теперь проверим/создадим лигу
+    var leagueId int64
+    var leagueQuery string
+    if source == "Pinnacle" {
+        leagueQuery = "SELECT id FROM pinnacle_leagues WHERE name = ? AND sport_id = ?"
+    } else {
+        leagueQuery = "SELECT id FROM sansabet_leagues WHERE name = ? AND sport_id = ?"
+    }
+
+    err = db.QueryRow(leagueQuery, league, sportId).Scan(&leagueId)
+    if err == sql.ErrNoRows {
+        var leagueInsertQuery string
+        if source == "Pinnacle" {
+            leagueInsertQuery = "INSERT INTO pinnacle_leagues (name, sport_id) VALUES (?, ?)"
+        } else {
+            leagueInsertQuery = "INSERT INTO sansabet_leagues (name, sport_id) VALUES (?, ?)"
+        }
+        
+        result, err := db.Exec(leagueInsertQuery, league, sportId)
+        if err != nil {
+            log.Printf("[ERROR] Ошибка создания лиги %s: %v", league, err)
+            return
+        }
+        leagueId, _ = result.LastInsertId()
+    } else if err != nil {
+        log.Printf("[ERROR] Ошибка поиска лиги %s: %v", league, err)
+        return
+    }
+
+    // Теперь вставляем команду
+    var teamInsertQuery string
+    if source == "Pinnacle" {
+        teamInsertQuery = "INSERT INTO pinnacle_teams (name, sport_id, league_id) VALUES (?, ?, ?)"
+    } else {
+        teamInsertQuery = "INSERT INTO sansabet_teams (name, sport_id, league_id) VALUES (?, ?, ?)"
+    }
+    
+    _, err = db.Exec(teamInsertQuery, teamName, sportId, leagueId)
+    if err != nil {
+        log.Printf("[ERROR] Ошибка создания команды %s: %v", teamName, err)
+        return
+    }
+}
+
+// Получение Pinnacle ID для команды
+func getTeamPinnacleId(teamName string) (int, error) {
+    var pinnacleId int
+    query := `
+        SELECT pt.id 
+        FROM sansabet_teams st
+        JOIN pinnacle_teams pt ON st.pinnacle_team_id = pt.id
+        WHERE st.name = ?`
+    
+    err := db.QueryRow(query, teamName).Scan(&pinnacleId)
+    if err != nil {
+        return 0, err
+    }
+    return pinnacleId, nil
+}
+
+// Получение названия команды по Pinnacle ID
+func getTeamNameByPinnacleId(pinnacleId int) (string, error) {
+    var teamName string
+    err := db.QueryRow("SELECT name FROM pinnacle_teams WHERE id = ?", pinnacleId).Scan(&teamName)
+    if err != nil {
+        return "", err
+    }
+    return teamName, nil
+}
+
+// Получение Pinnacle ID напрямую по названию команды
+func getPinnacleIdDirectly(teamName string) (int, error) {
+    var pinnacleId int
+    query := `
+        SELECT pt.id
+        FROM pinnacle_teams pt
+        WHERE pt.name = ?`
+    
+    err := db.QueryRow(query, teamName).Scan(&pinnacleId)
+    if err != nil {
+        return 0, err
+    }
+    return pinnacleId, nil
 }
 
 // Проверка и связывание команд для матча
@@ -352,37 +452,44 @@ func linkTeamsForMatch(home, away string) (bool, string, string) {
 func linkTeam(teamName string) bool {
     log.Printf("[DEBUG] Проверяем связь для команды %s в sansabetTeams", teamName)
 
-    query := `SELECT pinnacleId FROM sansabetTeams WHERE teamName = ? AND pinnacleId > 0 LIMIT 1`
-    var linkedId int
-
-    err := db.QueryRow(query, teamName).Scan(&linkedId)
+    query := `
+        SELECT EXISTS(
+            SELECT 1 FROM sansabet_teams st
+            JOIN pinnacle_teams pt ON st.pinnacle_team_id = pt.id
+            WHERE st.name = ?
+        )`
+    
+    var linked bool
+    err := db.QueryRow(query, teamName).Scan(&linked)
     if err != nil {
-        if err == sql.ErrNoRows {
-            log.Printf("[DEBUG] Связь не найдена для команды %s", teamName)
-        } else {
-            log.Printf("[ERROR] Ошибка запроса для команды %s: %v", teamName, err)
-        }
+        log.Printf("[ERROR] Ошибка запроса для команды %s: %v", teamName, err)
         return false
     }
-
-    log.Printf("[DEBUG] Связь найдена для команды %s: pinnacleId=%d", teamName, linkedId)
-    return true
+    return linked
 }
 
-// Получение Pinnacle ID для команды
-func getTeamPinnacleId(teamName string) (int, error) {
+// Обновление Pinnacle ID для команды Sansabet
+func updateTeamPinnacleId(sansabetTeam string, pinnacleId int) error {
     query := `
-        SELECT sansabetTeams.pinnacleId
-        FROM sansabetTeams
-        WHERE sansabetTeams.teamName = ?
-        LIMIT 1
-    `
-    var pinnacleId int
-    err := db.QueryRow(query, teamName).Scan(&pinnacleId)
+        UPDATE sansabet_teams 
+        SET pinnacle_team_id = ?
+        WHERE name = ?`
+    
+    result, err := db.Exec(query, pinnacleId, sansabetTeam)
     if err != nil {
-        return 0, err
+        return fmt.Errorf("ошибка обновления pinnacle_team_id: %v", err)
     }
-    return pinnacleId, nil
+    
+    rowsAffected, err := result.RowsAffected()
+    if err != nil {
+        return fmt.Errorf("ошибка получения количества обновленных строк: %v", err)
+    }
+    
+    if rowsAffected == 0 {
+        return fmt.Errorf("команда %s не найдена в базе данных", sansabetTeam)
+    }
+    
+    return nil
 }
 
 // Обновление пар матчей
@@ -434,6 +541,12 @@ func updateMatchPairs(parsedMsg *ParsedMessage) {
                 log.Printf("[ERROR] Ошибка получения Pinnacle ID для недостающей команды Away: %s. Ошибка: %v", missingTeamName, err)
                 return
             }
+
+            if err := updateTeamPinnacleId(parsedMsg.Away, pinnacleAwayId); err != nil {
+                log.Printf("[ERROR] Ошибка обновления связи для команды %s: %v", parsedMsg.Away, err)
+                return
+            }
+            log.Printf("[DEBUG] Успешно создана связь для команды %s с Pinnacle ID %d", parsedMsg.Away, pinnacleAwayId)
         }
 
         if pinnacleAwayId != 0 && pinnacleHomeId == 0 {
@@ -454,6 +567,12 @@ func updateMatchPairs(parsedMsg *ParsedMessage) {
                 log.Printf("[ERROR] Ошибка получения Pinnacle ID для недостающей команды Home: %s. Ошибка: %v", missingTeamName, err)
                 return
             }
+
+            if err := updateTeamPinnacleId(parsedMsg.Home, pinnacleHomeId); err != nil {
+                log.Printf("[ERROR] Ошибка обновления связи для команды %s: %v", parsedMsg.Home, err)
+                return
+            }
+            log.Printf("[DEBUG] Успешно создана связь для команды %s с Pinnacle ID %d", parsedMsg.Home, pinnacleHomeId)
         }
 
         if pinnacleHomeId == 0 || pinnacleAwayId == 0 {
@@ -560,35 +679,6 @@ func findMissingTeamInMatchData(knownTeam string) (string, error) {
     return "", fmt.Errorf("команда %s не найдена в matchData", knownTeam)
 }
 
-// Получение названия команды по Pinnacle ID
-func getTeamNameByPinnacleId(pinnacleId int) (string, error) {
-    query := `SELECT teamName FROM pinnacleTeams WHERE id = ? LIMIT 1`
-    var teamName string
-    err := db.QueryRow(query, pinnacleId).Scan(&teamName)
-    if err != nil {
-        return "", err
-    }
-    return teamName, nil
-}
-
-// Получение Pinnacle ID напрямую по названию команды
-func getPinnacleIdDirectly(teamName string) (int, error) {
-    query := `SELECT id FROM pinnacleTeams WHERE teamName = ? LIMIT 1`
-    var pinnacleId int
-    err := db.QueryRow(query, teamName).Scan(&pinnacleId)
-    if err != nil {
-        if err == sql.ErrNoRows {
-            log.Printf("[DEBUG] Команда %s отсутствует в pinnacleTeams", teamName)
-            return 0, fmt.Errorf("команда %s не найдена в pinnacleTeams", teamName)
-        }
-        log.Printf("[ERROR] Ошибка выполнения запроса для команды %s: %v", teamName, err)
-        return 0, err
-    }
-
-    log.Printf("[DEBUG] Найден Pinnacle ID для команды %s: %d", teamName, pinnacleId)
-    return pinnacleId, nil
-}
-
 // Генерация ключа матча
 func generateMatchKey(home, away string) string {
     const emptyHash = "da39a3ee5e6b4b0d3255bfef95601890afd80709"
@@ -652,7 +742,10 @@ func groupResultsByMatch(pairs []MatchPair) []map[string]interface{} {
 
             result := processPairAndGetResult(pair)
             if result != nil {
-                results = append(results, result)
+                // Check if the result contains non-empty prices
+                if hasNonEmptyPrices(result) {
+                    results = append(results, result)
+                }
             }
         }
     }
@@ -720,6 +813,99 @@ func processPairAndGetResult(pair MatchPair) map[string]interface{} {
     }
 
     return result
+}
+
+// Проверка наличия непустых цен в результатах
+func hasNonEmptyPrices(result map[string]interface{}) bool {
+    outcomes, ok := result["Outcomes"].([]map[string]interface{})
+    if !ok {
+        return false
+    }
+
+    for _, outcome := range outcomes {
+        sansabet, ok := outcome["Sansabet"].(float64)
+        if !ok || sansabet == 0 {
+            return false
+        }
+        pinnacle, ok := outcome["Pinnacle"].(float64)
+        if !ok || pinnacle == 0 {
+            return false
+        }
+    }
+
+    return true
+}
+
+// Расчет ROI
+func calculateROI(sansaOdd, pinnacleOdd float64) float64 {
+    extraPercent := getExtraPercent(pinnacleOdd)
+    roi := (sansaOdd/(pinnacleOdd*MARGIN*extraPercent) - 1 - 0.03) * 100 * 0.67
+    return roi
+}
+
+// Получение дополнительного процента
+func getExtraPercent(pinnacleOdd float64) float64 {
+    for _, ep := range extraPercents {
+        if pinnacleOdd >= ep.Min && pinnacleOdd < ep.Max {
+            return ep.ExtraPercent
+        }
+    }
+    return 1.0
+}
+
+// Расчет и фильтрация общих исходов
+func calculateAndFilterCommonOutcomes(commonOutcomes map[string][2]float64) []map[string]interface{} {
+    filtered := []map[string]interface{}{}
+
+    for outcome, values := range commonOutcomes {
+        roi := calculateROI(values[0], values[1])
+        if roi > -30 {
+            filtered = append(filtered, map[string]interface{}{
+                "Outcome":  outcome,
+                "ROI":      roi,
+                "Sansabet": values[0],
+                "Pinnacle": values[1],
+            })
+        }
+    }
+    // Сортируем результаты по убыванию ROI
+    sort.Slice(filtered, func(i, j int) bool {
+        return filtered[i]["ROI"].(float64) > filtered[j]["ROI"].(float64)
+    })
+
+    return filtered
+}
+
+// Отправка данных клиентам фронтенда
+func forwardToFrontendBatch(results []map[string]interface{}) {
+    log.Printf("[DEBUG] Подготовка данных для отправки клиентам")
+
+    data, err := json.Marshal(results)
+    if err != nil {
+        log.Printf("[ERROR] Ошибка кодирования JSON: %v", err)
+        return
+    }
+
+    frontendMutex.Lock()
+    defer frontendMutex.Unlock()
+
+    if len(frontendClients) == 0 {
+        log.Printf("[DEBUG] Нет подключенных клиентов, данные не отправлены")
+        return
+    }
+
+    for client := range frontendClients {
+        log.Printf("[DEBUG] Отправка данных клиенту: %v", client.RemoteAddr())
+        log.Printf("[DEBUG] Данные для отправки клиенту: %s", string(data))
+        if err := client.WriteMessage(websocket.TextMessage, data); err != nil {
+            log.Printf("[ERROR] Ошибка отправки данных клиенту (%v): %v", client.RemoteAddr(), err)
+            client.Close()
+            delete(frontendClients, client)
+            log.Printf("[DEBUG] Клиент удалён: %v", client.RemoteAddr())
+        } else {
+            log.Printf("[DEBUG] Данные успешно отправлены клиенту: %v", client.RemoteAddr())
+        }
+    }
 }
 
 // Нормализация ключа тотала
@@ -916,78 +1102,6 @@ func findCommonOutcomes(sansabetData, pinnacleData string) map[string][2]float64
     }
     //log.Printf("[DEBUG] Общие исходы: %+v", common)
     return common
-}
-
-// Расчет ROI
-func calculateROI(sansaOdd, pinnacleOdd float64) float64 {
-    extraPercent := getExtraPercent(pinnacleOdd)
-    roi := (sansaOdd/(pinnacleOdd*MARGIN*extraPercent) - 1 - 0.03) * 100 * 0.67
-    return roi
-}
-
-// Получение дополнительного процента
-func getExtraPercent(pinnacleOdd float64) float64 {
-    for _, ep := range extraPercents {
-        if pinnacleOdd >= ep.Min && pinnacleOdd < ep.Max {
-            return ep.ExtraPercent
-        }
-    }
-    return 1.0
-}
-
-// Расчет и фильтрация общих исходов
-func calculateAndFilterCommonOutcomes(commonOutcomes map[string][2]float64) []map[string]interface{} {
-    filtered := []map[string]interface{}{}
-
-    for outcome, values := range commonOutcomes {
-        roi := calculateROI(values[0], values[1])
-        if roi > -30 {
-            filtered = append(filtered, map[string]interface{}{
-                "Outcome":  outcome,
-                "ROI":      roi,
-                "Sansabet": values[0],
-                "Pinnacle": values[1],
-            })
-        }
-    }
-    // Сортируем результаты по убыванию ROI
-    sort.Slice(filtered, func(i, j int) bool {
-        return filtered[i]["ROI"].(float64) > filtered[j]["ROI"].(float64)
-    })
-
-    return filtered
-}
-
-// Отправка данных клиентам фронтенда
-func forwardToFrontendBatch(results []map[string]interface{}) {
-    log.Printf("[DEBUG] Подготовка данных для отправки клиентам")
-
-    data, err := json.Marshal(results)
-    if err != nil {
-        log.Printf("[ERROR] Ошибка кодирования JSON: %v", err)
-        return
-    }
-
-    frontendMutex.Lock()
-    defer frontendMutex.Unlock()
-
-    if len(frontendClients) == 0 {
-        log.Printf("[DEBUG] Нет подключенных клиентов, данные не отправлены")
-        return
-    }
-
-    for client := range frontendClients {
-        log.Printf("[DEBUG] Отправка данных клиенту: %v", client.RemoteAddr())
-        log.Printf("[DEBUG] Данные для отправки клиенту: %s", string(data))
-        if err := client.WriteMessage(websocket.TextMessage, data); err != nil {
-            log.Printf("[ERROR] Ошибка отправки данных клиенту (%v): %v", client.RemoteAddr(), err)
-            client.Close()
-            delete(frontendClients, client)
-            log.Printf("[DEBUG] Клиент удалён: %v", client.RemoteAddr())
-        } else {
-            log.Printf("[DEBUG] Данные успешно отправлены клиенту: %v", client.RemoteAddr())
-        }
-    }
 }
 
 // Главная функция
