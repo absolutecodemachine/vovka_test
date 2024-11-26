@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"sync"
 	"time"
 
@@ -39,19 +40,32 @@ var (
 
 // Структуры данных
 type OneGame struct {
-	Source           string                 `json:"Source"`
-	Name             string                 `json:"Name"`
-	Pid              int64                  `json:"Pid"`
-	Slid             int64                  `json:"Slid"`
-	LeagueName       string                 `json:"LeagueName"`
-	MatchName        string                 `json:"MatchName"`
-	MatchId          string                 `json:"MatchId"`
-	LeagueId         string                 `json:"LeagueId"`
+	Source     string `json:"Source"`
+	Name       string `json:"Name"`
+	Pid        int64  `json:"Pid"`
+	Slid       int64  `json:"Slid"`
+	LeagueName string `json:"LeagueName"`
+	MatchName  string `json:"MatchName"`
+	MatchId    string `json:"MatchId"`
+	LeagueId   string `json:"LeagueId"`
+
 	Win1x2           Win1x2Struct           `json:"Win1x2"`
 	Totals           map[string]WinLessMore `json:"Totals"`
 	Handicap         map[string]WinHandicap `json:"Handicap"`
 	FirstTeamTotals  map[string]WinLessMore `json:"FirstTeamTotals"`
 	SecondTeamTotals map[string]WinLessMore `json:"SecondTeamTotals"`
+
+	Time1Win1x2           Win1x2Struct           `json:"Time1Win1x2"`
+	Time1Totals           map[string]WinLessMore `json:"Time1Totals"`
+	Time1Handicap         map[string]WinHandicap `json:"Time1Handicap"`
+	Time1FirstTeamTotals  map[string]WinLessMore `json:"Time1FirstTeam"`
+	Time1SecondTeamTotals map[string]WinLessMore `json:"Time1SecondTeam"`
+
+	Time2Win1x2           Win1x2Struct           `json:"Time2Win1x2"`
+	Time2Totals           map[string]WinLessMore `json:"Time2Totals"`
+	Time2Handicap         map[string]WinHandicap `json:"Time2Handicap"`
+	Time2FirstTeamTotals  map[string]WinLessMore `json:"Time2FirstTeam"`
+	Time2SecondTeamTotals map[string]WinLessMore `json:"Time2SecondTeam"`
 }
 
 type WinLessMore struct {
@@ -149,6 +163,10 @@ func (api *PinnacleAPI) query(urlStr string) (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	file, _ := os.Create("data.json")
+	file.WriteString(string(body))
+	file.Close()
 
 	fmt.Printf("[DEBUG] Raw API response: %s\n", string(body))
 
@@ -280,6 +298,18 @@ func processMatchData(eventData map[string]interface{}) (*OneGame, error) {
 	FirstTeamTotals := make(map[string]WinLessMore)
 	SecondTeamTotals := make(map[string]WinLessMore)
 
+	Time1Win1x2 := Win1x2Struct{}
+	Time1Totals := make(map[string]WinLessMore)
+	Time1Handicap := make(map[string]WinHandicap)
+	Time1FirstTeamTotals := make(map[string]WinLessMore)
+	Time1SecondTeamTotals := make(map[string]WinLessMore)
+
+	Time2Win1x2 := Win1x2Struct{}
+	Time2Totals := make(map[string]WinLessMore)
+	Time2Handicap := make(map[string]WinHandicap)
+	Time2FirstTeamTotals := make(map[string]WinLessMore)
+	Time2SecondTeamTotals := make(map[string]WinLessMore)
+
 	// Проверка и извлечение данных о периодах
 	periods, ok := eventData["periods"].([]interface{})
 	if !ok || len(periods) == 0 {
@@ -301,24 +331,47 @@ func processMatchData(eventData map[string]interface{}) (*OneGame, error) {
 		// Определение типа периода
 		periodNumber, _ := periodMap["number"].(float64)
 
-		// Обработка только для полного матча (период 0)
-		if int(periodNumber) != 0 {
-			continue
+		// Указатели на исходы
+		var Win1x2P *Win1x2Struct
+		var TotalsP *map[string]WinLessMore
+		var HandicapP *map[string]WinHandicap
+		var FirstTeamTotalsP *map[string]WinLessMore
+		var SecondTeamTotalsP *map[string]WinLessMore
+
+		// Присвоение указателям типов исходов в зависимости от периода
+		if int(periodNumber) == 0 {
+			Win1x2P = &Win1x2
+			TotalsP = &Totals
+			HandicapP = &Handicap
+			FirstTeamTotalsP = &FirstTeamTotals
+			SecondTeamTotalsP = &SecondTeamTotals
+		} else if int(periodNumber) == 1 {
+			Win1x2P = &Time1Win1x2
+			TotalsP = &Time1Totals
+			HandicapP = &Time1Handicap
+			FirstTeamTotalsP = &Time1FirstTeamTotals
+			SecondTeamTotalsP = &Time1SecondTeamTotals
+		} else if int(periodNumber) == 2 {
+			Win1x2P = &Time2Win1x2
+			TotalsP = &Time2Totals
+			HandicapP = &Time2Handicap
+			FirstTeamTotalsP = &Time2FirstTeamTotals
+			SecondTeamTotalsP = &Time2SecondTeamTotals
 		}
 
 		// Извлечение коэффициентов
 		if moneyline, ok := periodMap["moneyline"].(map[string]interface{}); ok {
 			if odds, exists := moneyline["home"]; exists {
 				homeOdds, _ := odds.(float64)
-				Win1x2.Win1 = homeOdds
+				Win1x2P.Win1 = homeOdds
 			}
 			if odds, exists := moneyline["draw"]; exists {
 				drawOdds, _ := odds.(float64)
-				Win1x2.WinNone = drawOdds
+				Win1x2P.WinNone = drawOdds
 			}
 			if odds, exists := moneyline["away"]; exists {
 				awayOdds, _ := odds.(float64)
-				Win1x2.Win2 = awayOdds
+				Win1x2P.Win2 = awayOdds
 			}
 		}
 
@@ -335,7 +388,7 @@ func processMatchData(eventData map[string]interface{}) (*OneGame, error) {
 				awayOdds, _ := spreadMap["away"].(float64)
 				detailBet := fmt.Sprintf("%.2f", hdp)
 
-				Handicap[detailBet] = WinHandicap{
+				(*HandicapP)[detailBet] = WinHandicap{
 					Win1: homeOdds,
 					Win2: awayOdds,
 				}
@@ -354,7 +407,7 @@ func processMatchData(eventData map[string]interface{}) (*OneGame, error) {
 				overOdds, _ := totalMap["over"].(float64)
 				underOdds, _ := totalMap["under"].(float64)
 				detailBet := fmt.Sprintf("%.2f", points)
-				Totals[detailBet] = WinLessMore{
+				(*TotalsP)[detailBet] = WinLessMore{
 					WinMore: overOdds,
 					WinLess: underOdds,
 				}
@@ -375,12 +428,12 @@ func processMatchData(eventData map[string]interface{}) (*OneGame, error) {
 				detailBet := fmt.Sprintf("%.2f", points)
 
 				if teamKey == "home" {
-					FirstTeamTotals[detailBet] = WinLessMore{
+					(*FirstTeamTotalsP)[detailBet] = WinLessMore{
 						WinMore: overOdds,
 						WinLess: underOdds,
 					}
 				} else if teamKey == "away" {
-					SecondTeamTotals[detailBet] = WinLessMore{
+					(*SecondTeamTotalsP)[detailBet] = WinLessMore{
 						WinMore: overOdds,
 						WinLess: underOdds,
 					}
@@ -395,6 +448,18 @@ func processMatchData(eventData map[string]interface{}) (*OneGame, error) {
 		nOneGame.Handicap = Handicap
 		nOneGame.FirstTeamTotals = FirstTeamTotals
 		nOneGame.SecondTeamTotals = SecondTeamTotals
+
+		nOneGame.Time1Win1x2 = Time1Win1x2
+		nOneGame.Time1Totals = Time1Totals
+		nOneGame.Time1Handicap = Time1Handicap
+		nOneGame.Time1FirstTeamTotals = Time1FirstTeamTotals
+		nOneGame.Time1SecondTeamTotals = Time1SecondTeamTotals
+
+		nOneGame.Time2Win1x2 = Time2Win1x2
+		nOneGame.Time2Totals = Time2Totals
+		nOneGame.Time2Handicap = Time2Handicap
+		nOneGame.Time2FirstTeamTotals = Time2FirstTeamTotals
+		nOneGame.Time2SecondTeamTotals = Time2SecondTeamTotals
 
 		// Преобразование в JSON и отправка
 		jsonResult, err := json.MarshalIndent(nOneGame, "", "    ")
