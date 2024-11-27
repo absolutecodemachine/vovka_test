@@ -386,7 +386,7 @@ func processMatchData(eventData map[string]interface{}) (*OneGame, error) {
 				awayOdds, _ := spreadMap["away"].(float64)
 
 				homeLine := strconv.FormatFloat((score2-score1)+hdp, 'f', -1, 64)
-				awayLine := strconv.FormatFloat((score1-score2)+hdp, 'f', -1, 64)
+				awayLine := strconv.FormatFloat((score1-score2)+(-1*hdp), 'f', -1, 64)
 
 				if _, ok := (*HandicapP)[homeLine]; !ok {
 					(*HandicapP)[homeLine] = WinHandicap{}

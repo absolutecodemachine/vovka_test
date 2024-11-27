@@ -288,6 +288,8 @@ func ParseOneGame(nGameKey int64, nGame OneGame) {
 				nK.WinMore = nValBetMap["O"].(float64)
 				SecondTeamTotals[detailBet] = nK
 			case 121:
+				conv, _ := strconv.ParseFloat(detailBet, 64)
+				detailBet = strconv.FormatFloat(conv-0.5, 'f', 1, 64)
 				if _, ok := Handicap[detailBet]; !ok {
 					Handicap[detailBet] = WinHandicap{}
 				}
@@ -295,6 +297,8 @@ func ParseOneGame(nGameKey int64, nGame OneGame) {
 				nK.Win1 = nValBetMap["O"].(float64)
 				Handicap[detailBet] = nK
 			case 123:
+				conv, _ := strconv.ParseFloat(detailBet, 64)
+				detailBet = strconv.FormatFloat((-1*conv)-0.5, 'f', 1, 64)
 				if _, ok := Handicap[detailBet]; !ok {
 					Handicap[detailBet] = WinHandicap{}
 				}
