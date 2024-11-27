@@ -10,14 +10,14 @@
             margin: 20px;
             background-color: #f0f2f5;
             color: #1a1a1a;
-            line-height: 1.2; /* Увеличенное расстояние между строками для улучшения читаемости */
+            line-height: 1.2;
         }
         .match-card {
             background: #ffffff;
             border: 1px solid #e4e6eb;
             border-radius: 12px;
-            padding: 2px 5px; /* Уменьшенный padding для компактности */
-            margin: 2px 0; /* Уменьшенный margin для компактности */
+            padding: 2px 5px;
+            margin: 2px 0;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
             cursor: pointer;
@@ -41,13 +41,13 @@
         }
         .outcomes {
             display: none;
-            margin-top: 2px; /* Уменьшенный отступ сверху */
+            margin-top: 2px;
         }
         .outcome {
-            padding: 2px 5px; /* Уменьшенный padding для компактности */
+            padding: 2px 5px;
             border: 1px solid #e4e6eb;
             border-radius: 8px;
-            margin-top: 2px; /* Уменьшенный отступ между исходами */
+            margin-top: 2px;
             background-color: #f8f9fa;
             transition: background-color 0.3s;
             cursor: pointer;
@@ -62,20 +62,22 @@
         .calculator {
             background: #ffffff;
             border: none;
-            padding: 10px; /* Уменьшенный padding */
-            margin-bottom: 10px; /* Уменьшенный margin */
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-            text-align: left; /* Выровнено по левому краю */
+            padding: 5px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            text-align: left;
         }
         .calculator-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px; /* Уменьшенный отступ */
+            margin-bottom: 2px;
         }
         .calculator-header h3 {
             margin: 0;
+            font-size: 18px;
+            line-height: 1;
         }
         .close-button {
             background: none;
@@ -92,8 +94,8 @@
             margin-top: 0;
             color: #2c3e50;
             font-size: 24px;
-            margin-bottom: 10px; /* Уменьшенный отступ */
-            line-height: 1; /* Уменьшенное расстояние между строками */
+            margin-bottom: 10px;
+            line-height: 1;
         }
         .bet-button {
             width: 100%;
@@ -105,7 +107,7 @@
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s;
-            margin: 5px 0; /* Уменьшенный отступ */
+            margin: 5px 0;
             height: 50px;
         }
         .bet-button:hover {
@@ -113,8 +115,8 @@
         }
         .decision-buttons {
             display: flex;
-            gap: 5px; /* Уменьшенный gap */
-            margin: 5px 0; /* Уменьшенный отступ */
+            gap: 5px;
+            margin: 5px 0;
         }
         .accept-button {
             flex: 1;
@@ -145,55 +147,49 @@
             background-color: #ffb6b6;
         }
         .input-group {
-            margin: 5px 0; /* Уменьшенный отступ */
+            margin: 2px 0;
             display: flex;
-            gap: 5px; /* Уменьшенный gap */
+            gap: 2px;
         }
         .input-field {
             flex: 1;
-            padding: 12px;
+            padding: 8px;
             border: 1px solid #e4e6eb;
-            border-radius: 8px;
-            font-size: 15px;
-            transition: border-color 0.3s;
-            max-width: 100px; /* Уменьшенная ширина полей */
+            border-radius: 6px;
+            font-size: 14px;
+            max-width: 80px;
+            height: 30px;
         }
         .input-field:focus {
             outline: none;
             border-color: #4CAF50;
         }
         .bet-input {
-            width: 100%; /* Устанавливаем ширину на весь экран */
-            box-sizing: border-box; /* Чтобы padding не влиял на общую ширину */
-            height: 40px; /* Увеличиваем высоту для удобства */
-            padding: 5px; /* Добавляем padding для улучшения внешнего вида */
+            width: 100%;
+            height: 30px;
+            padding: 2px;
         }
         input[type='number']::-webkit-inner-spin-button,
         input[type='number']::-webkit-outer-spin-button {
             -webkit-appearance: none;
-            margin: 0; /* Убираем стрелки изменения значения */
+            margin: 0;
         }
         input[type='number'] {
-            -moz-appearance: textfield; /* Убираем стрелки изменения значения для Firefox */
+            -moz-appearance: textfield;
         }
         .confirm-button {
             width: 100%;
-            padding: 12px;
-            font-size: 15px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin-top: 5px; /* Уменьшенный отступ сверху */
+            padding: 8px;
+            font-size: 14px;
+            height: 35px;
+            margin-top: 2px;
         }
         .confirm-button:hover {
             background-color: #45a049;
         }
         .status {
             font-weight: bold;
-            margin-bottom: 10px; /* Уменьшенный отступ */
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
         }
@@ -212,13 +208,13 @@
             white-space: pre-wrap;
             font-family: monospace;
             background-color: #f8f9fa;
-            padding: 2px 5px; /* Уменьшенный padding для компактности */
+            padding: 2px 5px;
             border-radius: 8px;
-            margin-bottom: 2px; /* Уменьшенный отступ */
-            line-height: 1; /* Уменьшенное расстояние между строками */
+            margin-bottom: 2px;
+            line-height: 1;
             display: flex;
             flex-direction: column;
-            gap: 2px; /* Контролируемое расстояние между элементами */
+            gap: 2px;
         }
 
         .indicator.gray {
@@ -249,24 +245,48 @@
             margin-top: 2px;
         }
 
+        .bet-info {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .bet-info p {
+            margin: 5px 0;
+        }
+        .percentage-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            margin: 5px 0;
+            overflow: hidden;
+        }
+        .percentage-fill {
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.3s ease;
+        }
+
         @media (max-width: 768px) {
             body {
                 margin: 10px;
                 font-size: 14px;
             }
             .match-card {
-                padding: 10px; /* Уменьшенный padding */
-                margin: 5px 0; /* Уменьшенный margin */
+                padding: 10px;
+                margin: 5px 0;
             }
             .calculator {
-                padding: 10px; /* Уменьшенный padding */
+                padding: 10px;
             }
             .bet-button, .accept-button, .reject-button, .confirm-button {
                 height: 44px;
             }
             .input-group {
                 flex-direction: column;
-                gap: 5px; /* Уменьшенный gap */
+                gap: 5px;
             }
             .input-field {
                 width: 100%;
@@ -274,9 +294,9 @@
                 font-size: 16px;
             }
             .outcome {
-                padding: 8px; /* Уменьшенный padding */
+                padding: 8px;
                 font-size: 14px;
-                line-height: 1.2; /* Уменьшенное расстояние между строками */
+                line-height: 1.2;
             }
         }
     </style>
@@ -290,20 +310,28 @@
     </div>
 
     <!-- Калькулятор -->
-    <div class="calculator" id="calculator">
+    <div id="calculator" class="calculator" style="display: none;">
         <div class="calculator-header">
-            <h3>Калькулятор ставок</h3>
-            <button id="close-calculator" class="close-button" onclick="closeCalculator()">×</button>
+            <h3>Калькулятор ставки</h3>
+            <button class="close-button" onclick="closeCalculator()">&times;</button>
         </div>
         <div class="status">
             <span id="calculator-indicator" class="indicator gray"></span>
             <span id="calculator-status">Обновление...</span>
         </div>
         <div id="calculator-content">
-            <!-- Здесь будут отображаться данные -->
+            <!-- Здесь будут отображаться данные о матче -->
+        </div>
+        <div class="bet-info">
+            <p>Рекомендуемая сумма: <span id="original-amount">0</span></p>
+            <p>Доступная сумма: <span id="adjusted-amount">0</span></p>
+            <p>Оставшийся процент: <span id="remaining-percentage">100</span>%</p>
+            <div class="percentage-bar">
+                <div id="percentage-fill" class="percentage-fill" style="width: 100%"></div>
+            </div>
         </div>
         <!-- Основная кнопка ставки -->
-        <button id="place-bet-button" class="bet-button" onclick="placeBet()">Отправляю ставку..</button>
+        <button id="place-bet-button" class="bet-button" onclick="placeBet()">Отправить ставку</button>
         <!-- Кнопки принятия/отклонения -->
         <div id="decision-buttons" class="decision-buttons" style="display: none;">
             <button id="accept-bet" class="accept-button" onclick="betAccepted()">Приняли</button>
@@ -348,7 +376,6 @@
         // Получение данных от сервера калькулятора
         calculatorSocket.onmessage = function(event) {
             const data = JSON.parse(event.data);
-            displayCalculatorData(data);
             lastCalculatorDataTime = Date.now();
             updateCalculatorIndicator("green", "Обновлено");
 
@@ -387,59 +414,6 @@
             }
         }, 1000);
 
-        function displayCalculatorData(data) {
-            console.log('Received data:', data); // Логирование полученных данных
-
-            const calculatorContent = document.getElementById("calculator-content");
-            calculatorContent.innerHTML = '';
-
-            const league = document.createElement('div');
-            league.innerHTML = `<strong>Лига:</strong> ${data.LeagueName}`;
-            console.log('League:', league.innerHTML); // Логирование лиги
-            league.style.textAlign = 'left'; // Выровнять по левому краю
-
-            const matchName = document.createElement('div');
-            matchName.innerHTML = `<strong>Матч:</strong> ${data.MatchName} ${data.SansabetName ? `<span class="sansabet-name">${data.SansabetName}</span>` : ''}`;
-            console.log('Match Name:', matchName.innerHTML); // Логирование названия матча
-            matchName.style.textAlign = 'left'; // Выровнять по левому краю
-
-            const outcome = data.SelectedOutcome;
-            const outcomeDiv = document.createElement('div');
-
-            const outcomeText = formatOutcome(outcome.Outcome);
-
-            if (outcome.Pinnacle) {
-                outcomeDiv.innerHTML = `<strong>Исход:</strong> ${outcomeText}<br><strong>Цена Sansabet:</strong> ${outcome.Sansabet}<br><strong>Цена Pinnacle:</strong> ${outcome.Pinnacle}<br><strong>ROI:</strong> ${outcome.ROI}%`;
-            } else {
-                outcomeDiv.innerHTML = `<strong>Исход:</strong> ${outcomeText}<br><em>Цены временно недоступны</em>`;
-            }
-            console.log('Outcome Div:', outcomeDiv.innerHTML); // Логирование div исхода
-            outcomeDiv.style.textAlign = 'left'; // Выровнять по левому краю
-
-            calculatorContent.appendChild(league);
-            calculatorContent.appendChild(matchName);
-            calculatorContent.appendChild(outcomeDiv);
-
-            // Обновляем элементы интерфейса на основе calculatorUIState
-            const decisionButtons = document.getElementById("decision-buttons");
-            const betInputs = document.getElementById("bet-inputs");
-            const placeBetButton = document.getElementById("place-bet-button");
-
-            if (calculatorUIState === 'bet_input') {
-                placeBetButton.style.display = "none";
-                decisionButtons.style.display = "none";
-                betInputs.style.display = "block";
-            } else if (calculatorUIState === 'decision') {
-                placeBetButton.style.display = "none";
-                decisionButtons.style.display = "flex";
-                betInputs.style.display = "none";
-            } else {
-                placeBetButton.style.display = "block";
-                decisionButtons.style.display = "none";
-                betInputs.style.display = "none";
-            }
-        }
-
         function checkCalculatorTime() {
             const now = Date.now();
             // Если прошло больше 7 минут (420000 мс)
@@ -467,9 +441,57 @@
             console.log("Подключено к серверу матчей");
         };
 
+
+        // Определение функции displayCalculatorData
+        function displayCalculatorData(data) {
+            console.log('displayCalculatorData вызвана с данными:', data);
+            currentCalculatorMatch = data;
+            currentCalculatorOutcome = data.SelectedOutcome.Outcome;
+            calculatorStartTime = Date.now();
+
+            const calculator = document.getElementById('calculator');
+            const calculatorContent = document.getElementById('calculator-content');
+            
+            if (!calculator || !calculatorContent) {
+                console.error('displayCalculatorData: Элементы калькулятора не найдены');
+                return;
+            }
+
+            calculator.style.display = 'block';
+            calculatorContent.innerHTML = '';
+
+            const infoContainer = document.createElement('div');
+            infoContainer.style.textAlign = 'left';
+            infoContainer.style.marginBottom = '2px';
+
+            const outcomeText = formatOutcome(data.SelectedOutcome.Outcome);
+            console.log('Форматированный исход:', outcomeText);
+
+            if (data.SelectedOutcome.Pinnacle) {
+                console.log('Коэффициенты Pinnacle доступны, начинаем расчет');
+                calculateBet(data.SelectedOutcome.Pinnacle)
+                    .then(amount => {
+                        console.log('Расчет завершен, сумма:', amount);
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при расчете:', error);
+                    });
+
+                infoContainer.innerHTML = `<div><strong>Лига:</strong> ${data.LeagueName}</div><div><strong>Матч:</strong> ${data.MatchName} ${data.SansabetName ? `<span class="sansabet-name">${data.SansabetName}</span>` : ''}</div><div><strong>Исход:</strong> ${outcomeText}</div><div><strong>Цена Sansabet:</strong> ${data.SelectedOutcome.Sansabet}</div><div><strong>Цена Pinnacle:</strong> ${data.SelectedOutcome.Pinnacle}</div><div><strong>ROI:</strong> ${data.SelectedOutcome.ROI}%</div>`;
+                console.log('Интерфейс обновлен с данными Pinnacle');
+            } else {
+                console.log('Коэффициенты Pinnacle недоступны');
+                infoContainer.innerHTML = `<div><strong>Лига:</strong> ${data.LeagueName}</div><div><strong>Матч:</strong> ${data.MatchName} ${data.SansabetName ? `<span class="sansabet-name">${data.SansabetName}</span>` : ''}</div><div><strong>Исход:</strong> ${outcomeText}</div><div><strong>Цена Sansabet:</strong> ${data.SelectedOutcome.Sansabet}</div><div><strong>Цена Pinnacle:</strong> Недоступна</div><div><strong>ROI:</strong> ${data.SelectedOutcome.ROI}%</div>`;
+            }
+
+            calculatorContent.appendChild(infoContainer);
+            console.log('Контейнер с информацией добавлен в калькулятор');
+        }
+
+        // Обновленный обработчик ws.onmessage
         ws.onmessage = function(event) {
             const matches = JSON.parse(event.data);
-            // Сортируем матчи по ROI (от большего к меньшему)
+            // Сортировка матчей по ROI
             matches.sort((a, b) => {
                 const maxRoiA = Math.max(...a.Outcomes.map(o => o.ROI));
                 const maxRoiB = Math.max(...b.Outcomes.map(o => o.ROI));
@@ -537,6 +559,7 @@
                 }
             }
 
+            // Обновляем список матчей
             matches.forEach(match => {
                 const matchCard = document.createElement("div");
                 matchCard.className = "match-card";
@@ -555,6 +578,7 @@
                     </div>
                     <p>${match.LeagueName}</p>
                 `;
+                matchCard.innerHTML = matchCard.innerHTML.replace(/\n\s+/g, '');
 
                 const bestOutcomeDiv = document.createElement("div");
                 bestOutcomeDiv.className = "outcome";
@@ -564,10 +588,11 @@
 
                 bestOutcomeDiv.onclick = function(event) {
                     event.stopPropagation();
+                    console.log('Клик на исход:', bestOutcome);
                     sendToCalculator({
                         ...match,
                         SelectedOutcome: bestOutcome
-                    }, true);
+                    }, true); // Сбрасываем состояние UI
                 };
 
                 matchCard.appendChild(bestOutcomeDiv);
@@ -588,10 +613,11 @@
                         outcomeDiv.innerHTML = `<strong>${formattedOutcome}</strong> | Sansabet: ${outcome.Sansabet} | Pinnacle: ${outcome.Pinnacle} | ROI: ${outcome.ROI}%`;
                         outcomeDiv.onclick = function(event) {
                             event.stopPropagation();
+                            console.log('Клик на исход:', outcome);
                             sendToCalculator({
                                 ...match,
                                 SelectedOutcome: outcome
-                            }, true);
+                            }, true); // Сбрасываем состояние UI
                         };
                         outcomesDiv.appendChild(outcomeDiv);
                     }
@@ -617,16 +643,18 @@
             });
         };
 
+
         // Функции для работы со ставками
         let savedBetData = null;
 
-        function placeBet() {
+        async function placeBet() {
             if (!currentCalculatorMatch || !currentCalculatorMatch.SelectedOutcome) {
+                alert('Ошибка: данные о матче не найдены');
                 return;
             }
 
-            // Логируем попытку со всеми текущими данными
-            const betData = {
+            // Логируем попытку ставки в старую систему
+            const betAttemptData = {
                 matchName: currentCalculatorMatch.MatchName,
                 leagueName: currentCalculatorMatch.LeagueName,
                 outcome: formatOutcome(currentCalculatorMatch.SelectedOutcome.Outcome),
@@ -636,20 +664,106 @@
                 type: "attempt"
             };
 
-            fetch("http://localhost:7500/log_bet", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(betData)
-            });
-
+            try {
+                await fetch("http://localhost:7500/log_bet", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(betAttemptData)
+                });
+            } catch (error) {
+                console.error('Error logging bet attempt:', error);
+            }
+            
             calculatorUIState = 'decision';
-            document.getElementById("place-bet-button").style.display = "none";
-            document.getElementById("decision-buttons").style.display = "flex";
+            const placeBetButton = document.getElementById("place-bet-button");
+            const decisionButtons = document.getElementById("decision-buttons");
+            
+            if (placeBetButton && decisionButtons) {
+                placeBetButton.style.display = "none";
+                decisionButtons.style.display = "flex";
+            }
+        }
+
+        async function submitBetAmount() {
+            const amount = document.getElementById("bet-amount").value;
+            const coefficient = document.getElementById("bet-coefficient").value;
+
+            if (!amount || !coefficient) {
+                alert("Пожалуйста, заполните все поля");
+                return;
+            }
+
+            if (isNaN(coefficient) || parseFloat(coefficient) <= 0) {
+                alert('Пожалуйста, введите корректный коэффициент');
+                return;
+            }
+
+            if (!savedBetData || !currentCalculatorMatch) {
+                alert("Ошибка: данные о матче не найдены");
+                return;
+            }
+            
+            try {
+                // Логируем принятую ставку в старую систему
+                await fetch("http://localhost:7500/log_bet", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        matchName: savedBetData.matchName,
+                        leagueName: savedBetData.leagueName,
+                        outcome: savedBetData.outcome,
+                        pinnacleOdds: savedBetData.pinnacleOdds,
+                        sansabetOdds: savedBetData.sansabetOdds,
+                        roi: savedBetData.roi,
+                        amount: parseFloat(amount),
+                        coefficient: parseFloat(coefficient),
+                        type: "accepted"
+                    })
+                });
+
+                // Отправляем ставку в новую систему
+                const recommendedAmount = parseFloat(document.getElementById('original-amount').textContent);
+                const betData = {
+                    matchId: savedBetData.matchId,
+                    amount: (amount / recommendedAmount) * 100, // Отправляем процент от рекомендованной суммы
+                    coefficient: parseFloat(coefficient)
+                };
+                console.log('Sending bet data:', betData);  // Добавляем лог для проверки
+
+                const response = await fetch('http://localhost:7500/bet', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(betData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to submit bet');
+                }
+
+                // Очищаем форму и возвращаем к начальному состоянию
+                document.getElementById("bet-amount").value = "";
+                document.getElementById("bet-coefficient").value = "";
+                document.getElementById("bet-inputs").style.display = "none";
+                document.getElementById("place-bet-button").style.display = "block";
+                calculatorUIState = 'initial';
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Произошла ошибка при отправке ставки');
+            }
         }
 
         function betAccepted() {
+            if (!currentCalculatorMatch || !currentCalculatorMatch.SelectedOutcome) {
+                alert('Ошибка: данные о матче не найдены');
+                return;
+            }
+
             // Сохраняем текущие данные для последующего использования
             savedBetData = {
+                matchId: `${currentCalculatorMatch.LeagueName}_${currentCalculatorMatch.MatchName}`,
                 matchName: currentCalculatorMatch.MatchName,
                 leagueName: currentCalculatorMatch.LeagueName,
                 outcome: formatOutcome(currentCalculatorMatch.SelectedOutcome.Outcome),
@@ -657,7 +771,7 @@
                 sansabetOdds: currentCalculatorMatch.SelectedOutcome.Sansabet,
                 roi: currentCalculatorMatch.SelectedOutcome.ROI
             };
-
+            
             calculatorUIState = 'bet_input';
             document.getElementById("decision-buttons").style.display = "none";
             document.getElementById("bet-inputs").style.display = "block";
@@ -671,52 +785,145 @@
             document.getElementById("place-bet-button").style.display = "block";
         }
 
-        function submitBetAmount() {
-            const amount = document.getElementById("bet-amount").value;
-            const coefficient = document.getElementById("bet-coefficient").value;
-
-            if (!amount || !coefficient) {
-                alert("Пожалуйста, заполните все поля");
-                return;
-            }
-
-            if (!savedBetData) {
-                console.error("Отсутствуют сохраненные данные о ставке");
-                return;
-            }
-
-            // Отправляем в лог сохраненные данные + введенные пользователем
-            fetch("http://localhost:7500/log_bet", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ...savedBetData,
-                    amount: parseFloat(amount),
-                    coefficient: parseFloat(coefficient),
-                    type: "accepted"
-                })
-            });
-
-            calculatorUIState = 'initial';
-            savedBetData = null;
-            document.getElementById("bet-inputs").style.display = "none";
-            document.getElementById("place-bet-button").style.display = "block";
-            document.getElementById("bet-amount").value = "";
-            document.getElementById("bet-coefficient").value = "";
-        }
 
         function sendToCalculator(data, resetUIState = false) {
+            console.log('sendToCalculator вызван с данными:', {
+                matchId: data.PinnacleId,
+                matchName: data.MatchName,
+                leagueName: data.LeagueName,
+                outcome: data.SelectedOutcome.Outcome,
+                pinnacleOdds: data.SelectedOutcome.Pinnacle,
+                sansabetOdds: data.SelectedOutcome.Sansabet,
+                roi: data.SelectedOutcome.ROI
+            });
+
             currentCalculatorMatch = data;
             currentCalculatorOutcome = data.SelectedOutcome.Outcome;
-            if (resetUIState) {
-                calculatorStartTime = Date.now(); // Обновляем время при новом выборе
-                calculatorUIState = 'initial'; // Сбрасываем состояние при новом выборе
+            calculatorStartTime = Date.now();
+
+            const calculator = document.getElementById('calculator');
+            const calculatorContent = document.getElementById('calculator-content');
+            
+            if (!calculator || !calculatorContent) {
+                console.error('sendToCalculator: Элементы калькулятора не найдены');
+                return;
             }
-            displayCalculatorData(data);
+
+            console.log('Элементы калькулятора найдены, показываем UI');
+            calculator.style.display = 'block';
+            calculatorContent.innerHTML = '';
+
+            // Сбрасываем состояние UI при необходимости
+            if (resetUIState) {
+                calculatorUIState = 'initial';
+                document.getElementById("place-bet-button").style.display = "block";
+                document.getElementById("decision-buttons").style.display = "none";
+                document.getElementById("bet-inputs").style.display = "none";
+            }
+
+            const infoContainer = document.createElement('div');
+            infoContainer.style.textAlign = 'left';
+            infoContainer.style.marginBottom = '2px';
+
+            const outcomeText = formatOutcome(data.SelectedOutcome.Outcome);
+            console.log('Форматированный исход:', outcomeText);
+
+            if (data.SelectedOutcome.Pinnacle) {
+                console.log('Коэффициенты Pinnacle доступны, начинаем расчет');
+                calculateBet(data.PinnacleId, data.SelectedOutcome.Pinnacle)
+                    .then(amount => {
+                        console.log('Расчет завершен, сумма:', amount);
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при расчете:', error);
+                    });
+
+                infoContainer.innerHTML = `<div><strong>Лига:</strong> ${data.LeagueName}</div><div><strong>Матч:</strong> ${data.MatchName} ${data.SansabetName ? `<span class="sansabet-name">${data.SansabetName}</span>` : ''}</div><div><strong>Исход:</strong> ${outcomeText}</div><div><strong>Цена Sansabet:</strong> ${data.SelectedOutcome.Sansabet}</div><div><strong>Цена Pinnacle:</strong> ${data.SelectedOutcome.Pinnacle}</div><div><strong>ROI:</strong> ${data.SelectedOutcome.ROI}%</div>`;
+                console.log('Интерфейс обновлен с данными Pinnacle');
+            } else {
+                console.log('Коэффициенты Pinnacle недоступны');
+                infoContainer.innerHTML = `<div><strong>Лига:</strong> ${data.LeagueName}</div><div><strong>Матч:</strong> ${data.MatchName} ${data.SansabetName ? `<span class="sansabet-name">${data.SansabetName}</span>` : ''}</div><div><strong>Исход:</strong> ${outcomeText}</div><div><strong>Цена Sansabet:</strong> ${data.SelectedOutcome.Sansabet}</div><div><strong>Цена Pinnacle:</strong> Недоступна</div><div><strong>ROI:</strong> ${data.SelectedOutcome.ROI}%</div>`;
+            }
+
+            calculatorContent.appendChild(infoContainer);
+            console.log('Контейнер с информацией добавлен в калькулятор');
+        }
+
+
+        async function calculateBet(matchId, odds) {
+            try {
+                const matchId = `${currentCalculatorMatch.LeagueName}_${currentCalculatorMatch.MatchName}`;
+
+                console.log('11. calculateBet начало расчета:', {
+                    matchId: matchId,
+                    odds: odds
+                });
+                
+                const requestBody = {
+                    matchId: matchId,
+                    odds: odds,
+                    edge: 5,
+                    risk: 12,
+                    bank: 10000
+                };
+                console.log('12. Подготовлен запрос:', JSON.stringify(requestBody, null, 2));
+
+                console.log('13. Отправляем запрос на http://localhost:7500/calculate_bet');
+                const response = await fetch('http://localhost:7500/calculate_bet', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                console.log('14. Получен ответ, статус:', response.status);
+                if (!response.ok) {
+                    console.error('15. Ошибка ответа:', {
+                        status: response.status,
+                        statusText: response.statusText
+                    });
+                    throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('16. Распарсены данные ответа:', {
+                    originalAmount: data.originalAmount,
+                    adjustedAmount: data.adjustedAmount,
+                    percentage: data.percentage
+                });
+                
+                console.log('17. Обновляем UI элементы');
+                document.getElementById('original-amount').textContent = data.originalAmount.toFixed(2);
+                document.getElementById('adjusted-amount').textContent = data.adjustedAmount.toFixed(2);
+                document.getElementById('remaining-percentage').textContent = data.percentage.toFixed(1);
+                
+                console.log('18. Обновляем полосу процентов');
+                document.getElementById('percentage-fill').style.width = data.percentage + '%';
+                
+                console.log('19. Расчет успешно завершен');
+                return data.adjustedAmount;
+            } catch (error) {
+                console.error('20. Критическая ошибка в calculateBet:', error);
+                return 0;
+            }
         }
 
         function closeCalculator() {
-            clearCalculator();
+            const calculator = document.getElementById('calculator');
+            if (calculator) {
+                calculator.style.display = 'none';
+                calculatorUIState = 'initial';
+                currentCalculatorMatch = null;
+                currentCalculatorOutcome = null;
+                calculatorStartTime = null;
+                savedBetData = null;
+                document.getElementById("calculator-content").innerHTML = "";
+                document.getElementById("place-bet-button").style.display = "none";
+                document.getElementById("decision-buttons").style.display = "none";
+                document.getElementById("bet-inputs").style.display = "none";
+                updateCalculatorIndicator("gray", "Ожидание");
+            }
         }
 
         function formatOutcome(outcome) {

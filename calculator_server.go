@@ -1,12 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -28,10 +32,10 @@ const (
 
 // Структура для исходов
 type Outcome struct {
-	Outcome   string  `json:"Outcome"`
-	Pinnacle  float64 `json:"Pinnacle"`
-	ROI       float64 `json:"ROI"`
-	Sansabet  float64 `json:"Sansabet"`
+	Outcome  string  `json:"Outcome"`
+	Pinnacle float64 `json:"Pinnacle"`
+	ROI      float64 `json:"ROI"`
+	Sansabet float64 `json:"Sansabet"`
 }
 
 // Структура для данных матча
@@ -47,24 +51,32 @@ type RequestData struct {
 
 // Структура для данных ставки
 type BetData struct {
-	Timestamp       string  `json:"timestamp"`
-	League         string  `json:"league"`
-	Match          string  `json:"match"`
-	Outcome        string  `json:"outcome"`
-	Amount         float64 `json:"amount"`
-	UserCoefficient float64 `json:"userCoefficient"`
-	PinnacleOdds   float64 `json:"pinnacleOdds"`
+	MatchId     string  `json:"matchId"`
+	Amount      float64 `json:"amount"`
+	Coefficient float64 `json:"coefficient"`
 }
 
 // Структура для логирования результатов ставок
 type LogBetData struct {
-	Timestamp       string  `json:"timestamp"`
-	MatchName       string  `json:"matchName"`
-	LeagueName      string  `json:"leagueName"`
-	Outcome         string  `json:"outcome"`
-	Amount          float64 `json:"amount"`
-	Coefficient     float64 `json:"coefficient"`
-	Status          string  `json:"status"` // "attempt", "accepted", "rejected"
+	Timestamp   string  `json:"timestamp"`
+	MatchName   string  `json:"matchName"`
+	LeagueName  string  `json:"leagueName"`
+	Outcome     string  `json:"outcome"`
+	Amount      float64 `json:"amount"`
+	Coefficient float64 `json:"coefficient"`
+	Status      string  `json:"status"` // "attempt", "accepted", "rejected"
+}
+
+// MatchBetHistory хранит информацию о ставках на конкретный матч
+type MatchBetHistory struct {
+	TotalBetAmount float64   // Общая сумма сделанных ставок
+	LastUpdateTime time.Time // Время последнего обновления
+}
+
+// BetHistoryStorage хранит историю ставок
+type BetHistoryStorage struct {
+	Matches map[string]*MatchBetHistory // ключ: ID матча
+	mutex   sync.RWMutex
 }
 
 // PinnacleAPI для взаимодействия с API
@@ -83,16 +95,20 @@ type PinnacleStatus struct {
 
 var (
 	calculatorData *RequestData = nil
-	clients        = make(map[*websocket.Conn]bool) // Подключенные клиенты
-	upgrader       = websocket.Upgrader{
+	clients                     = make(map[*websocket.Conn]bool) // Подключенные клиенты
+	upgrader                    = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool { return true }, // Разрешаем все запросы
 	}
-	logFile     = "calculator_log.txt"
-	pinnacleAPI *PinnacleAPI // Для работы с Pinnacle API
+	logFile                     = "calculator_log.txt"
+	pinnacleAPI    *PinnacleAPI // Для работы с Pinnacle API
 	pinnacleStatus = PinnacleStatus{
 		IsAvailable: true,
 		LastUpdate:  time.Now(),
 	}
+	betHistory = &BetHistoryStorage{
+		Matches: make(map[string]*MatchBetHistory),
+	}
+	betHistoryFile = "bet_history.json"
 )
 
 // Middleware для добавления CORS-заголовков
@@ -144,6 +160,93 @@ func receiveHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// CalculateBetRequest структура для запроса расчета ставки
+type CalculateBetRequest struct {
+	MatchID string  `json:"matchId"`
+	Odds    float64 `json:"odds"`
+	Edge    float64 `json:"edge"`
+	Risk    float64 `json:"risk"`
+	Bank    float64 `json:"bank"`
+}
+
+// CalculateBetResponse структура для ответа с расчетом ставки
+type CalculateBetResponse struct {
+	OriginalAmount float64 `json:"originalAmount"`
+	AdjustedAmount float64 `json:"adjustedAmount"`
+	Percentage     float64 `json:"percentage"`
+}
+
+// calculateBetHandler обработчик для расчета размера ставки
+func calculateBetHandler(w http.ResponseWriter, r *http.Request) {
+    log.Println("1. calculateBetHandler: запрос получен")
+
+    if r.Method != http.MethodPost {
+        log.Printf("2. Ошибка: неверный метод %s\n", r.Method)
+        http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
+        return
+    }
+
+    // Читаем тело запроса для логирования
+    body, err := io.ReadAll(r.Body)
+    if err != nil {
+        log.Printf("3. Ошибка чтения тела запроса: %v\n", err)
+        http.Error(w, "Error reading request body", http.StatusBadRequest)
+        return
+    }
+    log.Printf("4. Тело запроса: %s\n", string(body))
+
+    // Создаем новый reader из сохраненного тела
+    r.Body = io.NopCloser(bytes.NewBuffer(body))
+
+    var req CalculateBetRequest
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        log.Printf("5. Ошибка декодирования JSON: %v\n", err)
+        http.Error(w, "Invalid JSON", http.StatusBadRequest)
+        return
+    }
+
+    log.Printf("6. Параметры запроса: odds=%.2f edge=%.2f risk=%.2f bank=%.2f\n",
+        req.Odds, req.Edge, req.Risk, req.Bank)
+
+    // Рассчитываем размер ставки
+    originalAmount := getBetSize(req.Odds, req.Edge, req.Risk, req.Bank)
+    log.Printf("7. Рассчитан originalAmount: %.2f\n", originalAmount)
+
+    adjustedAmount := calculateAdjustedBetSize(req.MatchID, req.Odds, req.Edge, req.Risk, req.Bank)
+    log.Printf("8. Рассчитан adjustedAmount: %.2f\n", adjustedAmount)
+
+    // Рассчитываем процент оставшейся суммы
+    percentage := 100.0
+    if originalAmount > 0 {
+        percentage = (adjustedAmount / originalAmount) * 100
+        if percentage < 0 {
+            percentage = 0
+        } else if percentage > 100 {
+            percentage = 100
+        }
+    } else {
+        percentage = 0
+    }
+    log.Printf("9. Рассчитан percentage: %.2f%%\n", percentage)
+
+    response := CalculateBetResponse{
+        OriginalAmount: originalAmount,
+        AdjustedAmount: adjustedAmount,
+        Percentage:     percentage,
+    }
+
+    log.Printf("10. Подготовлен ответ: %+v\n", response)
+
+    w.Header().Set("Content-Type", "application/json")
+    if err := json.NewEncoder(w).Encode(response); err != nil {
+        log.Printf("11. Ошибка кодирования ответа: %v\n", err)
+        http.Error(w, "Error encoding response", http.StatusInternalServerError)
+        return
+    }
+    log.Println("12. Ответ успешно отправлен")
+}
+
+
 // Обработчик для получения ставки
 func betHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -157,23 +260,12 @@ func betHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Записываем попытку ставки
-	attemptMsg := fmt.Sprintf("Попытка ставки: [%s] Лига: %s, Матч: %s, Исход: %s, Сумма: %.2f, Коэф. пользователя: %.2f, Коэф. Pinnacle: %.2f",
-		betData.Timestamp, betData.League, betData.Match, betData.Outcome, betData.Amount, betData.UserCoefficient, betData.PinnacleOdds)
-	
-	if err := writeToLog(attemptMsg); err != nil {
-		log.Printf("Ошибка записи в лог: %v", err)
-	}
+	// Обновляем историю ставок, используя matchId напрямую из запроса
+	betHistory.updateMatchBet(betData.MatchId, betData.Amount)
 
-	// Фиктивный расчет прибыли (всегда возвращает 5)
-	profit := 5.0
-
-	// Записываем сделанную ставку
-	betMsg := fmt.Sprintf("Сделанная ставка: [%s] Лига: %s, Матч: %s, Исход: %s, Сумма: %.2f, Коэф. пользователя: %.2f, Коэф. Pinnacle: %.2f, Прибыль: %.2f",
-		betData.Timestamp, betData.League, betData.Match, betData.Outcome, betData.Amount, betData.UserCoefficient, betData.PinnacleOdds, profit)
-	
-	if err := writeToLog(betMsg); err != nil {
-		log.Printf("Ошибка записи в лог: %v", err)
+	// Сохраняем историю ставок
+	if err := betHistory.saveBetHistory(); err != nil {
+		log.Printf("Ошибка сохранения истории ставок: %v", err)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -349,7 +441,7 @@ func (api *PinnacleAPI) GetMatchOdds(matchId string) (map[string]float64, bool, 
 		"matchId": matchId,
 	}
 	urlStr := api.buildURL("/v1/odds", params)
-	
+
 	// Выполнение запроса
 	result, err := api.query(urlStr)
 	if err != nil {
@@ -388,7 +480,7 @@ func (api *PinnacleAPI) GetMatchOdds(matchId string) (map[string]float64, bool, 
 									odds["Win2"] = away
 								}
 							}
-							
+
 							// Обработка тоталов
 							if totals, ok := period["totals"].([]interface{}); ok {
 								for _, total := range totals {
@@ -517,29 +609,195 @@ func pinnacleStatusHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(pinnacleStatus)
 }
 
-func main() {
-    // Инициализация Pinnacle API
-    pinnacleAPI = NewPinnacleAPI(PINNACLE_USERNAME, PINNACLE_PASSWORD, PROXY)
-    
-    // Запуск горутины для периодического обновления коэффициентов
-    go func() {
-        for {
-            updateMatchOdds()
-            time.Sleep(1 * time.Second)  // Обновление каждую секунду
-        }
-    }()
+// saveBetHistory сохраняет историю ставок в файл
+func (s *BetHistoryStorage) saveBetHistory() error {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 
-    http.HandleFunc("/receive", enableCors(receiveHandler))
-    http.HandleFunc("/bet", enableCors(betHandler))
-    http.HandleFunc("/log_bet", logBetHandler)
-    http.HandleFunc("/ws", wsHandler)
-    http.HandleFunc("/pinnacle_status", enableCors(pinnacleStatusHandler))
+	data, err := json.Marshal(s.Matches)
+	if err != nil {
+		return fmt.Errorf("ошибка маршалинга истории ставок: %v", err)
+	}
 
-    // Запуск горутины для регулярной отправки данных
-    go broadcastData()
+	return os.WriteFile(betHistoryFile, data, 0644)
+}
 
-    log.Println("Сервер запущен на порту 7500")
-    if err := http.ListenAndServe(":7500", nil); err != nil {
-        log.Fatal(err)
+// loadBetHistory загружает историю ставок из файла
+func (s *BetHistoryStorage) loadBetHistory() error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	data, err := os.ReadFile(betHistoryFile)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil // Файл не существует, это нормально при первом запуске
+		}
+		return fmt.Errorf("ошибка чтения файла истории ставок: %v", err)
+	}
+
+	return json.Unmarshal(data, &s.Matches)
+}
+
+// cleanOldRecords удаляет записи старше 48 часов
+func (s *BetHistoryStorage) cleanOldRecords() {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	threshold := time.Now().Add(-48 * time.Hour)
+	for matchID, history := range s.Matches {
+		if history.LastUpdateTime.Before(threshold) {
+			delete(s.Matches, matchID)
+		}
+	}
+}
+
+// updateMatchBet обновляет информацию о ставке на матч
+func (s *BetHistoryStorage) updateMatchBet(matchID string, amount float64) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	if _, exists := s.Matches[matchID]; !exists {
+		s.Matches[matchID] = &MatchBetHistory{
+			TotalBetAmount: 0,
+			LastUpdateTime: time.Now(),
+		}
+	}
+
+	s.Matches[matchID].TotalBetAmount += amount
+	s.Matches[matchID].LastUpdateTime = time.Now()
+}
+
+// getRemainingBetPercentage возвращает оставшийся процент для ставки
+func (s *BetHistoryStorage) getRemainingBetPercentage(matchID string) float64 {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
+	if history, exists := s.Matches[matchID]; exists {
+		if history.TotalBetAmount >= 100 { // Если уже поставили 100% или больше
+			return 0
+		}
+		return 1 - (history.TotalBetAmount / 100)
+	}
+	return 1 // Если нет истории ставок, возвращаем 100%
+}
+
+// Добавьте эту функцию в структуру BetHistoryStorage
+func (s *BetHistoryStorage) getTotalBetAmount(matchID string) float64 {
+    s.mutex.RLock()
+    defer s.mutex.RUnlock()
+
+    if history, exists := s.Matches[matchID]; exists {
+        return history.TotalBetAmount
     }
+    return 0
+}
+
+// getBetSize рассчитывает оптимальный размер ставки на основе критерия Келли
+func getBetSize(odds float64, edge float64, risk float64, bank float64) float64 {
+	log.Printf("13. getBetSize начало расчета: odds=%.2f edge=%.2f risk=%.2f bank=%.2f\n",
+		odds, edge, risk, bank)
+
+	if edge < 0 {
+		log.Println("14. edge < 0, возвращаем 0")
+		return 0
+	}
+
+	// Преобразуем edge из процентов в десятичную дробь
+	edgeDecimal := edge / 100
+	log.Printf("15. edgeDecimal=%.4f\n", edgeDecimal)
+
+	// Рассчитываем фактор внутри логарифма
+	logFactor := 1 - (1 / (odds / (1 + edgeDecimal)))
+	log.Printf("16. logFactor=%.4f\n", logFactor)
+
+	// Рассчитываем процент от банкролла для ставки
+	betSizePercent := math.Log10(logFactor) / math.Log10(math.Pow(10, -risk))
+	log.Printf("17. betSizePercent=%.4f\n", betSizePercent)
+
+	// Проверяем, что результат имеет смысл
+	if betSizePercent < 0 || betSizePercent > 1 {
+		log.Printf("18. betSizePercent=%.4f вне диапазона [0,1], возвращаем 0\n", betSizePercent)
+		return 0
+	}
+
+	// Рассчитываем фактический размер ставки
+	betSize := betSizePercent * bank
+	log.Printf("19. betSize=%.2f\n", betSize)
+
+	// Округляем до ближайшего числа, кратного 5
+	roundedBetSize := math.Round(betSize/5) * 5
+	log.Printf("20. roundedBetSize=%.2f\n", roundedBetSize)
+
+	return roundedBetSize
+}
+
+func calculateAdjustedBetSize(matchID string, odds float64, edge float64, risk float64, bank float64) float64 {
+	// Получаем базовый размер ставки
+	baseBetSize := getBetSize(odds, edge, risk, bank)
+	log.Printf("Базовый размер ставки (baseBetSize): %.2f\n", baseBetSize)
+
+	// Получаем процент уже поставленных денег на матч
+	totalBetAmount := betHistory.getTotalBetAmount(matchID)
+	log.Printf("Процент уже поставленных ставок (totalBetAmount): %.2f%%\n", totalBetAmount)
+
+	// Вычисляем оставшийся процент от базовой суммы ставки
+	remainingPercentage := 100.0
+	if baseBetSize > 0 {
+		remainingPercentage -= totalBetAmount
+		if remainingPercentage < 0 {
+			remainingPercentage = 0
+		} else if remainingPercentage > 100.0 {
+			remainingPercentage = 100.0
+		}
+	}
+	log.Printf("Оставшийся процент (remainingPercentage): %.2f%%\n", remainingPercentage)
+
+	// Корректируем размер ставки
+	adjustedBetSize := baseBetSize * remainingPercentage / 100.0
+	log.Printf("Скорректированный размер ставки (adjustedBetSize): %.2f\n", adjustedBetSize)
+
+	// Округляем до ближайшего числа, кратного 5
+	adjustedBetSize = math.Round(adjustedBetSize/5) * 5
+	log.Printf("Округленный скорректированный размер ставки: %.2f\n", adjustedBetSize)
+
+	return adjustedBetSize
+}
+
+
+
+func main() {
+	// Настраиваем логирование
+	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
+	fmt.Println("Запуск сервера...")
+
+	// Инициализируем историю ставок
+	betHistory = &BetHistoryStorage{
+		Matches: make(map[string]*MatchBetHistory),
+	}
+	betHistory.loadBetHistory()
+
+	// Запускаем очистку старых записей каждый час
+	go func() {
+		for {
+			time.Sleep(1 * time.Hour)
+			betHistory.cleanOldRecords()
+		}
+	}()
+
+	// Создаем экземпляр Pinnacle API
+	pinnacleAPI = NewPinnacleAPI(PINNACLE_USERNAME, PINNACLE_PASSWORD, PROXY)
+
+	// Настраиваем маршруты
+	http.HandleFunc("/ws", wsHandler)
+	http.HandleFunc("/receive", enableCors(receiveHandler))
+	http.HandleFunc("/calculate_bet", enableCors(calculateBetHandler))
+	http.HandleFunc("/bet", enableCors(betHandler))
+	http.HandleFunc("/log_bet", enableCors(logBetHandler))
+	http.HandleFunc("/pinnacle_status", enableCors(pinnacleStatusHandler))
+
+	// Запускаем сервер
+	fmt.Println("Сервер запущен на порту 7500")
+	if err := http.ListenAndServe(":7500", nil); err != nil {
+		log.Fatal("ListenAndServe:", err)
+	}
 }
