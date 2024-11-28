@@ -35,6 +35,7 @@ type Outcome struct {
 	Outcome  string  `json:"Outcome"`
 	Pinnacle float64 `json:"Pinnacle"`
 	ROI      float64 `json:"ROI"`
+	MARGIN   float64 `json:"MARGIN"`
 	Sansabet float64 `json:"Sansabet"`
 }
 
@@ -46,6 +47,7 @@ type RequestData struct {
 	Outcomes        []Outcome `json:"Outcomes"`
 	PinnacleId      string    `json:"PinnacleId"`
 	SansabetId      string    `json:"SansabetId"`
+	Score           string    `json:"Score"`
 	SelectedOutcome Outcome   `json:"SelectedOutcome"` // Добавлено поле SelectedOutcome
 }
 
@@ -178,74 +180,73 @@ type CalculateBetResponse struct {
 
 // calculateBetHandler обработчик для расчета размера ставки
 func calculateBetHandler(w http.ResponseWriter, r *http.Request) {
-    log.Println("1. calculateBetHandler: запрос получен")
+	log.Println("1. calculateBetHandler: запрос получен")
 
-    if r.Method != http.MethodPost {
-        log.Printf("2. Ошибка: неверный метод %s\n", r.Method)
-        http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
-        return
-    }
+	if r.Method != http.MethodPost {
+		log.Printf("2. Ошибка: неверный метод %s\n", r.Method)
+		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
-    // Читаем тело запроса для логирования
-    body, err := io.ReadAll(r.Body)
-    if err != nil {
-        log.Printf("3. Ошибка чтения тела запроса: %v\n", err)
-        http.Error(w, "Error reading request body", http.StatusBadRequest)
-        return
-    }
-    log.Printf("4. Тело запроса: %s\n", string(body))
+	// Читаем тело запроса для логирования
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("3. Ошибка чтения тела запроса: %v\n", err)
+		http.Error(w, "Error reading request body", http.StatusBadRequest)
+		return
+	}
+	log.Printf("4. Тело запроса: %s\n", string(body))
 
-    // Создаем новый reader из сохраненного тела
-    r.Body = io.NopCloser(bytes.NewBuffer(body))
+	// Создаем новый reader из сохраненного тела
+	r.Body = io.NopCloser(bytes.NewBuffer(body))
 
-    var req CalculateBetRequest
-    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-        log.Printf("5. Ошибка декодирования JSON: %v\n", err)
-        http.Error(w, "Invalid JSON", http.StatusBadRequest)
-        return
-    }
+	var req CalculateBetRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Printf("5. Ошибка декодирования JSON: %v\n", err)
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
 
-    log.Printf("6. Параметры запроса: odds=%.2f edge=%.2f risk=%.2f bank=%.2f\n",
-        req.Odds, req.Edge, req.Risk, req.Bank)
+	log.Printf("6. Параметры запроса: odds=%.2f edge=%.2f risk=%.2f bank=%.2f\n",
+		req.Odds, req.Edge, req.Risk, req.Bank)
 
-    // Рассчитываем размер ставки
-    originalAmount := getBetSize(req.Odds, req.Edge, req.Risk, req.Bank)
-    log.Printf("7. Рассчитан originalAmount: %.2f\n", originalAmount)
+	// Рассчитываем размер ставки
+	originalAmount := getBetSize(req.Odds, req.Edge, req.Risk, req.Bank)
+	log.Printf("7. Рассчитан originalAmount: %.2f\n", originalAmount)
 
-    adjustedAmount := calculateAdjustedBetSize(req.MatchID, req.Odds, req.Edge, req.Risk, req.Bank)
-    log.Printf("8. Рассчитан adjustedAmount: %.2f\n", adjustedAmount)
+	adjustedAmount := calculateAdjustedBetSize(req.MatchID, req.Odds, req.Edge, req.Risk, req.Bank)
+	log.Printf("8. Рассчитан adjustedAmount: %.2f\n", adjustedAmount)
 
-    // Рассчитываем процент оставшейся суммы
-    percentage := 100.0
-    if originalAmount > 0 {
-        percentage = (adjustedAmount / originalAmount) * 100
-        if percentage < 0 {
-            percentage = 0
-        } else if percentage > 100 {
-            percentage = 100
-        }
-    } else {
-        percentage = 0
-    }
-    log.Printf("9. Рассчитан percentage: %.2f%%\n", percentage)
+	// Рассчитываем процент оставшейся суммы
+	percentage := 100.0
+	if originalAmount > 0 {
+		percentage = (adjustedAmount / originalAmount) * 100
+		if percentage < 0 {
+			percentage = 0
+		} else if percentage > 100 {
+			percentage = 100
+		}
+	} else {
+		percentage = 0
+	}
+	log.Printf("9. Рассчитан percentage: %.2f%%\n", percentage)
 
-    response := CalculateBetResponse{
-        OriginalAmount: originalAmount,
-        AdjustedAmount: adjustedAmount,
-        Percentage:     percentage,
-    }
+	response := CalculateBetResponse{
+		OriginalAmount: originalAmount,
+		AdjustedAmount: adjustedAmount,
+		Percentage:     percentage,
+	}
 
-    log.Printf("10. Подготовлен ответ: %+v\n", response)
+	log.Printf("10. Подготовлен ответ: %+v\n", response)
 
-    w.Header().Set("Content-Type", "application/json")
-    if err := json.NewEncoder(w).Encode(response); err != nil {
-        log.Printf("11. Ошибка кодирования ответа: %v\n", err)
-        http.Error(w, "Error encoding response", http.StatusInternalServerError)
-        return
-    }
-    log.Println("12. Ответ успешно отправлен")
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Printf("11. Ошибка кодирования ответа: %v\n", err)
+		http.Error(w, "Error encoding response", http.StatusInternalServerError)
+		return
+	}
+	log.Println("12. Ответ успешно отправлен")
 }
-
 
 // Обработчик для получения ставки
 func betHandler(w http.ResponseWriter, r *http.Request) {
@@ -683,13 +684,13 @@ func (s *BetHistoryStorage) getRemainingBetPercentage(matchID string) float64 {
 
 // Добавьте эту функцию в структуру BetHistoryStorage
 func (s *BetHistoryStorage) getTotalBetAmount(matchID string) float64 {
-    s.mutex.RLock()
-    defer s.mutex.RUnlock()
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 
-    if history, exists := s.Matches[matchID]; exists {
-        return history.TotalBetAmount
-    }
-    return 0
+	if history, exists := s.Matches[matchID]; exists {
+		return history.TotalBetAmount
+	}
+	return 0
 }
 
 // getBetSize рассчитывает оптимальный размер ставки на основе критерия Келли
@@ -762,8 +763,6 @@ func calculateAdjustedBetSize(matchID string, odds float64, edge float64, risk f
 
 	return adjustedBetSize
 }
-
-
 
 func main() {
 	// Настраиваем логирование

@@ -41,6 +41,8 @@ var (
 type OneGame struct {
 	Source     string `json:"Source"`
 	Name       string `json:"Name"`
+	HomeScore  int64  `json:"HomeScore"`
+	AwayScore  int64  `json:"AwayScore"`
 	Pid        int64  `json:"Pid"`
 	Slid       int64  `json:"Slid"`
 	LeagueName string `json:"LeagueName"`
@@ -277,8 +279,13 @@ func processMatchData(eventData map[string]interface{}) (*OneGame, error) {
 		leagueName = "Неизвестная лига"
 	}
 
+	score1 := eventData["homeScore"].(float64)
+	score2 := eventData["awayScore"].(float64)
+
 	nOneGame := OneGame{
 		Name:       fmt.Sprintf("%s vs %s", homeTeam, awayTeam),
+		HomeScore:  int64(score1),
+		AwayScore:  int64(score2),
 		Pid:        eventID,
 		Slid:       0,
 		LeagueName: leagueName,
@@ -286,9 +293,6 @@ func processMatchData(eventData map[string]interface{}) (*OneGame, error) {
 		MatchId:    fmt.Sprintf("%d", eventID),
 		LeagueId:   "0",
 	}
-
-	score1 := eventData["homeScore"].(float64)
-	score2 := eventData["awayScore"].(float64)
 
 	Win1x2 := Win1x2Struct{}
 	Totals := make(map[string]WinLessMore)

@@ -41,6 +41,7 @@ type MatchPair struct {
 	SansabetAway string // Название гостевой команды от Sansabet
 	PinnacleHome string // Название домашней команды от Pinnacle
 	PinnacleAway string // Название гостевой команды от Pinnacle
+	Score        string
 }
 
 type MatchData struct {
@@ -258,7 +259,7 @@ func parseMessage(name string, msg []byte) (*ParsedMessage, error) {
 
 // Разделение названия матча на домашнюю и гостевую команды
 func splitMatchName(matchName, source string) []string {
-	log.Printf("[DEBUG] Разделяем MatchName: %s для источника %s", matchName, source)
+	log.Printf("[DEBUG] Разделяем MatchName: '%s' для источника '%s'", matchName, source)
 
 	var separator string
 	if source == "Sansabet" {
@@ -604,6 +605,8 @@ func updateMatchPairs(parsedMsg *ParsedMessage) {
 	var pinnacleMsg struct {
 		MatchId   string `json:"MatchId"`
 		MatchName string `json:"MatchName"`
+		HomeScore int64  `json:"HomeScore"`
+		AwayScore int64  `json:"AwayScore"`
 	}
 
 	if err := json.Unmarshal([]byte(pinnacleData.Data), &pinnacleMsg); err != nil {
@@ -628,6 +631,7 @@ func updateMatchPairs(parsedMsg *ParsedMessage) {
 		PinnacleName: pinnacleMsg.MatchName,
 		PinnacleHome: pinnacleHome,
 		PinnacleAway: pinnacleAway,
+		Score:        fmt.Sprintf("%d - %d", pinnacleMsg.HomeScore, pinnacleMsg.AwayScore),
 	}
 
 	matchPairs = append(matchPairs, newPair)
@@ -804,6 +808,7 @@ func processPairAndGetResult(pair MatchPair) map[string]interface{} {
 
 	result := map[string]interface{}{
 		"MatchName":    pair.PinnacleName,
+		"Score":        pair.Score,
 		"SansabetName": pair.SansabetName,
 		"SansabetId":   pair.SansabetId,
 		"PinnacleId":   pair.PinnacleId,
@@ -836,10 +841,77 @@ func hasNonEmptyPrices(result map[string]interface{}) bool {
 	return true
 }
 
+// Переворот среза
+func reverseSlice(slice []string) []string {
+	result := make([]string, len(slice))
+	for i, v := range slice {
+		result[len(slice)-1-i] = v
+	}
+	return result
+}
+
+// Расчет MARGIN
+func calculateMARGIN(outcomeName string, outcomes map[string][2]float64) float64 {
+	parallelOdds := []float64{}
+	paralelNames := []string{outcomeName}
+
+	splitedName := reverseSlice(strings.Split(outcomeName, " "))
+
+	if len(splitedName) == 1 {
+		names := []string{
+			"Win1", "WinNone", "Win2",
+		}
+		for _, name := range names {
+			if name != paralelNames[0] {
+				paralelNames = append(paralelNames, name)
+			}
+		}
+	} else if splitedName[2] == "Total" {
+		if splitedName[1] == "More" {
+			splitedName[1] = "Less"
+		} else {
+			splitedName[1] = "More"
+		}
+		paralelNames = append(paralelNames, strings.Join(reverseSlice(splitedName), " "))
+	} else if splitedName[1] == "Handicap" {
+		if splitedName[0] == "Win1" {
+			splitedName[0] = "Win2"
+		} else {
+			splitedName[0] = "Win1"
+		}
+
+		line, _ := strconv.ParseFloat(splitedName[1], 64)
+		line *= -1
+
+		paralelNames = append(paralelNames, strings.Join(reverseSlice(splitedName), " "))
+	}
+
+	for name, odds := range outcomes {
+		for _, paralelName := range paralelNames {
+			if name == paralelName {
+				parallelOdds = append(parallelOdds, odds[1])
+			}
+		}
+	}
+
+	if len(parallelOdds) < 2 {
+		return 1.08
+	}
+
+	sum := 0.0
+	for _, odd := range parallelOdds {
+		if odd != 0 {
+			sum += 100.0 / odd
+		}
+	}
+
+	return 1.0 + (sum-100.0)/100.0
+}
+
 // Расчет ROI
-func calculateROI(sansaOdd, pinnacleOdd float64) float64 {
+func calculateROI(sansaOdd, pinnacleOdd float64, margin float64) float64 {
 	extraPercent := getExtraPercent(pinnacleOdd)
-	roi := (sansaOdd/(pinnacleOdd*MARGIN*extraPercent) - 1 - 0.03) * 100 * 0.67
+	roi := (sansaOdd/(pinnacleOdd*margin*extraPercent) - 1 - 0.03) * 100 * 0.67
 	return roi
 }
 
@@ -858,11 +930,13 @@ func calculateAndFilterCommonOutcomes(commonOutcomes map[string][2]float64) []ma
 	filtered := []map[string]interface{}{}
 
 	for outcome, values := range commonOutcomes {
-		roi := calculateROI(values[0], values[1])
+		margin := calculateMARGIN(outcome, commonOutcomes)
+		roi := calculateROI(values[0], values[1], margin)
 		if roi > -30 {
 			filtered = append(filtered, map[string]interface{}{
 				"Outcome":  outcome,
 				"ROI":      roi,
+				"MARGIN":   margin,
 				"Sansabet": values[0],
 				"Pinnacle": values[1],
 			})

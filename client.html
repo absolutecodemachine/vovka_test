@@ -477,11 +477,11 @@
                         console.error('Ошибка при расчете:', error);
                     });
 
-                infoContainer.innerHTML = `<div><strong>Лига:</strong> ${data.LeagueName}</div><div><strong>Матч:</strong> ${data.MatchName} ${data.SansabetName ? `<span class="sansabet-name">${data.SansabetName}</span>` : ''}</div><div><strong>Исход:</strong> ${outcomeText}</div><div><strong>Цена Sansabet:</strong> ${data.SelectedOutcome.Sansabet}</div><div><strong>Цена Pinnacle:</strong> ${data.SelectedOutcome.Pinnacle}</div><div><strong>ROI:</strong> ${data.SelectedOutcome.ROI}%</div>`;
+                infoContainer.innerHTML = `<div><strong>Лига:</strong> ${data.LeagueName}</div><div><strong>Матч:</strong> ${data.MatchName} ${data.SansabetName ? `<span class="sansabet-name">${data.SansabetName}</span>` : ''}</div><div><strong>Исход:</strong> ${outcomeText}</div><div><strong>Цена Sansabet:</strong> ${data.SelectedOutcome.Sansabet}</div><div><strong>Цена Pinnacle:</strong> ${data.SelectedOutcome.Pinnacle}</div><div><strong>ROI:</strong> ${data.SelectedOutcome.ROI}%</div><div><strong>MARGIN:</strong> ${data.SelectedOutcome.MARGIN}</div>`;
                 console.log('Интерфейс обновлен с данными Pinnacle');
             } else {
                 console.log('Коэффициенты Pinnacle недоступны');
-                infoContainer.innerHTML = `<div><strong>Лига:</strong> ${data.LeagueName}</div><div><strong>Матч:</strong> ${data.MatchName} ${data.SansabetName ? `<span class="sansabet-name">${data.SansabetName}</span>` : ''}</div><div><strong>Исход:</strong> ${outcomeText}</div><div><strong>Цена Sansabet:</strong> ${data.SelectedOutcome.Sansabet}</div><div><strong>Цена Pinnacle:</strong> Недоступна</div><div><strong>ROI:</strong> ${data.SelectedOutcome.ROI}%</div>`;
+                infoContainer.innerHTML = `<div><strong>Лига:</strong> ${data.LeagueName}</div><div><strong>Матч:</strong> ${data.MatchName} ${data.SansabetName ? `<span class="sansabet-name">${data.SansabetName}</span>` : ''}</div><div><strong>Исход:</strong> ${outcomeText}</div><div><strong>Цена Sansabet:</strong> ${data.SelectedOutcome.Sansabet}</div><div><strong>Цена Pinnacle:</strong> Недоступна</div><div><strong>ROI:</strong> ${data.SelectedOutcome.ROI}%</div><div><strong>MARGIN:</strong> ${data.SelectedOutcome.MARGIN}</div>`;
             }
 
             calculatorContent.appendChild(infoContainer);
@@ -533,6 +533,7 @@
                                 Outcome: currentCalculatorOutcome,
                                 Pinnacle: null,
                                 Sansabet: null,
+                                MARGIN: null,
                                 ROI: null
                             }
                         });
@@ -549,6 +550,7 @@
                             Outcome: currentCalculatorOutcome,
                             Pinnacle: null,
                             Sansabet: null,
+                            MARGIN: null,
                             ROI: null
                         }
                     });
@@ -571,7 +573,7 @@
                 matchCard.innerHTML = `
                     <div class="match-header">
                         <div>
-                            <h4>${match.MatchName}</h4>
+                            <h4>${match.MatchName} | ${match.Score}</h4>
                             ${match.SansabetName ? `<p class="sansabet-name">${match.SansabetName}</p>` : ''}
                         </div>
                         <span class="arrow">▼</span>
@@ -584,7 +586,7 @@
                 bestOutcomeDiv.className = "outcome";
                 const formattedBestOutcome = formatOutcome(bestOutcome.Outcome);
 
-                bestOutcomeDiv.innerHTML = `<strong>${formattedBestOutcome}</strong> | Sansabet: ${bestOutcome.Sansabet} | Pinnacle: ${bestOutcome.Pinnacle} | ROI: ${bestOutcome.ROI}%`;
+                bestOutcomeDiv.innerHTML = `<strong>${formattedBestOutcome}</strong> | Sansabet: ${bestOutcome.Sansabet} | Pinnacle: ${bestOutcome.Pinnacle} | ROI: ${bestOutcome.ROI}% | MARGIN: ${bestOutcome.MARGIN}`;
 
                 bestOutcomeDiv.onclick = function(event) {
                     event.stopPropagation();
@@ -610,7 +612,7 @@
                         const outcomeDiv = document.createElement("div");
                         outcomeDiv.className = "outcome";
                         const formattedOutcome = formatOutcome(outcome.Outcome);
-                        outcomeDiv.innerHTML = `<strong>${formattedOutcome}</strong> | Sansabet: ${outcome.Sansabet} | Pinnacle: ${outcome.Pinnacle} | ROI: ${outcome.ROI}%`;
+                        outcomeDiv.innerHTML = `<strong>${formattedOutcome}</strong> | Sansabet: ${outcome.Sansabet} | Pinnacle: ${outcome.Pinnacle} | ROI: ${outcome.ROI}% | MARGIN: ${outcome.MARGIN}`;
                         outcomeDiv.onclick = function(event) {
                             event.stopPropagation();
                             console.log('Клик на исход:', outcome);
@@ -838,11 +840,11 @@
                         console.error('Ошибка при расчете:', error);
                     });
 
-                infoContainer.innerHTML = `<div><strong>Лига:</strong> ${data.LeagueName}</div><div><strong>Матч:</strong> ${data.MatchName} ${data.SansabetName ? `<span class="sansabet-name">${data.SansabetName}</span>` : ''}</div><div><strong>Исход:</strong> ${outcomeText}</div><div><strong>Цена Sansabet:</strong> ${data.SelectedOutcome.Sansabet}</div><div><strong>Цена Pinnacle:</strong> ${data.SelectedOutcome.Pinnacle}</div><div><strong>ROI:</strong> ${data.SelectedOutcome.ROI}%</div>`;
+                infoContainer.innerHTML = `<div><strong>Лига:</strong> ${data.LeagueName}</div><div><strong>Матч:</strong> ${data.MatchName} ${data.SansabetName ? `<span class="sansabet-name">${data.SansabetName}</span>` : ''}</div><div><strong>Исход:</strong> ${outcomeText}</div><div><strong>Цена Sansabet:</strong> ${data.SelectedOutcome.Sansabet}</div><div><strong>Цена Pinnacle:</strong> ${data.SelectedOutcome.Pinnacle}</div><div><strong>ROI:</strong> ${data.SelectedOutcome.ROI}%</div><div><strong>MARGIN:</strong> ${data.SelectedOutcome.MARGIN}</div>`;
                 console.log('Интерфейс обновлен с данными Pinnacle');
             } else {
                 console.log('Коэффициенты Pinnacle недоступны');
-                infoContainer.innerHTML = `<div><strong>Лига:</strong> ${data.LeagueName}</div><div><strong>Матч:</strong> ${data.MatchName} ${data.SansabetName ? `<span class="sansabet-name">${data.SansabetName}</span>` : ''}</div><div><strong>Исход:</strong> ${outcomeText}</div><div><strong>Цена Sansabet:</strong> ${data.SelectedOutcome.Sansabet}</div><div><strong>Цена Pinnacle:</strong> Недоступна</div><div><strong>ROI:</strong> ${data.SelectedOutcome.ROI}%</div>`;
+                infoContainer.innerHTML = `<div><strong>Лига:</strong> ${data.LeagueName}</div><div><strong>Матч:</strong> ${data.MatchName} ${data.SansabetName ? `<span class="sansabet-name">${data.SansabetName}</span>` : ''}</div><div><strong>Исход:</strong> ${outcomeText}</div><div><strong>Цена Sansabet:</strong> ${data.SelectedOutcome.Sansabet}</div><div><strong>Цена Pinnacle:</strong> Недоступна</div><div><strong>ROI:</strong> ${data.SelectedOutcome.ROI}%</div><div><strong>MARGIN:</strong> ${data.SelectedOutcome.MARGIN}</div>`;
             }
 
             calculatorContent.appendChild(infoContainer);
